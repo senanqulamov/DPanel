@@ -39,8 +39,11 @@
                         </x-slot:action>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <x-dropdown.items :text="__('Profile')" :href="route('user.profile')" />
-                            <x-dropdown.items :text="__('Logout')" onclick="event.preventDefault(); this.closest('form').submit();" separator />
+                            <x-dropdown.items icon="user" :text="__('Profile')" :href="route('user.profile')" />
+                            <x-dropdown.items icon="cog" :text="__('Settings')" :href="route('user.profile')" />
+                            <x-dropdown.items icon="finger-print" :text="__('Privacy')" :href="route('user.profile')" />
+                            <x-dropdown.items icon="archive-box-arrow-down" :text="__('Archive')" :href="route('user.profile')" />
+                            <x-dropdown.items icon="arrow-left-on-rectangle" :text="__('Logout')" onclick="event.preventDefault(); this.closest('form').submit();" separator />
                         </form>
                     </x-dropdown>
                 </x-slot:right>
@@ -50,7 +53,7 @@
             <x-side-bar smart collapsible>
                 <x-slot:brand>
                     <div class="mt-8 flex items-center justify-center">
-                        <img src="{{ asset('/assets/images/JVD.png') }}" width="40" height="40" />
+                        <img src="{{ asset('/assets/images/JVD.png') }}" width="40" height="40" alt="Brand logo" />
                     </div>
                 </x-slot:brand>
                 <x-side-bar.item :text="__('Dashboard')" icon="home" :route="route('dashboard')" />
