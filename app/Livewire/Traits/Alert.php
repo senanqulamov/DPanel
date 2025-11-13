@@ -16,6 +16,13 @@ trait Alert
             ->send();
     }
 
+    public function success_w_message(string $description, string $title): void
+    {
+        $this->dialog()
+            ->success(__($title), __($description))
+            ->send();
+    }
+
     public function error(string $description = 'Something went wrong!', string $title = 'Ops!'): void
     {
         $this->dialog()

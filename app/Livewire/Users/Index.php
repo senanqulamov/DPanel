@@ -15,6 +15,8 @@ class Index extends Component
 {
     use WithPagination;
 
+    public bool $slideA = false;
+
     public ?int $quantity = 5;
 
     public ?string $search = null;

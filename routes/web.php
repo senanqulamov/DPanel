@@ -3,6 +3,7 @@
 use App\Livewire\User\Profile;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Users\Index;
+use App\Livewire\Ui\SlideExample;
 
 Route::view('/', 'welcome')->name('welcome');
 
