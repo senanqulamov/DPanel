@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="my-6 flex items-center justify-center">
-        <img src="{{ asset('/assets/images/tsui.png') }}" />
+        <img src="{{ asset('/assets/images/JVD.png') }}" />
     </div>
 
     <form method="POST" action="{{ route('login') }}">
@@ -18,7 +18,7 @@
 
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('register'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md" href="{{ route('register') }}">
+                <a class="underline text-sm text-primary-400 hover:text-primary-300 rounded-md" href="{{ route('register') }}">
                     {{ __('Sign up') }}
                 </a>
             @endif

@@ -12,15 +12,76 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-primary-50: #fdf2f7;
-    --color-primary-100: #fce7f0;
-    --color-primary-200: #fbcfe3;
-    --color-primary-300: #f9a8cc;
-    --color-primary-400: #f472ac;
-    --color-primary-500: #ec4891;
-    --color-primary-600: #db2777;
-    --color-primary-700: #be1862;
-    --color-primary-800: #9d1753;
-    --color-primary-900: #831848;
-    --color-primary-950: #500727;
+    /* Modern Dark Palette */
+    --color-dark-bg: #0E1116;
+    --color-dark-surface: #1A1F27;
+    --color-dark-border: #2A2F37;
+    --color-dark-text: #E5E7EB;
+    --color-dark-muted: #9CA3AF;
+
+    /* Brand Colors */
+    --color-brand-primary: #00B7C2;
+    --color-brand-secondary: #7C3AED;
+
+    /* Primary color scale (using brand primary) */
+    --color-primary-50: #E6F9FA;
+    --color-primary-100: #CCF3F5;
+    --color-primary-200: #99E7EB;
+    --color-primary-300: #66DBE1;
+    --color-primary-400: #33CFD7;
+    --color-primary-500: #00B7C2;
+    --color-primary-600: #00929B;
+    --color-primary-700: #006E74;
+    --color-primary-800: #00494E;
+    --color-primary-900: #002527;
+    --color-primary-950: #001214;
+
+    /* Secondary color scale (using brand secondary) */
+    --color-secondary-50: #F5F3FF;
+    --color-secondary-100: #EDE9FE;
+    --color-secondary-200: #DDD6FE;
+    --color-secondary-300: #C4B5FD;
+    --color-secondary-400: #A78BFA;
+    --color-secondary-500: #8B5CF6;
+    --color-secondary-600: #7C3AED;
+    --color-secondary-700: #6D28D9;
+    --color-secondary-800: #5B21B6;
+    --color-secondary-900: #4C1D95;
+    --color-secondary-950: #2E1065;
+
+    /* Semantic Colors */
+    --color-danger-50: #FEF2F2;
+    --color-danger-100: #FEE2E2;
+    --color-danger-200: #FECACA;
+    --color-danger-300: #FCA5A5;
+    --color-danger-400: #F87171;
+    --color-danger-500: #EF4444;
+    --color-danger-600: #DC2626;
+    --color-danger-700: #B91C1C;
+    --color-danger-800: #991B1B;
+    --color-danger-900: #7F1D1D;
+    --color-danger-950: #450A0A;
+
+    --color-success-50: #F0FDF4;
+    --color-success-100: #DCFCE7;
+    --color-success-200: #BBF7D0;
+    --color-success-300: #86EFAC;
+    --color-success-400: #4ADE80;
+    --color-success-500: #22C55E;
+    --color-success-600: #16A34A;
+    --color-success-700: #15803D;
+    --color-success-800: #166534;
+    --color-success-900: #14532D;
+    --color-success-950: #052E16;
+
+    --color-warning-50: #FEFCE8;
+    --color-warning-100: #FEF9C3;
+    --color-warning-200: #FEF08A;
+    --color-warning-300: #FDE047;
+    --color-warning-400: #FACC15;
+    --color-warning-500: #EAB308;
+    --color-warning-600: #CA8A04;
+    --color-warning-700: #A16207;
+    --color-warning-800: #854D0E;
+    --color-warning-900: #713F12;
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="tallstackui_darkTheme()">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark" x-data="tallstackui_darkTheme()">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,11 +14,10 @@
         @livewireStyles
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased"
+    <body class="font-sans antialiased bg-dark-bg text-dark-text"
           x-cloak
           x-data="{ name: @js(auth()->user()->name) }"
-          x-on:name-updated.window="name = $event.detail.name"
-          x-bind:class="{ 'dark bg-gray-800': darkTheme, 'bg-gray-100': !darkTheme }">
+          x-on:name-updated.window="name = $event.detail.name">
     <x-layout>
         <x-slot:top>
             <x-dialog />
