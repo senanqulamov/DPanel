@@ -1,7 +1,7 @@
 <div>
     <x-card>
-        <x-alert color="cyan" icon="light-bulb">
-            @lang('Remember to take a look at the source code to understand how the components in this area were built and are being used.')
+        <x-alert color="black" icon="light-bulb">
+            @lang('Users')
         </x-alert>
 
         <div class="mb-2 mt-4">
