@@ -15,6 +15,18 @@ class Index extends Component
 {
     use WithPagination;
 
+    public function mount(): void
+    {
+        // Localize headers on mount to ensure they respect current locale
+        $this->headers = [
+            ['index' => 'id', 'label' => '#'],
+            ['index' => 'name', 'label' => __('Name')],
+            ['index' => 'email', 'label' => __('E-mail')],
+            ['index' => 'created_at', 'label' => __('Created')],
+            ['index' => 'action', 'label' => __('Actions'), 'sortable' => false],
+        ];
+    }
+
     public bool $slideA = false;
 
     public $quantity = 5;
@@ -26,13 +38,7 @@ class Index extends Component
         'direction' => 'desc',
     ];
 
-    public array $headers = [
-        ['index' => 'id', 'label' => '#'],
-        ['index' => 'name', 'label' => 'Name'],
-        ['index' => 'email', 'label' => 'E-mail'],
-        ['index' => 'created_at', 'label' => 'Created'],
-        ['index' => 'action', 'sortable' => false],
-    ];
+    public array $headers = [];
 
     public function render(): View
     {

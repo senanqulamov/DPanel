@@ -17,7 +17,7 @@
     @foreach($languages as $code => $language)
         <x-dropdown.items
             :text="$language['flag'] . ' ' . $language['name']"
-            :href="route('lang.switch', $code)"
+            :href="route('lang.switch', ['locale' => $code])"
             :separator="$loop->last"
         />
     @endforeach
