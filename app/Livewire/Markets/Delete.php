@@ -3,13 +3,14 @@
 namespace App\Livewire\Markets;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class Delete extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public Market $market;
 
@@ -33,7 +34,12 @@ class Delete extends Component
 
     public function delete(): void
     {
+        $marketData = ['name' => $this->market->name, 'location' => $this->market->location];
+        $marketId = $this->market->id;
+
         $this->market->delete();
+
+        $this->logDelete(Market::class, $marketId, $marketData);
 
         $this->dispatch('deleted');
 

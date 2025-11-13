@@ -3,6 +3,7 @@
 namespace App\Livewire\Orders;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -14,7 +15,7 @@ use Livewire\Component;
 
 class Update extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public ?Order $order;
 
@@ -75,7 +76,10 @@ class Update extends Component
     {
         $this->validate();
 
+        $changes = $this->order->getDirty();
         $this->order->save();
+
+        $this->logUpdate(Order::class, $this->order->id, $changes);
 
         $this->dispatch('updated');
 

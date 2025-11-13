@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -10,7 +11,7 @@ use Livewire\Component;
 
 class Create extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public User $user;
 
@@ -61,6 +62,14 @@ class Create extends Component
         $this->user->password = bcrypt($this->password);
         $this->user->email_verified_at = now();
         $this->user->save();
+
+        // Log the creation
+        $this->logCreate(
+            User::class,
+            $this->user->id,
+            ['name' => $this->user->name, 'email' => $this->user->email]
+        );
+
 
         $this->dispatch('created');
 

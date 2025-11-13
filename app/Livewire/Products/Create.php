@@ -3,6 +3,7 @@
 namespace App\Livewire\Products;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -10,7 +11,7 @@ use Livewire\Component;
 
 class Create extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public Product $product;
 
@@ -63,6 +64,12 @@ class Create extends Component
         $this->validate();
 
         $this->product->save();
+        $this->logCreate(Product::class, $this->product->id, [
+            'name' => $this->product->name,
+            'sku' => $this->product->sku,
+            'price' => $this->product->price,
+        ]);
+
 
         $this->dispatch('created');
 

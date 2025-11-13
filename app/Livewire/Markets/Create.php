@@ -3,13 +3,14 @@
 namespace App\Livewire\Markets;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
 class Create extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public Market $market;
 
@@ -51,6 +52,8 @@ class Create extends Component
         $this->validate();
 
         $this->market->save();
+
+        $this->logCreate(Market::class, $this->market->id, ['name' => $this->market->name]);
 
         $this->dispatch('created');
 

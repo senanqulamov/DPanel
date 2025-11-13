@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\LogAuthenticationEvents;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use TallStackUi\Facades\TallStackUi;
 
@@ -14,6 +20,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Register authentication event listeners
+        Event::listen(Login::class, [LogAuthenticationEvents::class, 'handleLogin']);
+        Event::listen(Logout::class, [LogAuthenticationEvents::class, 'handleLogout']);
+        Event::listen(Registered::class, [LogAuthenticationEvents::class, 'handleRegistered']);
+        Event::listen(Failed::class, [LogAuthenticationEvents::class, 'handleFailed']);
+
         TallStackUi::personalize()
             // ==================== SLIDE ====================
             ->slide()

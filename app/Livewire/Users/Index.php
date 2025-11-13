@@ -17,7 +17,7 @@ class Index extends Component
 
     public bool $slideA = false;
 
-    public $quantity = 5;
+    public $quantity = 10;
 
     public ?string $search = null;
 

@@ -3,6 +3,7 @@
 namespace App\Livewire\Products;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
@@ -11,7 +12,7 @@ use Livewire\Component;
 
 class Update extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public ?Product $product;
 
@@ -65,8 +66,11 @@ class Update extends Component
     public function save(): void
     {
         $this->validate();
+        $changes = $this->product->getDirty();
 
         $this->product->save();
+        $this->logUpdate(Product::class, $this->product->id, $changes);
+
 
         $this->dispatch('updated');
 

@@ -3,6 +3,7 @@
 namespace App\Livewire\Markets;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
@@ -10,7 +11,7 @@ use Livewire\Component;
 
 class Update extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public ?Market $market;
 
@@ -54,7 +55,10 @@ class Update extends Component
     {
         $this->validate();
 
+        $changes = $this->market->getDirty();
         $this->market->save();
+
+        $this->logUpdate(Market::class, $this->market->id, $changes);
 
         $this->dispatch('updated');
 

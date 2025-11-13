@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LocaleController;
+use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Logs\Index as LogsIndex;
 use App\Livewire\Markets\Index as MarketsIndex;
 use App\Livewire\Orders\Index as OrdersIndex;
@@ -15,7 +16,7 @@ Route::view('/', 'welcome')->name('welcome');
 Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
 
 Route::middleware(['auth'])->group(function () {
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', DashboardIndex::class)->name('dashboard');
     Route::get('/users', Index::class)->name('users.index');
     Route::get('/user/profile', Profile::class)->name('user.profile');
 

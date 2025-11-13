@@ -3,13 +3,14 @@
 namespace App\Livewire\Orders;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Order;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class Delete extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public Order $order;
 
@@ -33,7 +34,12 @@ class Delete extends Component
 
     public function delete(): void
     {
+        $orderData = ['order_number' => $this->order->order_number, 'total' => $this->order->total];
+        $orderId = $this->order->id;
+
         $this->order->delete();
+
+        $this->logDelete(Order::class, $orderId, $orderData);
 
         $this->dispatch('deleted');
 

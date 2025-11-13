@@ -3,6 +3,7 @@
 namespace App\Livewire\Orders;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -13,7 +14,7 @@ use Livewire\Component;
 
 class Create extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public Order $order;
 
@@ -74,6 +75,12 @@ class Create extends Component
         $this->validate();
 
         $this->order->save();
+
+        $this->logCreate(Order::class, $this->order->id, [
+            'order_number' => $this->order->order_number,
+            'total' => $this->order->total,
+            'status' => $this->order->status,
+        ]);
 
         $this->dispatch('created');
 

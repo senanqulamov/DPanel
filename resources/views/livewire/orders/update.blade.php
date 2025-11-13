@@ -1,9 +1,9 @@
 <div>
-    <x-slide wire="modal" bottom size="xl" blur="md">
+    <x-slide wire="modal" left size="xl" blur="md">
         <x-slot name="title">{{ __('Update Order: #:id', ['id' => $order?->id]) }}</x-slot>
         <form id="order-update-{{ $order?->id }}" wire:submit="save" class="space-y-6">
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
                 <x-input
                     label="{{ __('Order Number') }}"
                     wire:model.blur="order.order_number"
@@ -11,34 +11,39 @@
                     hint="{{ __('Unique order identifier') }}"
                 />
 
-                <x-select.native
+                <x-select.styled
                     label="{{ __('Product') }}"
                     wire:model="order.product_id"
                     required
                     :options="$products"
                     select="label:name|value:id"
                     hint="{{ __('Select product') }}"
+                    searchable
                 />
+            </div>
 
-                <x-select.native
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+                <x-select.styled
                     label="{{ __('User') }}"
                     wire:model="order.user_id"
                     required
                     :options="$users"
                     select="label:name|value:id"
                     hint="{{ __('Select user') }}"
+                    searchable
                 />
-            </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <x-select.native
+                <x-select.styled
                     label="{{ __('Market') }}"
                     wire:model="order.market_id"
                     :options="$markets"
                     select="label:name|value:id"
                     hint="{{ __('Optional market') }}"
+                    searchable
                 />
+            </div>
 
+            <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
                 <x-number
                     label="{{ __('Total') }}"
                     wire:model.blur="order.total"
@@ -48,7 +53,7 @@
                     hint="{{ __('Order total amount') }}"
                 />
 
-                <x-select.native
+                <x-select.styled
                     label="{{ __('Status') }}"
                     wire:model="order.status"
                     required
