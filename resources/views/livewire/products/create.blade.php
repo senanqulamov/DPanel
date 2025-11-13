@@ -1,0 +1,29 @@
+<div>
+    <x-button :text="__('Create New Product')" wire:click="$toggle('modal')" sm />
+
+    <x-modal :title="__('Create New Product')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="md" blur="xl">
+        <form id="product-create" wire:submit="save" class="space-y-4">
+            <div>
+                <x-input label="{{ __('Name') }} *" x-ref="name" wire:model="product.name" required />
+            </div>
+
+            <div>
+                <x-input label="{{ __('SKU') }} *" wire:model="product.sku" required />
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <x-number label="{{ __('Price') }} *" wire:model="product.price" min="0" step="0.01" required />
+                <x-number label="{{ __('Stock') }} *" wire:model="product.stock" min="0" required />
+            </div>
+
+            <div>
+                <x-input label="{{ __('Category') }}" wire:model="product.category" />
+            </div>
+        </form>
+        <x-slot:footer>
+            <x-button type="submit" form="product-create">
+                @lang('Save')
+            </x-button>
+        </x-slot:footer>
+    </x-modal>
+</div>

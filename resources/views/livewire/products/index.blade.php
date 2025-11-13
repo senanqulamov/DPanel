@@ -1,0 +1,38 @@
+<div>
+    <x-card>
+        <x-alert color="black" icon="shopping-cart">
+            @lang('Products')
+        </x-alert>
+
+        <div class="mb-2 mt-4">
+            <livewire:products.create @created="$refresh"/>
+        </div>
+
+        <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
+            @interact('column_price', $row)
+            ${{ number_format($row->price, 2) }}
+            @endinteract
+
+            @interact('column_stock', $row)
+            <x-badge :text="$row->stock" :color="$row->stock > 0 ? 'green' : 'red'" />
+            @endinteract
+
+            @interact('column_category', $row)
+            {{ $row->category ?? '-' }}
+            @endinteract
+
+            @interact('column_created_at', $row)
+            {{ $row->created_at->diffForHumans() }}
+            @endinteract
+
+            @interact('column_action', $row)
+            <div class="flex gap-1">
+                <x-button.circle icon="pencil" wire:click="$dispatch('load::product', { 'product' : '{{ $row->id }}'})"/>
+                <livewire:products.delete :product="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+            </div>
+            @endinteract
+        </x-table>
+    </x-card>
+
+    <livewire:products.update @updated="$refresh"/>
+</div>
