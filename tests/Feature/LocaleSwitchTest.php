@@ -21,4 +21,26 @@ class LocaleSwitchTest extends TestCase
         $response->assertRedirect();
         $this->assertSame($fallback, session('locale'));
     }
+
+    /**
+     * @dataProvider supportedLocalesProvider
+     */
+    public function test_can_switch_to_all_supported_locales(string $locale): void
+    {
+        $response = $this->get("/lang/{$locale}");
+        $response->assertRedirect();
+        $this->assertSame($locale, session('locale'));
+        $response->assertCookie('locale', $locale);
+    }
+
+    public static function supportedLocalesProvider(): array
+    {
+        return [
+            'English' => ['en'],
+            'Spanish' => ['es'],
+            'French' => ['fr'],
+            'German' => ['de'],
+            'Turkish' => ['tr'],
+        ];
+    }
 }
