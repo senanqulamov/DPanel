@@ -32,6 +32,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public static function count()
+    {
+        return self::query()->count();
+    }
+
     protected function casts(): array
     {
         return [

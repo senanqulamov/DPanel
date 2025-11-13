@@ -26,7 +26,7 @@
         <x-slot:header>
             <x-layout.header>
                 <x-slot:left>
-                    <x-theme-switch />
+                    <x-lang-switch />
                 </x-slot:left>
                 <x-slot:right>
                     <x-dropdown>
@@ -53,9 +53,9 @@
                         <img src="{{ asset('/assets/images/JVD.png') }}" width="40" height="40" />
                     </div>
                 </x-slot:brand>
-                <x-side-bar.item text="Dashboard" icon="home" :route="route('dashboard')" />
-                <x-side-bar.item text="Users" icon="users" :route="route('users.index')" />
-                <x-side-bar.item text="Welcome Page" icon="arrow-uturn-left" :route="route('welcome')" />
+                <x-side-bar.item :text="__('Dashboard')" icon="home" :route="route('dashboard')" />
+                <x-side-bar.item :text="__('Users')" icon="users" :route="route('users.index')" />
+                <x-side-bar.item :text="__('Welcome Page')" icon="arrow-uturn-left" :route="route('welcome')" />
             </x-side-bar>
         </x-slot:menu>
         {{ $slot }}

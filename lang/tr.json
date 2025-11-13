@@ -1,0 +1,22 @@
+{
+    "Profile": "Profil",
+    "Logout": "Çıkış",
+    "Dashboard": "Kontrol Paneli",
+    "Users": "Kullanıcılar",
+    "Welcome Page": "Karşılama Sayfası",
+    "Language": "Dil",
+    "Log in": "Giriş yap",
+    "Register": "Kayıt ol",
+    "Let's get started": "Hadi başlayalım",
+    "Laravel has an incredibly rich ecosystem.": "Laravel son derece zengin bir ekosisteme sahip.",
+    "We suggest starting with the following.": "Aşağıdakilerle başlamanı öneriyoruz.",
+    "Read the": "Oku",
+    "Documentation": "Dokümantasyon",
+    "Watch video tutorials at": "Video eğitimleri izle:",
+    "Laracasts": "Laracasts",
+    "Deploy now": "Şimdi dağıt",
+    "Name": "İsim",
+    "E-mail": "E-posta",
+    "Created": "Oluşturuldu",
+    "Actions": "İşlemler"
+}

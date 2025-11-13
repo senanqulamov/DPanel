@@ -1,0 +1,22 @@
+{
+    "Profile": "Profil",
+    "Logout": "Abmelden",
+    "Dashboard": "Übersicht",
+    "Users": "Benutzer",
+    "Welcome Page": "Willkommensseite",
+    "Language": "Sprache",
+    "Log in": "Anmelden",
+    "Register": "Registrieren",
+    "Let's get started": "Lass uns anfangen",
+    "Laravel has an incredibly rich ecosystem.": "Laravel hat ein unglaublich reiches Ökosystem.",
+    "We suggest starting with the following.": "Wir empfehlen, mit Folgendem zu beginnen.",
+    "Read the": "Lies die",
+    "Documentation": "Dokumentation",
+    "Watch video tutorials at": "Schau Video-Tutorials auf",
+    "Laracasts": "Laracasts",
+    "Deploy now": "Jetzt deployen",
+    "Name": "Name",
+    "E-mail": "E-Mail",
+    "Created": "Erstellt",
+    "Actions": "Aktionen"
+}

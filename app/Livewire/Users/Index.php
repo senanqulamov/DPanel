@@ -17,12 +17,12 @@ class Index extends Component
 
     public bool $slideA = false;
 
-    public ?int $quantity = 5;
+    public $quantity = 5;
 
     public ?string $search = null;
 
     public array $sort = [
-        'column'    => 'created_at',
+        'column' => 'created_at',
         'direction' => 'desc',
     ];
 
@@ -42,6 +42,10 @@ class Index extends Component
     #[Computed]
     public function rows(): LengthAwarePaginator
     {
+        if ($this->quantity == 'all') {
+            $this->quantity = User::count();
+        }
+
         return User::query()
             ->whereNotIn('id', [Auth::id()])
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'email'], 'like', '%'.trim($this->search).'%'))

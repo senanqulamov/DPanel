@@ -84,4 +84,8 @@
     --color-warning-700: #A16207;
     --color-warning-800: #854D0E;
     --color-warning-900: #713F12;
+
+    --color-dark-600: #576c8957;
+    --color-dark-700: #000000cc;
+    --color-dark-800: rgba(0, 0, 0, 0.23);
 }

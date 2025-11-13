@@ -1,7 +1,7 @@
 <div>
     <x-button :text="__('Create New User')" wire:click="$toggle('modal')" sm />
 
-    <x-modal :title="__('Create New User')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)">
+    <x-modal :title="__('Create New User')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="md" blur="xl">
         <form id="user-create" wire:submit="save" class="space-y-4">
             <div>
                 <x-input label="{{ __('Name') }} *" x-ref="name" wire:model="user.name" required />

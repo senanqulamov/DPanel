@@ -22,7 +22,7 @@ class Create extends Component
 
     public function mount(): void
     {
-        $this->user = new User();
+        $this->user = new User;
     }
 
     public function render(): View
@@ -36,7 +36,7 @@ class Create extends Component
             'user.name' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'user.email' => [
                 'required',
@@ -49,8 +49,8 @@ class Create extends Component
                 'nullable',
                 'string',
                 'min:8',
-                'confirmed'
-            ]
+                'confirmed',
+            ],
         ];
     }
 
@@ -65,7 +65,7 @@ class Create extends Component
         $this->dispatch('created');
 
         $this->reset();
-        $this->user = new User();
+        $this->user = new User;
 
         $this->success();
     }
