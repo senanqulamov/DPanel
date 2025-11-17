@@ -11,7 +11,6 @@ class Order extends Model
 
     protected $fillable = [
         'order_number',
-        'product_id',
         'user_id',
         'market_id',
         'total',
@@ -22,9 +21,16 @@ class Order extends Model
         'total' => 'decimal:2',
     ];
 
-    public function product()
+    public function items()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'order_items')
+            ->withPivot(['quantity', 'unit_price', 'subtotal'])
+            ->withTimestamps();
     }
 
     public function user()
@@ -35,5 +41,14 @@ class Order extends Model
     public function market()
     {
         return $this->belongsTo(Market::class);
+    }
+
+    public function recalcTotal(): void
+    {
+        $total = $this->items()->sum('subtotal');
+        if ((float) $this->total !== (float) $total) {
+            $this->total = $total;
+            $this->saveQuietly();
+        }
     }
 }

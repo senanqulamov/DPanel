@@ -21,6 +21,9 @@ class Update extends Component
 
     public bool $modal = false;
 
+    /** @var array<int, array{product_id: int|null, quantity: int}> */
+    public array $items = [];
+
     public function render(): View
     {
         return view('livewire.orders.update', [
@@ -34,8 +37,25 @@ class Update extends Component
     public function load(Order $order): void
     {
         $this->order = $order;
-
+        $this->items = $order->items->map(fn ($i) => [
+            'product_id' => $i->product_id,
+            'quantity' => (int) $i->quantity,
+        ])->toArray();
+        if (empty($this->items)) {
+            $this->items = [['product_id' => null, 'quantity' => 1]];
+        }
         $this->modal = true;
+    }
+
+    public function addItem(): void
+    {
+        $this->items[] = ['product_id' => null, 'quantity' => 1];
+    }
+
+    public function removeItem(int $index): void
+    {
+        unset($this->items[$index]);
+        $this->items = array_values($this->items);
     }
 
     public function rules(): array
@@ -47,10 +67,6 @@ class Update extends Component
                 'max:255',
                 Rule::unique('orders', 'order_number')->ignore($this->order->id),
             ],
-            'order.product_id' => [
-                'required',
-                'exists:products,id',
-            ],
             'order.user_id' => [
                 'required',
                 'exists:users,id',
@@ -59,16 +75,14 @@ class Update extends Component
                 'nullable',
                 'exists:markets,id',
             ],
-            'order.total' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
             'order.status' => [
                 'required',
                 'string',
                 'in:processing,completed,cancelled',
             ],
+            'items' => ['required','array','min:1'],
+            'items.*.product_id' => ['required','exists:products,id'],
+            'items.*.quantity' => ['required','integer','min:1'],
         ];
     }
 
@@ -78,6 +92,25 @@ class Update extends Component
 
         $changes = $this->order->getDirty();
         $this->order->save();
+
+        // Rebuild items
+        $this->order->items()->delete();
+        $total = 0.0;
+        $productPrices = Product::whereIn('id', collect($this->items)->pluck('product_id')->filter()->all())
+            ->pluck('price', 'id');
+        foreach ($this->items as $item) {
+            $unit = (float) ($productPrices[$item['product_id']] ?? 0);
+            $qty = (int) $item['quantity'];
+            $subtotal = round($unit * $qty, 2);
+            $this->order->items()->make()->forceFill([
+                'product_id' => $item['product_id'],
+                'quantity' => $qty,
+                'unit_price' => $unit,
+                'subtotal' => $subtotal,
+            ])->save();
+            $total += $subtotal;
+        }
+        $this->order->forceFill(['total' => $total])->saveQuietly();
 
         $this->logUpdate(Order::class, $this->order->id, $changes);
 

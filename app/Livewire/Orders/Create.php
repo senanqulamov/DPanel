@@ -20,11 +20,28 @@ class Create extends Component
 
     public bool $modal = false;
 
+    /** @var array<int, array{product_id: int|null, quantity: int}> */
+    public array $items = [
+        ['product_id' => null, 'quantity' => 1],
+    ];
+
     public function mount(): void
     {
         $this->order = new Order;
         $this->order->order_number = 'ORD-' . strtoupper(uniqid());
         $this->order->status = 'processing';
+        $this->order->total = 0;
+    }
+
+    public function addItem(): void
+    {
+        $this->items[] = ['product_id' => null, 'quantity' => 1];
+    }
+
+    public function removeItem(int $index): void
+    {
+        unset($this->items[$index]);
+        $this->items = array_values($this->items);
     }
 
     public function render(): View
@@ -45,10 +62,6 @@ class Create extends Component
                 'max:255',
                 Rule::unique('orders', 'order_number'),
             ],
-            'order.product_id' => [
-                'required',
-                'exists:products,id',
-            ],
             'order.user_id' => [
                 'required',
                 'exists:users,id',
@@ -57,16 +70,14 @@ class Create extends Component
                 'nullable',
                 'exists:markets,id',
             ],
-            'order.total' => [
-                'required',
-                'numeric',
-                'min:0',
-            ],
             'order.status' => [
                 'required',
                 'string',
                 'in:processing,completed,cancelled',
             ],
+            'items' => ['required','array','min:1'],
+            'items.*.product_id' => ['required','exists:products,id'],
+            'items.*.quantity' => ['required','integer','min:1'],
         ];
     }
 
@@ -74,7 +85,27 @@ class Create extends Component
     {
         $this->validate();
 
+        $this->order->total = 0; // will be recalculated
         $this->order->save();
+
+        $total = 0.0;
+        $productPrices = Product::whereIn('id', collect($this->items)->pluck('product_id')->filter()->all())
+            ->pluck('price', 'id');
+
+        foreach ($this->items as $item) {
+            $unit = (float) ($productPrices[$item['product_id']] ?? 0);
+            $qty = (int) $item['quantity'];
+            $subtotal = round($unit * $qty, 2);
+            $this->order->items()->make()->forceFill([
+                'product_id' => $item['product_id'],
+                'quantity' => $qty,
+                'unit_price' => $unit,
+                'subtotal' => $subtotal,
+            ])->save();
+            $total += $subtotal;
+        }
+
+        $this->order->forceFill(['total' => $total])->saveQuietly();
 
         $this->logCreate(Order::class, $this->order->id, [
             'order_number' => $this->order->order_number,
@@ -88,6 +119,8 @@ class Create extends Component
         $this->order = new Order;
         $this->order->order_number = 'ORD-' . strtoupper(uniqid());
         $this->order->status = 'processing';
+        $this->order->total = 0;
+        $this->items = [['product_id' => null, 'quantity' => 1]];
 
         $this->success();
     }

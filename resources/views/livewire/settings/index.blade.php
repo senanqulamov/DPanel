@@ -26,7 +26,7 @@
                             hint="{{ __('The URL of your application') }}"
                         />
 
-                        <x-select.native
+                        <x-select.styled
                             label="{{ __('Timezone') }}"
                             wire:model="app_timezone"
                             :options="[
@@ -40,9 +40,10 @@
                             ]"
                             select="label:label|value:value"
                             hint="{{ __('Application timezone') }}"
+                            searchable
                         />
 
-                        <x-select.native
+                        <x-select.styled
                             label="{{ __('Locale') }}"
                             wire:model="app_locale"
                             :options="[
@@ -54,6 +55,7 @@
                             ]"
                             select="label:label|value:value"
                             hint="{{ __('Default language') }}"
+                            searchable
                         />
                     </div>
 

@@ -26,7 +26,7 @@ class Index extends Component
     public array $headers = [
         ['index' => 'id', 'label' => '#'],
         ['index' => 'order_number', 'label' => 'Order Number'],
-        ['index' => 'product', 'label' => 'Product'],
+        ['index' => 'items', 'label' => 'Items'],
         ['index' => 'user', 'label' => 'User'],
         ['index' => 'market', 'label' => 'Market'],
         ['index' => 'total', 'label' => 'Total'],
@@ -48,7 +48,7 @@ class Index extends Component
         }
 
         return Order::query()
-            ->with(['product', 'user', 'market'])
+            ->with(['items.product', 'user', 'market'])
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['order_number', 'status'], 'like', '%'.trim($this->search).'%'))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)

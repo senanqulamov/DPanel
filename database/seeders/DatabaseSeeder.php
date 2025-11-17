@@ -30,14 +30,30 @@ class DatabaseSeeder extends Seeder
         $products = Product::factory(40)->create();
         $markets = Market::factory(10)->create();
 
-        // Create a batch of orders linked to users and products
+        // Create a batch of orders linked to users and markets and add items
         Order::factory(100)
             ->make()
             ->each(function ($order) use ($users, $products, $markets) {
                 $order->user_id = $users->random()->id;
-                $order->product_id = $products->random()->id;
                 $order->market_id = $markets->random()->id;
                 $order->save();
+
+                // Attach 1-4 items
+                $items = $products->random(rand(1, 4));
+                $total = 0;
+                foreach ($items as $product) {
+                    $qty = rand(1, 5);
+                    $unit = (float) $product->price;
+                    $subtotal = round($qty * $unit, 2);
+                    $order->items()->create([
+                        'product_id' => $product->id,
+                        'quantity' => $qty,
+                        'unit_price' => $unit,
+                        'subtotal' => $subtotal,
+                    ]);
+                    $total += $subtotal;
+                }
+                $order->forceFill(['total' => $total])->saveQuietly();
             });
 
         // Ensure all orders have a market assigned

@@ -132,16 +132,17 @@ class Index extends Component
         ])
             ->toArray();
 
-        // Top products
-        $this->topProducts = Order::select('product_id', DB::raw('COUNT(*) as order_count'), DB::raw('SUM(total) as revenue'))
-            ->with('product')
-            ->groupBy('product_id')
-            ->orderByDesc('order_count')
+        // Top products using order_items
+        $this->topProducts = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->select('products.name', DB::raw('COUNT(DISTINCT order_items.order_id) as orders'), DB::raw('SUM(order_items.subtotal) as revenue'))
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('orders')
             ->limit(5)
             ->get()
             ->map(fn ($item) => [
-                'name' => $item->product?->name ?? 'Unknown',
-                'orders' => $item->order_count,
+                'name' => $item->name,
+                'orders' => (int) $item->orders,
                 'revenue' => (float) $item->revenue,
             ])
             ->toArray();
@@ -165,20 +166,27 @@ class Index extends Component
 
     protected function loadRecentActivity()
     {
-        // Recent orders
-        $this->recentOrders = Order::with(['user', 'product'])
+        // Recent orders (show first product or items count)
+        $this->recentOrders = Order::with(['user', 'items.product'])
             ->latest()
             ->limit(5)
             ->get()
-            ->map(fn ($order) => [
-                'id' => $order->id,
-                'order_number' => $order->order_number,
-                'user' => $order->user?->name ?? 'Unknown',
-                'product' => $order->product?->name ?? 'Unknown',
-                'total' => $order->total,
-                'status' => $order->status,
-                'created_at' => $order->created_at->diffForHumans(),
-            ])
+            ->map(function ($order) {
+                $first = $order->items->first();
+                $productLabel = $first?->product?->name ?: 'Unknown';
+                if ($order->items->count() > 1) {
+                    $productLabel .= ' +'.($order->items->count() - 1).' more';
+                }
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'user' => $order->user?->name ?? 'Unknown',
+                    'product' => $productLabel,
+                    'total' => $order->total,
+                    'status' => $order->status,
+                    'created_at' => $order->created_at->diffForHumans(),
+                ];
+            })
             ->toArray();
 
         // Recent activity logs

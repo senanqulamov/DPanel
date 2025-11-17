@@ -9,15 +9,6 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <x-select.styled
-                    label="{{ __('Product') }} *"
-                    wire:model="order.product_id"
-                    required
-                    :options="$products"
-                    select="label:name|value:id"
-                    searchable
-                />
-
-                <x-select.styled
                     label="{{ __('User') }} *"
                     wire:model="order.user_id"
                     required
@@ -25,9 +16,7 @@
                     select="label:name|value:id"
                     searchable
                 />
-            </div>
 
-            <div class="grid grid-cols-2 gap-4">
                 <x-select.styled
                     label="{{ __('Market') }}"
                     wire:model="order.market_id"
@@ -35,8 +24,34 @@
                     select="label:name|value:id"
                     searchable
                 />
+            </div>
 
-                <x-number label="{{ __('Total') }} *" wire:model="order.total" min="0" step="0.01" required />
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold">{{ __('Items') }} *</span>
+                    <x-button sm icon="plus" wire:click.prevent="addItem"/>
+                </div>
+                <div class="space-y-2">
+                    @foreach($items as $idx => $it)
+                        <div class="grid grid-cols-12 gap-2 items-end">
+                            <div class="col-span-7">
+                                <x-select.styled
+                                    label="{{ __('Product') }}"
+                                    wire:model="items.{{ $idx }}.product_id"
+                                    :options="$products"
+                                    select="label:name|value:id"
+                                    searchable
+                                />
+                            </div>
+                            <div class="col-span-3">
+                                <x-number label="{{ __('Qty') }}" wire:model="items.{{ $idx }}.quantity" min="1" step="1"/>
+                            </div>
+                            <div class="col-span-2 flex gap-2">
+                                <x-button.circle icon="trash" color="red" wire:click.prevent="removeItem({{ $idx }})"/>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
             <div>

@@ -9,8 +9,16 @@
         </div>
 
         <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
-            @interact('column_product', $row)
-            {{ $row->product->name ?? '-' }}
+            @interact('column_items', $row)
+            @php($items = $row->items)
+            @if($items->isEmpty())
+                -
+            @else
+                {{ $items->first()->product->name ?? 'Unknown' }}
+                @if($items->count() > 1)
+                    <span class="text-gray-500">+{{ $items->count() - 1 }} more</span>
+                @endif
+            @endif
             @endinteract
 
             @interact('column_user', $row)
@@ -26,15 +34,15 @@
             @endinteract
 
             @interact('column_status', $row)
-            @php
-                $color = match($row->status) {
+            <x-badge
+                :text="ucfirst($row->status)"
+                :color="match($row->status) {
                     'processing' => 'blue',
                     'completed' => 'green',
                     'cancelled' => 'red',
                     default => 'gray'
-                };
-            @endphp
-            <x-badge :text="ucfirst($row->status)" :color="$color" />
+                }"
+            />
             @endinteract
 
             @interact('column_created_at', $row)
