@@ -10,7 +10,6 @@ return new class extends Migration {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('order_number')->unique();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('market_id')->nullable()->constrained()->nullOnDelete();
             $table->decimal('total', 10, 2)->default(0);

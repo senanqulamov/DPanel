@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
                     $subtotal = round($qty * $unit, 2);
                     $order->items()->create([
                         'product_id' => $product->id,
+                        'market_id' => $product->market_id,
                         'quantity' => $qty,
                         'unit_price' => $unit,
                         'subtotal' => $subtotal,

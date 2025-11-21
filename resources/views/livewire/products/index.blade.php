@@ -21,6 +21,14 @@
             {{ $row->category ?? '-' }}
             @endinteract
 
+            @interact('column_market', $row)
+            @if($row->market)
+                <a href="{{ route('markets.show', $row->market) }}" class="text-blue-600 hover:underline">{{ $row->market->name }}</a>
+            @else
+                -
+            @endif
+            @endinteract
+
             @interact('column_created_at', $row)
             {{ $row->created_at->diffForHumans() }}
             @endinteract

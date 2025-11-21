@@ -21,7 +21,7 @@ class Update extends Component
 
     public bool $modal = false;
 
-    /** @var array<int, array{product_id: int|null, quantity: int}> */
+    /** @var array<int, array{product_id: int|null, market_id: int|null, quantity: int}> */
     public array $items = [];
 
     public function render(): View
@@ -39,10 +39,11 @@ class Update extends Component
         $this->order = $order;
         $this->items = $order->items->map(fn ($i) => [
             'product_id' => $i->product_id,
+            'market_id' => $i->market_id,
             'quantity' => (int) $i->quantity,
         ])->toArray();
         if (empty($this->items)) {
-            $this->items = [['product_id' => null, 'quantity' => 1]];
+            $this->items = [];
         }
         $this->modal = true;
     }
@@ -82,6 +83,7 @@ class Update extends Component
             ],
             'items' => ['required','array','min:1'],
             'items.*.product_id' => ['required','exists:products,id'],
+            'items.*.market_id' => ['required','exists:markets,id'],
             'items.*.quantity' => ['required','integer','min:1'],
         ];
     }
@@ -104,6 +106,7 @@ class Update extends Component
             $subtotal = round($unit * $qty, 2);
             $this->order->items()->make()->forceFill([
                 'product_id' => $item['product_id'],
+                'market_id' => $item['market_id'],
                 'quantity' => $qty,
                 'unit_price' => $unit,
                 'subtotal' => $subtotal,

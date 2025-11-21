@@ -3,7 +3,7 @@
         <x-slot name="title">{{ __('Update Product: #:id', ['id' => $product?->id]) }}</x-slot>
         <form id="product-update-{{ $product?->id }}" wire:submit="save" class="space-y-6">
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <x-input
                     label="{{ __('Name') }}"
                     wire:model.blur="product.name"
@@ -33,6 +33,15 @@
                     min="0"
                     required
                     hint="{{ __('Available quantity') }}"
+                />
+
+                <x-select.styled
+                    label="{{ __('Market') }}"
+                    wire:model="product.market_id"
+                    :options="$markets"
+                    select="label:name|value:id"
+                    required
+                    searchable
                 />
             </div>
 

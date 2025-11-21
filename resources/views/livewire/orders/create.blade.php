@@ -1,7 +1,7 @@
 <div>
     <x-button :text="__('Create New Order')" wire:click="$toggle('modal')" sm />
 
-    <x-modal :title="__('Create New Order')" wire x-on:open="setTimeout(() => $refs.orderNumber.focus(), 250)" size="xl" blur="xl">
+    <x-modal :title="__('Create New Order')" wire x-on:open="setTimeout(() => $refs.orderNumber.focus(), 250)" size="3xl" blur="xl">
         <form id="order-create" wire:submit="save" class="space-y-4">
             <div>
                 <x-input label="{{ __('Order Number') }} *" x-ref="orderNumber" wire:model="order.order_number" required />
@@ -16,41 +16,72 @@
                     select="label:name|value:id"
                     searchable
                 />
-
-                <x-select.styled
-                    label="{{ __('Market') }}"
-                    wire:model="order.market_id"
-                    :options="$markets"
-                    select="label:name|value:id"
-                    searchable
-                />
             </div>
 
             <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                    <span class="font-semibold">{{ __('Items') }} *</span>
-                    <x-button sm icon="plus" wire:click.prevent="addItem"/>
+                    <span class="font-semibold">{{ __('Add Products') }}</span>
+                    <x-button icon="plus" sm type="button" wire:click="addPickerLine">{{ __('Add Line') }}</x-button>
                 </div>
                 <div class="space-y-2">
-                    @foreach($items as $idx => $it)
-                        <div class="grid grid-cols-12 gap-2 items-end">
-                            <div class="col-span-7">
+                    @foreach($pickers as $pidx => $picker)
+                        @php($marketId = (int) data_get($pickers, $pidx.'.market_id'))
+                        @php($marketProducts = $marketId ? $products->where('market_id', $marketId)->values() : collect())
+                        <div class="grid grid-cols-12 gap-2 items-end" wire:key="picker-{{ $pidx }}">
+                            <div class="col-span-3">
                                 <x-select.styled
-                                    label="{{ __('Product') }}"
-                                    wire:model="items.{{ $idx }}.product_id"
-                                    :options="$products"
+                                    label="{{ __('Market') }}"
+                                    :options="$markets"
                                     select="label:name|value:id"
+                                    wire:model.live="pickers.{{ $pidx }}.market_id"
                                     searchable
                                 />
                             </div>
+                            <div class="col-span-7">
+                                <x-select.styled
+                                    label="{{ __('Products') }}"
+                                    :options="$marketProducts"
+                                    select="label:name|value:id"
+                                    wire:model="pickers.{{ $pidx }}.product_ids"
+                                    searchable
+                                    multiple
+                                    :disabled="!$marketId"
+                                />
+                            </div>
+                            <div class="col-span-2 flex gap-2">
+                                <x-button class="w-full" icon="plus" type="button" wire:click="addPickerProducts({{ $pidx }})">{{ __('Add') }}</x-button>
+                                <x-button.circle icon="trash" color="red" type="button" wire:click="removePickerLine({{ $pidx }})" />
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold">{{ __('Order Items') }}</span>
+                </div>
+                <div class="space-y-2">
+                    @forelse($items as $idx => $it)
+                        <div class="grid grid-cols-12 gap-2 items-end">
                             <div class="col-span-3">
-                                <x-number label="{{ __('Qty') }}" wire:model="items.{{ $idx }}.quantity" min="1" step="1"/>
+                                @php($market = $markets->firstWhere('id', $it['market_id']))
+                                <x-input readonly label="{{ __('Market') }}" :value="$market?->name ?? '-'" />
+                            </div>
+                            <div class="col-span-5">
+                                @php($product = $products->firstWhere('id', $it['product_id']))
+                                <x-input readonly label="{{ __('Product') }}" :value="$product?->name ?? '-'" />
+                            </div>
+                            <div class="col-span-2">
+                                <x-number label="{{ __('Quantity') }}" wire:model="items.{{ $idx }}.quantity" min="1" step="1"/>
                             </div>
                             <div class="col-span-2 flex gap-2">
                                 <x-button.circle icon="trash" color="red" wire:click.prevent="removeItem({{ $idx }})"/>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <x-alert color="gray" flat>{{ __('No items found') }}</x-alert>
+                    @endforelse
                 </div>
             </div>
 

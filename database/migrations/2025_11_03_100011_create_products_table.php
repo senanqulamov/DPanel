@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('sku')->unique();
+            $table->foreignId('market_id')->constrained()->cascadeOnDelete();
             $table->decimal('price', 10, 2)->default(0);
             $table->unsignedInteger('stock')->default(0);
             $table->string('category')->nullable();

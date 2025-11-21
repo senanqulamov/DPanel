@@ -9,6 +9,7 @@ use App\Livewire\Products\Index as ProductsIndex;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\User\Profile;
 use App\Livewire\Users\Index;
+use App\Livewire\Markets\Show as MarketShow;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('welcome');
@@ -28,6 +29,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Markets
     Route::get('/markets', MarketsIndex::class)->name('markets.index');
+    Route::get('/markets/{market}', MarketShow::class)->name('markets.show');
 
     // Logs
     Route::get('/logs', LogsIndex::class)->name('logs.index');

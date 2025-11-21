@@ -5,6 +5,7 @@ namespace App\Livewire\Products;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
+use App\Models\Market;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -24,7 +25,9 @@ class Create extends Component
 
     public function render(): View
     {
-        return view('livewire.products.create');
+        return view('livewire.products.create', [
+            'markets' => Market::all(),
+        ]);
     }
 
     public function rules(): array
@@ -56,6 +59,10 @@ class Create extends Component
                 'string',
                 'max:255',
             ],
+            'product.market_id' => [
+                'required',
+                'exists:markets,id',
+            ],
         ];
     }
 
@@ -68,6 +75,7 @@ class Create extends Component
             'name' => $this->product->name,
             'sku' => $this->product->sku,
             'price' => $this->product->price,
+            'market_id' => $this->product->market_id,
         ]);
 
 

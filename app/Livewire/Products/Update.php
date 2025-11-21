@@ -5,6 +5,7 @@ namespace App\Livewire\Products;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
+use App\Models\Market;
 use Illuminate\Contracts\View\View;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
@@ -20,7 +21,9 @@ class Update extends Component
 
     public function render(): View
     {
-        return view('livewire.products.update');
+        return view('livewire.products.update', [
+            'markets' => Market::all(),
+        ]);
     }
 
     #[On('load::product')]
@@ -59,6 +62,10 @@ class Update extends Component
                 'nullable',
                 'string',
                 'max:255',
+            ],
+            'product.market_id' => [
+                'required',
+                'exists:markets,id',
             ],
         ];
     }

@@ -30,6 +30,7 @@ class Index extends Component
         ['index' => 'price', 'label' => 'Price'],
         ['index' => 'stock', 'label' => 'Stock'],
         ['index' => 'category', 'label' => 'Category'],
+        ['index' => 'market', 'label' => 'Market'], // added
         ['index' => 'created_at', 'label' => 'Created'],
         ['index' => 'action', 'sortable' => false],
     ];
@@ -47,6 +48,7 @@ class Index extends Component
         }
 
         return Product::query()
+            ->with('market')
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'sku', 'category'], 'like', '%'.trim($this->search).'%'))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)

@@ -19,6 +19,10 @@
             <div>
                 <x-input label="{{ __('Category') }}" wire:model="product.category" />
             </div>
+
+            <div>
+                <x-select.styled label="{{ __('Market') }} *" wire:model="product.market_id" :options="$markets" select="label:name|value:id" searchable required />
+            </div>
         </form>
         <x-slot:footer>
             <x-button type="submit" form="product-create">

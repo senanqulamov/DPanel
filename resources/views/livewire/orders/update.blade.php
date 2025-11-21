@@ -49,28 +49,28 @@
             <div class="space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="font-semibold">{{ __('Items') }} *</span>
-                    <x-button sm icon="plus" wire:click.prevent="addItem"/>
                 </div>
                 <div class="space-y-2">
-                    @foreach($items as $idx => $it)
+                    @forelse($items as $idx => $it)
                         <div class="grid grid-cols-12 gap-2 items-end">
-                            <div class="col-span-7">
-                                <x-select.styled
-                                    label="{{ __('Product') }}"
-                                    wire:model="items.{{ $idx }}.product_id"
-                                    :options="$products"
-                                    select="label:name|value:id"
-                                    searchable
-                                />
-                            </div>
                             <div class="col-span-3">
+                                @php($market = $markets->firstWhere('id', $it['market_id']))
+                                <x-input readonly label="{{ __('Market') }}" :value="$market?->name ?? '-'" />
+                            </div>
+                            <div class="col-span-5">
+                                @php($product = $products->firstWhere('id', $it['product_id']))
+                                <x-input readonly label="{{ __('Product') }}" :value="$product?->name ?? '-'" />
+                            </div>
+                            <div class="col-span-2">
                                 <x-number label="{{ __('Qty') }}" wire:model="items.{{ $idx }}.quantity" min="1" step="1"/>
                             </div>
                             <div class="col-span-2 flex gap-2">
                                 <x-button.circle icon="trash" color="red" wire:click.prevent="removeItem({{ $idx }})"/>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <x-alert color="gray" flat>{{ __('No items found') }}</x-alert>
+                    @endforelse
                 </div>
             </div>
 

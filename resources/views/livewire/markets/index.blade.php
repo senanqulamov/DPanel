@@ -9,6 +9,16 @@
         </div>
 
         <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
+            @interact('column_id', $row)
+            {{ $row->id }}
+            @endinteract
+
+            @interact('column_name', $row)
+            <a href="{{ route('markets.show', $row) }}" class="text-blue-600 hover:underline">
+                <x-badge text="{{ $row->name }}" icon="building-storefront" position="left"/>
+            </a>
+            @endinteract
+
             @interact('column_location', $row)
             {{ $row->location ?? '-' }}
             @endinteract

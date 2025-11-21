@@ -12,12 +12,12 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'market_id',
         'quantity',
         'unit_price',
         'subtotal',
     ];
 
-    protected $guarded = [];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
@@ -32,5 +32,10 @@ class OrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function market()
+    {
+        return $this->belongsTo(Market::class);
     }
 }

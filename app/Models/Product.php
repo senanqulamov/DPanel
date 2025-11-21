@@ -15,9 +15,15 @@ class Product extends Model
         'price',
         'stock',
         'category',
+        'market_id', // added
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
     ];
+
+    public function market()
+    {
+        return $this->belongsTo(Market::class);
+    }
 }
