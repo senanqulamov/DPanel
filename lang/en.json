@@ -95,5 +95,17 @@
     "SMTP username": "SMTP username",
     "SMTP password": "SMTP password",
     "Default sender email": "Default sender email",
-    "Default sender name": "Default sender name"
+    "Default sender name": "Default sender name",
+    "Log Details": "Log Details",
+    "Action": "Action",
+    "IP Address": "IP Address",
+    "User Agent": "User Agent",
+    "View Log Details": "View Log Details",
+    "Order Details": "Order Details",
+    "Order Items": "Order Items",
+    "Quantity": "Quantity",
+    "Unit Price": "Unit Price",
+    "Subtotal": "Subtotal",
+    "No items found": "No items found",
+    "Last Updated": "Last Updated"
 }

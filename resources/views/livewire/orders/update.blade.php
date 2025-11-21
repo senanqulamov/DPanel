@@ -1,5 +1,5 @@
 <div>
-    <x-slide wire="modal" left size="xl" blur="md">
+    <x-slide wire="modal" right size="xl" blur="md">
         <x-slot name="title">{{ __('Update Order: #:id', ['id' => $order?->id]) }}</x-slot>
         <form id="order-update-{{ $order?->id }}" wire:submit="save" class="space-y-6">
 

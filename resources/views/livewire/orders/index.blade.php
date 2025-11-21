@@ -51,6 +51,7 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
+                <x-button.circle icon="eye" wire:click="$dispatch('view::order', { 'order' : '{{ $row->id }}'})"/>
                 <x-button.circle icon="pencil" wire:click="$dispatch('load::order', { 'order' : '{{ $row->id }}'})"/>
                 <livewire:orders.delete :order="$row" :key="uniqid('', true)" @deleted="$refresh"/>
             </div>
@@ -58,5 +59,6 @@
         </x-table>
     </x-card>
 
+    <livewire:orders.view-order/>
     <livewire:orders.update @updated="$refresh"/>
 </div>
