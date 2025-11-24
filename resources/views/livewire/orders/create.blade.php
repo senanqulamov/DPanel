@@ -7,7 +7,6 @@
                 <div>
                     <x-input
                         label="{{ __('Order Number') }} *"
-                        x-ref="order_number"
                         wire:model="order.order_number"
                         readonly
                     />
@@ -49,7 +48,7 @@
 
                 <div class="space-y-6">
                     @foreach($items as $index => $item)
-                        <div class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800" wire:key="item-{{ $index }}">
+                        <div class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800" wire:key="item-{{ $index }}-{{ $item['market_id'] ?? 'new' }}">
                             <div class="flex flex-col space-y-3">
                                 <div class="grid grid-cols-12 gap-2 items-end">
                                     <div class="col-span-4">
@@ -64,14 +63,11 @@
                                     </div>
 
                                     <div class="col-span-4">
-                                        @php
-                                            $productOptions = $this->getProductsForMarket($item['market_id'] ?? null);
-                                        @endphp
-                                        <x-select.native
-                                            wire:key="create-product-{{ $index }}-{{ $item['market_id'] ?? 'none' }}"
+                                        <x-select.styled
+                                            wire:key="product-select-{{ $index }}-{{ $item['market_id'] ?? 'none' }}"
                                             label="{{ __('Product') }} *"
                                             wire:model.live="items.{{ $index }}.product_id"
-                                            :options="$productOptions"
+                                            :options="$this->getProductsForMarket($item['market_id'] ?? null)"
                                             select="label:name|value:id"
                                             searchable
                                             required
