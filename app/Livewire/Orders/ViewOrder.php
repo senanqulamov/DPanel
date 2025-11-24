@@ -21,7 +21,7 @@ class ViewOrder extends Component
     #[On('view::order')]
     public function showDetailModal(Order $order): void
     {
-        $this->selectedOrder = $order->load(['items.product', 'user', 'market']);
+        $this->selectedOrder = $order->load(['items.product', 'items.market', 'user']);
         $this->showDetailModal = true;
     }
 

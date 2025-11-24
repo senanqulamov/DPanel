@@ -113,5 +113,12 @@
     "Recent Orders": "Recent Orders",
     "Add Products": "Add Products",
     "Items": "Items",
-    "Qty": "Qty"
+    "Qty": "Qty",
+    "Add Item": "Add Item",
+    "Edit": "Edit",
+    "Back to List": "Back to List",
+    "Order Information": "Order Information",
+    "Timestamps": "Timestamps",
+    "Unique order number": "Unique order number",
+    "Close": "Close"
 }

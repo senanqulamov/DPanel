@@ -26,9 +26,8 @@ class Index extends Component
     public array $headers = [
         ['index' => 'id', 'label' => '#'],
         ['index' => 'order_number', 'label' => 'Order Number'],
-        ['index' => 'items', 'label' => 'Items'],
-        ['index' => 'user', 'label' => 'User'],
-        ['index' => 'market', 'label' => 'Market'],
+        ['index' => 'user', 'label' => 'User', 'sortable' => false],
+        ['index' => 'markets', 'label' => 'Markets', 'sortable' => false],
         ['index' => 'total', 'label' => 'Total'],
         ['index' => 'status', 'label' => 'Status'],
         ['index' => 'created_at', 'label' => 'Created'],
@@ -48,8 +47,11 @@ class Index extends Component
         }
 
         return Order::query()
-            ->with(['items.product', 'user', 'market'])
-            ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['order_number', 'status'], 'like', '%'.trim($this->search).'%'))
+            ->with(['user', 'items.market'])
+            ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['order_number', 'status'], 'like', '%'.trim($this->search).'%')
+                ->orWhereHas('user', fn (Builder $q) => $q->where('name', 'like', '%'.trim($this->search).'%'))
+                ->orWhereHas('items.market', fn (Builder $q) => $q->where('name', 'like', '%'.trim($this->search).'%'))
+            )
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)
             ->withQueryString();

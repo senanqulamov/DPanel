@@ -12,7 +12,6 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'user_id',
-        'market_id',
         'total',
         'status',
     ];
@@ -20,6 +19,22 @@ class Order extends Model
     protected $casts = [
         'total' => 'decimal:2',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function (Order $order) {
+            if (empty($order->order_number)) {
+                $order->order_number = self::generateOrderNumber();
+            }
+        });
+    }
+
+    public static function generateOrderNumber(): string
+    {
+        return 'ORD-'.strtoupper(uniqid());
+    }
 
     public function items()
     {
@@ -29,7 +44,7 @@ class Order extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'order_items')
-            ->withPivot(['quantity', 'unit_price', 'subtotal'])
+            ->withPivot(['quantity', 'unit_price', 'subtotal', 'market_id'])
             ->withTimestamps();
     }
 
@@ -38,9 +53,24 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function market()
+    /**
+     * Get all markets involved in this order
+     */
+    public function markets()
     {
-        return $this->belongsTo(Market::class);
+        return $this->belongsToMany(Market::class, 'order_items')
+            ->distinct();
+    }
+
+    /**
+     * Get items grouped by market
+     */
+    public function itemsByMarket()
+    {
+        return $this->items()
+            ->with(['product', 'market'])
+            ->get()
+            ->groupBy('market_id');
     }
 
     public function recalcTotal(): void

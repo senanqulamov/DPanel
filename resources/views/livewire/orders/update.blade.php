@@ -1,76 +1,130 @@
 <div>
-    <x-slide wire="modal" right size="xl" blur="md">
-        <x-slot name="title">{{ __('Update Order: #:id', ['id' => $order?->id]) }}</x-slot>
+    <x-slide wire="modal" right size="2xl" blur="md">
+        <x-slot name="title">{{ __('Update Order: #:id', ['id' => $order?->order_number]) }}</x-slot>
         <form id="order-update-{{ $order?->id }}" wire:submit="save" class="space-y-6">
 
-            <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <x-input
                     label="{{ __('Order Number') }}"
                     wire:model.blur="order.order_number"
                     required
-                    hint="{{ __('Unique order identifier') }}"
+                    hint="{{ __('Unique order number') }}"
                 />
 
-                <x-select.styled
-                    label="{{ __('User') }}"
-                    wire:model="order.user_id"
-                    required
-                    :options="$users"
-                    select="label:name|value:id"
-                    hint="{{ __('Select user') }}"
-                    searchable
-                />
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-2 gap-4">
-                <x-select.styled
-                    label="{{ __('Market') }}"
-                    wire:model="order.market_id"
-                    :options="$markets"
-                    select="label:name|value:id"
-                    hint="{{ __('Optional market') }}"
-                    searchable
-                />
-
-                <x-select.styled
+                <x-select.native
                     label="{{ __('Status') }}"
                     wire:model="order.status"
-                    required
                     :options="[
                         ['label' => 'Processing', 'value' => 'processing'],
                         ['label' => 'Completed', 'value' => 'completed'],
                         ['label' => 'Cancelled', 'value' => 'cancelled'],
                     ]"
                     select="label:label|value:value"
-                    hint="{{ __('Order status') }}"
+                    required
                 />
             </div>
 
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="font-semibold">{{ __('Items') }} *</span>
+            <div>
+                <x-select.native
+                    label="{{ __('User (Supplier)') }}"
+                    wire:model="order.user_id"
+                    :options="$users"
+                    select="label:name|value:id"
+                    required
+                />
+            </div>
+
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+                        @lang('Markets & Products')
+                    </label>
+                    <x-button wire:click="addItem" text="{{ __('Add Product') }}" icon="plus" color="primary" sm />
                 </div>
-                <div class="space-y-2">
-                    @forelse($items as $idx => $it)
-                        <div class="grid grid-cols-12 gap-2 items-end">
-                            <div class="col-span-3">
-                                @php($market = $markets->firstWhere('id', $it['market_id']))
-                                <x-input readonly label="{{ __('Market') }}" :value="$market?->name ?? '-'" />
-                            </div>
-                            <div class="col-span-5">
-                                @php($product = $products->firstWhere('id', $it['product_id']))
-                                <x-input readonly label="{{ __('Product') }}" :value="$product?->name ?? '-'" />
-                            </div>
-                            <div class="col-span-2">
-                                <x-number label="{{ __('Qty') }}" wire:model="items.{{ $idx }}.quantity" min="1" step="1"/>
-                            </div>
-                            <div class="col-span-2 flex gap-2">
-                                <x-button.circle icon="trash" color="red" wire:click.prevent="removeItem({{ $idx }})"/>
+
+                <div class="space-y-6">
+                    @foreach($items as $index => $item)
+                        <div class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800" wire:key="update-item-{{ $index }}">
+                            <div class="flex flex-col space-y-3">
+                                <div class="grid grid-cols-12 gap-2 items-end">
+                                    <div class="col-span-4">
+                                        <x-select.styled
+                                            label="{{ __('Market') }}"
+                                            wire:model.live="items.{{ $index }}.market_id"
+                                            :options="$markets"
+                                            select="label:name|value:id"
+                                            required
+                                            searchable
+                                        />
+                                    </div>
+
+                                    <div class="col-span-4">
+                                        @php
+                                            $productOptions = $this->getProductsForMarket($item['market_id'] ?? null);
+                                        @endphp
+                                        <x-select.native
+                                            wire:key="update-product-{{ $index }}-{{ $item['market_id'] ?? 'none' }}"
+                                            label="{{ __('Product') }}"
+                                            wire:model.live="items.{{ $index }}.product_id"
+                                            :options="$productOptions"
+                                            select="label:name|value:id"
+                                        />
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <x-input
+                                            label="{{ __('Qty') }}"
+                                            wire:model.blur="items.{{ $index }}.quantity"
+                                            type="number"
+                                            min="1"
+                                        />
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <x-input
+                                            label="{{ __('Price') }}"
+                                            wire:model.blur="items.{{ $index }}.unit_price"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-12 gap-2 items-center mt-2">
+                                    <div class="col-span-10 flex justify-end">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">
+                                            @lang('Subtotal'):
+                                        </span>
+                                        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            ${{ number_format(($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2) }}
+                                        </span>
+                                    </div>
+                                    <div class="col-span-2 flex justify-end">
+                                        @if(count($items) > 1)
+                                            <x-button.circle
+                                                wire:click="removeItem({{ $index }})"
+                                                icon="trash"
+                                                color="red"
+                                                xs
+                                            />
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    @empty
-                        <x-alert color="gray" flat>{{ __('No items found') }}</x-alert>
-                    @endforelse
+                    @endforeach
+                </div>
+
+                <div class="mt-6 pt-4 border-t">
+                    <div class="flex justify-end">
+                        <div class="text-right">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">@lang('Total Order Amount'): </span>
+                            <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                                ${{ number_format($this->calculateTotal(), 2) }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

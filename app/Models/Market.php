@@ -15,16 +15,17 @@ class Market extends Model
         'image_path',
     ];
 
-    // Relationship to orders belonging to this market
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
-    }
-
-    // Access all order items via orders for product aggregation (legacy)
+    // Direct order items for this market
     public function orderItems()
     {
-        return $this->hasManyThrough(OrderItem::class, Order::class, 'market_id', 'order_id');
+        return $this->hasMany(OrderItem::class);
+    }
+
+    // Get all orders that include products from this market
+    public function orders()
+    {
+        return $this->hasManyThrough(Order::class, OrderItem::class, 'market_id', 'id', 'id', 'order_id')
+            ->distinct();
     }
 
     // Direct products belonging to this market

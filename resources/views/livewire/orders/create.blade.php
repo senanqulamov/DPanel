@@ -1,108 +1,143 @@
 <div>
     <x-button :text="__('Create New Order')" wire:click="$toggle('modal')" sm />
 
-    <x-modal :title="__('Create New Order')" wire x-on:open="setTimeout(() => $refs.orderNumber.focus(), 250)" size="3xl" blur="xl">
+    <x-modal :title="__('Create New Order')" wire size="4xl" blur="xl">
         <form id="order-create" wire:submit="save" class="space-y-4">
-            <div>
-                <x-input label="{{ __('Order Number') }} *" x-ref="orderNumber" wire:model="order.order_number" required />
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <x-input
+                        label="{{ __('Order Number') }} *"
+                        x-ref="order_number"
+                        wire:model="order.order_number"
+                        readonly
+                    />
+                </div>
+
+                <div>
+                    <x-select.styled
+                        label="{{ __('Status') }} *"
+                        wire:model="order.status"
+                        :options="[
+                            ['label' => 'Processing', 'value' => 'processing'],
+                            ['label' => 'Completed', 'value' => 'completed'],
+                            ['label' => 'Cancelled', 'value' => 'cancelled'],
+                        ]"
+                        select="label:label|value:value"
+                        required
+                    />
+                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div>
                 <x-select.styled
-                    label="{{ __('User') }} *"
+                    label="{{ __('User (Supplier)') }} *"
                     wire:model="order.user_id"
-                    required
                     :options="$users"
                     select="label:name|value:id"
                     searchable
+                    required
                 />
             </div>
 
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="font-semibold">{{ __('Add Products') }}</span>
-                    <x-button icon="plus" sm type="button" wire:click="addPickerLine">{{ __('Add Line') }}</x-button>
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <label class="block text-lg font-semibold text-gray-800 dark:text-gray-200">
+                        @lang('Markets & Products') *
+                    </label>
+                    <x-button wire:click="addItem" text="{{ __('Add Product') }}" icon="plus" color="primary" sm />
                 </div>
-                <div class="space-y-2">
-                    @foreach($pickers as $pidx => $picker)
-                        @php($marketId = (int) data_get($pickers, $pidx.'.market_id'))
-                        @php($marketProducts = $marketId ? $products->where('market_id', $marketId)->values() : collect())
-                        <div class="grid grid-cols-12 gap-2 items-end" wire:key="picker-{{ $pidx }}">
-                            <div class="col-span-3">
-                                <x-select.styled
-                                    label="{{ __('Market') }}"
-                                    :options="$markets"
-                                    select="label:name|value:id"
-                                    wire:model.live="pickers.{{ $pidx }}.market_id"
-                                    searchable
-                                />
-                            </div>
-                            <div class="col-span-7">
-                                <x-select.styled
-                                    label="{{ __('Products') }}"
-                                    :options="$marketProducts"
-                                    select="label:name|value:id"
-                                    wire:model="pickers.{{ $pidx }}.product_ids"
-                                    searchable
-                                    multiple
-                                    :disabled="!$marketId"
-                                />
-                            </div>
-                            <div class="col-span-2 flex gap-2">
-                                <x-button class="w-full" icon="plus" type="button" wire:click="addPickerProducts({{ $pidx }})">{{ __('Add') }}</x-button>
-                                <x-button.circle icon="trash" color="red" type="button" wire:click="removePickerLine({{ $pidx }})" />
+
+                <div class="space-y-6">
+                    @foreach($items as $index => $item)
+                        <div class="border-2 border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800" wire:key="item-{{ $index }}">
+                            <div class="flex flex-col space-y-3">
+                                <div class="grid grid-cols-12 gap-2 items-end">
+                                    <div class="col-span-4">
+                                        <x-select.styled
+                                            label="{{ __('Market') }} *"
+                                            wire:model.live="items.{{ $index }}.market_id"
+                                            :options="$markets"
+                                            select="label:name|value:id"
+                                            searchable
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="col-span-4">
+                                        @php
+                                            $productOptions = $this->getProductsForMarket($item['market_id'] ?? null);
+                                        @endphp
+                                        <x-select.native
+                                            wire:key="create-product-{{ $index }}-{{ $item['market_id'] ?? 'none' }}"
+                                            label="{{ __('Product') }} *"
+                                            wire:model.live="items.{{ $index }}.product_id"
+                                            :options="$productOptions"
+                                            select="label:name|value:id"
+                                            searchable
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <x-input
+                                            label="{{ __('Qty') }}"
+                                            wire:model.blur="items.{{ $index }}.quantity"
+                                            type="number"
+                                            min="1"
+                                        />
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <x-input
+                                            label="{{ __('Price') }}"
+                                            wire:model.blur="items.{{ $index }}.unit_price"
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-12 gap-2 items-center mt-2">
+                                    <div class="col-span-10 flex justify-end">
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">
+                                            @lang('Subtotal'):
+                                        </span>
+                                        <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                            ${{ number_format(($item['quantity'] ?? 0) * ($item['unit_price'] ?? 0), 2) }}
+                                        </span>
+                                    </div>
+                                    <div class="col-span-2 flex justify-end">
+                                        @if(count($items) > 1)
+                                            <x-button.circle
+                                                wire:click="removeItem({{ $index }})"
+                                                icon="trash"
+                                                color="red"
+                                                xs
+                                            />
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
-            </div>
 
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <span class="font-semibold">{{ __('Order Items') }}</span>
-                </div>
-                <div class="space-y-2">
-                    @forelse($items as $idx => $it)
-                        <div class="grid grid-cols-12 gap-2 items-end">
-                            <div class="col-span-3">
-                                @php($market = $markets->firstWhere('id', $it['market_id']))
-                                <x-input readonly label="{{ __('Market') }}" :value="$market?->name ?? '-'" />
-                            </div>
-                            <div class="col-span-5">
-                                @php($product = $products->firstWhere('id', $it['product_id']))
-                                <x-input readonly label="{{ __('Product') }}" :value="$product?->name ?? '-'" />
-                            </div>
-                            <div class="col-span-2">
-                                <x-number label="{{ __('Quantity') }}" wire:model="items.{{ $idx }}.quantity" min="1" step="1"/>
-                            </div>
-                            <div class="col-span-2 flex gap-2">
-                                <x-button.circle icon="trash" color="red" wire:click.prevent="removeItem({{ $idx }})"/>
-                            </div>
+                <div class="mt-6 pt-4 border-t">
+                    <div class="flex justify-end">
+                        <div class="text-right">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">@lang('Total Order Amount'): </span>
+                            <span class="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                                ${{ number_format($this->calculateTotal(), 2) }}
+                            </span>
                         </div>
-                    @empty
-                        <x-alert color="gray" flat>{{ __('No items found') }}</x-alert>
-                    @endforelse
+                    </div>
                 </div>
-            </div>
-
-            <div>
-                <x-select.styled
-                    label="{{ __('Status') }} *"
-                    wire:model="order.status"
-                    required
-                    :options="[
-                        ['label' => 'Processing', 'value' => 'processing'],
-                        ['label' => 'Completed', 'value' => 'completed'],
-                        ['label' => 'Cancelled', 'value' => 'cancelled'],
-                    ]"
-                    select="label:label|value:value"
-                    searchable
-                />
             </div>
         </form>
         <x-slot:footer>
             <x-button type="submit" form="order-create">
-                @lang('Save')
+                @lang('Create Order')
             </x-button>
         </x-slot:footer>
     </x-modal>

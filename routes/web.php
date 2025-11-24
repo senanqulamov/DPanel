@@ -4,12 +4,13 @@ use App\Http\Controllers\LocaleController;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Logs\Index as LogsIndex;
 use App\Livewire\Markets\Index as MarketsIndex;
+use App\Livewire\Markets\Show as MarketShow;
 use App\Livewire\Orders\Index as OrdersIndex;
+use App\Livewire\Orders\Show as OrderShow;
 use App\Livewire\Products\Index as ProductsIndex;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\User\Profile;
 use App\Livewire\Users\Index;
-use App\Livewire\Markets\Show as MarketShow;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('welcome');
@@ -26,6 +27,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Orders
     Route::get('/orders', OrdersIndex::class)->name('orders.index');
+    Route::get('/orders/{order}', OrderShow::class)->name('orders.show');
 
     // Markets
     Route::get('/markets', MarketsIndex::class)->name('markets.index');

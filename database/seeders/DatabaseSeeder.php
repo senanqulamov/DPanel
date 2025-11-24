@@ -27,15 +27,18 @@ class DatabaseSeeder extends Seeder
         $users->push($admin);
 
         // Products and Markets
-        $products = Product::factory(40)->create();
         $markets = Market::factory(10)->create();
 
-        // Create a batch of orders linked to users and markets and add items
+        // Ensure products are associated with a market
+        $products = Product::factory(40)->make()->each(function (Product $product) use ($markets) {
+            $product->market_id = $markets->random()->id;
+            $product->save();
+        });
+
         Order::factory(100)
             ->make()
-            ->each(function ($order) use ($users, $products, $markets) {
+            ->each(function (Order $order) use ($users, $products) {
                 $order->user_id = $users->random()->id;
-                $order->market_id = $markets->random()->id;
                 $order->save();
 
                 // Attach 1-4 items
@@ -54,15 +57,9 @@ class DatabaseSeeder extends Seeder
                     ]);
                     $total += $subtotal;
                 }
+
                 $order->forceFill(['total' => $total])->saveQuietly();
             });
-
-        // Ensure all orders have a market assigned
-        $allMarketIds = $markets->pluck('id');
-        Order::whereNull('market_id')->get()->each(function (Order $o) use ($allMarketIds) {
-            $o->market_id = $allMarketIds->random();
-            $o->save();
-        });
 
         // Logs
         Log::factory(120)->create();

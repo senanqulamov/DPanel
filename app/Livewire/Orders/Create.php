@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class Create extends Component
@@ -20,87 +19,59 @@ class Create extends Component
 
     public bool $modal = false;
 
-    /** @var array<int, array{product_id: int|null, market_id: int|null, quantity: int}> */
+    /**
+     * Flat list of order items.
+     * Each item: [market_id, product_id, user_id, quantity, unit_price]
+     */
     public array $items = [];
 
-    /** @var array<int, array{market_id: int|null, product_ids: array<int,int>}> */
-    public array $pickers = [];
+    /** @var array<int, array<int, array<string, mixed>>> */
+    public array $productsByMarket = [];
+
+    /** Preloaded markets with product counts and label/value for selects. */
+    public $marketOptions;
 
     public function mount(): void
     {
         $this->order = new Order;
-        $this->order->order_number = 'ORD-'.strtoupper(uniqid());
+        $this->order->order_number = Order::generateOrderNumber();
         $this->order->status = 'processing';
-        $this->order->total = 0;
-        $this->items = [];
-        $this->pickers = [];
+
+        $this->items = [
+            $this->makeEmptyItem(),
+        ];
+
+        $this->loadMarketOptions();
     }
 
-    public function updated($name, $value): void
+    protected function loadMarketOptions(): void
     {
-        if (preg_match('/^pickers\\.(\d+)\\.market_id$/', (string) $name, $m)) {
-            $idx = (int) $m[1];
-            if (isset($this->pickers[$idx])) {
-                $this->pickers[$idx]['product_ids'] = [];
-            }
-        }
+        $this->marketOptions = Market::withCount('products')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($market) => [
+                'id' => $market->id,
+                'name' => sprintf('%s (%d)', $market->name, $market->products_count),
+                'products_count' => $market->products_count,
+            ]);
     }
 
-    public function addPickerLine(): void
+    protected function makeEmptyItem(): array
     {
-        $this->pickers[] = ['market_id' => null, 'product_ids' => []];
-    }
-
-    // Remove a picker line
-    public function removePickerLine(int $index): void
-    {
-        unset($this->pickers[$index]);
-        $this->pickers = array_values($this->pickers);
-    }
-
-    public function addPickerProducts(int $index): void
-    {
-        $line = $this->pickers[$index] ?? null;
-        if (! $line || empty($line['market_id']) || empty($line['product_ids'])) {
-            return;
-        }
-
-        $marketId = (int) $line['market_id'];
-        $validProducts = Product::query()
-            ->where('market_id', $marketId)
-            ->whereIn('id', $line['product_ids'])
-            ->pluck('id')
-            ->all();
-
-        foreach ($validProducts as $productId) {
-            $existingIndex = collect($this->items)
-                ->search(fn ($it) => (int) ($it['product_id'] ?? 0) === (int) $productId);
-            if ($existingIndex !== false) {
-                $this->items[$existingIndex]['quantity'] = (int) ($this->items[$existingIndex]['quantity'] ?? 0) + 1;
-            } else {
-                $this->items[] = [
-                    'product_id' => (int) $productId,
-                    'market_id' => $marketId,
-                    'quantity' => 1
-                ];
-            }
-        }
-
-        $this->pickers[$index]['product_ids'] = [];
-    }
-
-    public function removeItem(int $index): void
-    {
-        unset($this->items[$index]);
-        $this->items = array_values($this->items);
+        return [
+            'market_id' => null,
+            'product_id' => null,
+            'user_id' => null,
+            'quantity' => 1,
+            'unit_price' => 0,
+        ];
     }
 
     public function render(): View
     {
         return view('livewire.orders.create', [
-            'products' => Product::all(),
-            'users' => User::all(),
-            'markets' => Market::all(),
+            'users' => User::orderBy('name')->get(),
+            'markets' => $this->marketOptions,
         ]);
     }
 
@@ -108,74 +79,236 @@ class Create extends Component
     {
         return [
             'order.order_number' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
-                Rule::unique('orders', 'order_number'),
+                'unique:orders,order_number',
             ],
             'order.user_id' => [
                 'required',
                 'exists:users,id',
             ],
-            'order.market_id' => [
-                'nullable',
-                'exists:markets,id',
-            ],
             'order.status' => [
                 'required',
-                'string',
                 'in:processing,completed,cancelled',
             ],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
-            'items.*.market_id' => ['required', 'exists:markets,id'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items' => [
+                'required',
+                'array',
+                'min:1',
+            ],
+            'items.*.market_id' => [
+                'required',
+                'exists:markets,id',
+            ],
+            'items.*.product_id' => [
+                'required',
+                'exists:products,id',
+            ],
+            'items.*.quantity' => [
+                'required',
+                'numeric',
+                'min:1',
+            ],
+            'items.*.unit_price' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
         ];
+    }
+
+    public function addItem(): void
+    {
+        $this->items[] = $this->makeEmptyItem();
+    }
+
+    public function removeItem(int $index): void
+    {
+        unset($this->items[$index]);
+        $this->items = array_values($this->items);
+
+        if (empty($this->items)) {
+            $this->items[] = $this->makeEmptyItem();
+        }
+    }
+
+    public function updatedItems($value, $key): void
+    {
+        // $key format: "0.market_id" or "1.product_id" etc.
+        if (str_ends_with($key, '.market_id')) {
+            $parts = explode('.', $key);
+            $index = (int) $parts[0];
+            $marketId = (int) $value;
+
+            if ($marketId) {
+                $this->cacheProductsForMarket($marketId);
+            }
+
+            // Reset product and price when market changes
+            $this->items[$index]['product_id'] = null;
+            $this->items[$index]['unit_price'] = 0;
+
+            return;
+        }
+
+        if (str_ends_with($key, '.product_id')) {
+            $parts = explode('.', $key);
+            $index = (int) $parts[0];
+            $productId = (int) $value;
+            $marketId = (int) ($this->items[$index]['market_id'] ?? 0);
+
+            if ($productId) {
+                $product = $this->resolveProductFromCache($productId, $marketId);
+                if ($product && isset($product['price'])) {
+                    $this->items[$index]['unit_price'] = (float) $product['price'];
+
+                    return;
+                }
+            }
+
+            $product = Product::find($value);
+            if ($product) {
+                $this->items[$index]['unit_price'] = (float) $product->price;
+            }
+
+            return;
+        }
+    }
+
+    public function getProductsForMarket($marketId): array
+    {
+        $marketId = (int) $marketId;
+
+        if (! $marketId) {
+            return [];
+        }
+
+        return $this->cacheProductsForMarket($marketId);
+    }
+
+    protected function cacheProductsForMarket(int $marketId): array
+    {
+        if ($marketId <= 0) {
+            return [];
+        }
+
+        if (! isset($this->productsByMarket[$marketId])) {
+            $this->productsByMarket[$marketId] = Product::query()
+                ->select(['id', 'name', 'price'])
+                ->where('market_id', $marketId)
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Product $product) => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => (float) $product->price,
+                ])
+                ->all();
+        }
+
+        return $this->productsByMarket[$marketId];
+    }
+
+    protected function resolveProductFromCache(int $productId, ?int $marketId = null): ?array
+    {
+        if ($productId <= 0) {
+            return null;
+        }
+
+        $groups = $marketId && isset($this->productsByMarket[$marketId])
+            ? [$this->productsByMarket[$marketId]]
+            : $this->productsByMarket;
+
+        foreach ($groups as $products) {
+            foreach ($products as $product) {
+                if ((int) ($product['id'] ?? 0) === $productId) {
+                    return $product;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public function calculateTotal(): float
+    {
+        $total = 0;
+
+        foreach ($this->items as $item) {
+            if (isset($item['quantity']) && isset($item['unit_price'])) {
+                $total += $item['quantity'] * $item['unit_price'];
+            }
+        }
+
+        return $total;
+    }
+
+    protected function normalizeItems(): void
+    {
+        $normalized = [];
+
+        foreach ($this->items as $item) {
+            if (! isset($item['market_id']) || ! $item['market_id']) {
+                continue;
+            }
+
+            if (! isset($item['product_id']) || ! $item['product_id']) {
+                continue;
+            }
+
+            if (! isset($item['quantity']) || $item['quantity'] <= 0) {
+                continue;
+            }
+
+            if (! isset($item['unit_price']) || $item['unit_price'] < 0) {
+                continue;
+            }
+
+            $normalized[] = $item;
+        }
+
+        $this->items = $normalized;
     }
 
     public function save(): void
     {
-        $this->validate();
+        $this->normalizeItems();
 
-        $this->order->total = 0; // will be recalculated
-        $this->order->save();
-
-        $total = 0.0;
-        $productPrices = Product::whereIn('id', collect($this->items)->pluck('product_id')->filter()->all())
-            ->pluck('price', 'id');
-
-        foreach ($this->items as $item) {
-            $unit = (float) ($productPrices[$item['product_id']] ?? 0);
-            $qty = (int) $item['quantity'];
-            $subtotal = round($unit * $qty, 2);
-            $this->order->items()->make()->forceFill([
-                'product_id' => $item['product_id'],
-                'market_id' => $item['market_id'],
-                'quantity' => $qty,
-                'unit_price' => $unit,
-                'subtotal' => $subtotal,
-            ])->save();
-            $total += $subtotal;
+        if (count($this->items) === 0) {
+            $this->addError('items', __('Please add at least one product to the order.'));
+            return;
         }
 
-        $this->order->forceFill(['total' => $total])->saveQuietly();
+        $this->validate();
+
+        $this->order->total = $this->calculateTotal();
+        $this->order->save();
+
+        foreach ($this->items as $item) {
+            $this->order->items()->create([
+                'product_id' => $item['product_id'],
+                'market_id' => $item['market_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'subtotal' => $item['quantity'] * $item['unit_price'],
+            ]);
+        }
 
         $this->logCreate(Order::class, $this->order->id, [
             'order_number' => $this->order->order_number,
             'total' => $this->order->total,
-            'status' => $this->order->status,
         ]);
+
+        $this->success();
 
         $this->dispatch('created');
 
-        $this->reset();
+        $this->reset('items');
         $this->order = new Order;
-        $this->order->order_number = 'ORD-'.strtoupper(uniqid());
         $this->order->status = 'processing';
-        $this->order->total = 0;
-        $this->items = [];
-        $this->pickers = [];
+        $this->items = [$this->makeEmptyItem()];
 
-        $this->success();
+        $this->modal = false;
     }
 }

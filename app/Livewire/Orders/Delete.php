@@ -34,9 +34,17 @@ class Delete extends Component
 
     public function delete(): void
     {
-        $orderData = ['order_number' => $this->order->order_number, 'total' => $this->order->total];
+        $orderData = [
+            'order_number' => $this->order->order_number,
+            'total' => $this->order->total,
+            'status' => $this->order->status,
+        ];
         $orderId = $this->order->id;
 
+        // Delete order items first
+        $this->order->items()->delete();
+
+        // Delete order
         $this->order->delete();
 
         $this->logDelete(Order::class, $orderId, $orderData);
