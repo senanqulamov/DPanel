@@ -84,10 +84,14 @@
                             <div class="bg-primary-50 dark:bg-primary-900/20 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <x-icon name="building-storefront" class="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                                        <span class="font-semibold text-gray-900 dark:text-gray-100">
-                                            {{ $market ? $market->name : 'Unknown Market' }}
-                                        </span>
+                                        <a href="{{ route('markets.show', $market) }}">
+                                            <x-icon name="building-storefront" class="h-6 bg-accent pl-2 pr-1 rounded-l-2xl text-gray-600" />
+                                        </a>
+                                        <a href="{{ route('markets.show', $market) }}">
+                                            <span class="font-semibold bg-accent pl-1 pr-2 rounded-r-2xl text-gray-600 text-lg">
+                                                {{ $market ? $market->name : 'Unknown Market' }}
+                                            </span>
+                                        </a>
                                         @if($market && $market->location)
                                             <span class="text-sm text-gray-500 dark:text-gray-400">
                                                 ({{ $market->location }})
@@ -100,7 +104,7 @@
                                 </div>
                             </div>
 
-                            <div class="bg-white dark:bg-gray-800">
+                            <div class="">
                                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                     <thead class="bg-gray-100 dark:bg-gray-700">
                                     <tr>

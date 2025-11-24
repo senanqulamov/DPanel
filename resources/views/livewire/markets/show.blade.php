@@ -5,10 +5,10 @@
         </x-alert>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            <x-stat label="{{__('Orders')}}" :value="$this->metrics['orders_count']" icon="shopping-bag" />
-            <x-stat label="{{__('Revenue')}}" :value="'$'.number_format($this->metrics['revenue'], 2)" icon="banknotes" />
-            <x-stat label="{{__('Avg Order')}}" :value="'$'.number_format($this->metrics['avg_order_value'], 2)" icon="chart-bar" />
-            <x-stat label="{{__('Products')}}" :value="$this->metrics['products_count']" icon="archive-box" />
+            <x-stat label="{{__('Orders')}}" :value="$this->metrics['orders_count']" icon="shopping-bag"/>
+            <x-stat label="{{__('Revenue')}}" :value="'$'.number_format($this->metrics['revenue'], 2)" icon="banknotes"/>
+            <x-stat label="{{__('Avg Order')}}" :value="'$'.number_format($this->metrics['avg_order_value'], 2)" icon="chart-bar"/>
+            <x-stat label="{{__('Products')}}" :value="$this->metrics['products_count']" icon="archive-box"/>
         </div>
 
         <div class="mt-6 flex gap-2">
@@ -18,9 +18,13 @@
 
         <div class="mt-8">
             <h2 class="text-sm font-semibold mb-2">@lang('Recent Orders')</h2>
-            <x-table :headers="[['index'=>'order_number','label'=>__('Or   der Number')],['index'=>'total','label'=>__('Total')],['index'=>'status','label'=>__('Status')],['index'=>'created_at','label'=>__('Created')]]" :rows="$this->orders" :sort="['column'=>'created_at','direction'=>'desc']" paginate :paginator="null" loading>
+            <x-table
+                :headers="[['index'=>'order_number','label'=>__('Or   der Number')],['index'=>'total','label'=>__('Total')],['index'=>'status','label'=>__('Status')],['index'=>'created_at','label'=>__('Created')]]"
+                :rows="$this->orders" :sort="['column'=>'created_at','direction'=>'desc']" paginate :paginator="null" loading>
                 @interact('column_order_number', $row)
-                {{ $row->order_number }}
+                <a href="{{ route('orders.show', $row) }}">
+                    <x-badge text="{{ $row->order_number }}" icon="eye" position="left"/>
+                </a>
                 @endinteract
 
                 @interact('column_total', $row)
@@ -28,7 +32,7 @@
                 @endinteract
 
                 @interact('column_status', $row)
-                <x-badge :text="ucfirst($row->status)" />
+                <x-badge :text="ucfirst($row->status)"/>
                 @endinteract
 
                 @interact('column_created_at', $row)
@@ -48,7 +52,7 @@
                                     <p class="text-base font-semibold text-gray-900 dark:text-gray-100">{{ $product->name }}</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">SKU: {{ $product->sku ?? __('N/A') }}</p>
                                 </div>
-                                <x-badge :text="$product->stock > 0 ? __('In Stock') : __('Out of Stock')" :color="$product->stock > 0 ? 'green' : 'red'" />
+                                <x-badge :text="$product->stock > 0 ? __('In Stock') : __('Out of Stock')" :color="$product->stock > 0 ? 'green' : 'red'"/>
                             </div>
                             <dl class="text-sm space-y-1">
                                 <div class="flex justify-between">
@@ -79,5 +83,5 @@
         </div>
     </x-card>
 
-    <livewire:markets.update @updated="$refresh" />
+    <livewire:markets.update @updated="$refresh"/>
 </div>

@@ -30,7 +30,9 @@
             @if($this->marketsServed->isNotEmpty())
                 <div class="flex flex-wrap gap-2">
                     @foreach($this->marketsServed as $market)
-                        <x-badge :text="$market->name" icon="building-storefront" position="left" />
+                       <a href="{{ route('markets.show', $market) }}">
+                           <x-badge :text="$market->name" icon="building-storefront" position="left" />
+                       </a>
                     @endforeach
                 </div>
             @else
@@ -51,7 +53,7 @@
             ]" :rows="$this->orders" paginate :paginator="null" loading>
                 @interact('column_order_number', $row)
                 <a href="{{ route('orders.show', $row) }}" class="text-blue-600 hover:underline">
-                    {{ $row->order_number }}
+                    <x-badge text="{{ $row->order_number }}" icon="queue-list" position="left" />
                 </a>
                 @endinteract
 

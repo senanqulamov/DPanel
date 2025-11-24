@@ -43,7 +43,6 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
-                <x-button.circle icon="eye" color="primary" href="{{ route('products.show', $row) }}" title="@lang('View product')"/>
                 <x-button.circle icon="pencil" wire:click="$dispatch('load::product', { 'product' : '{{ $row->id }}'})"/>
                 <livewire:products.delete :product="$row" :key="uniqid('', true)" @deleted="$refresh"/>
             </div>
