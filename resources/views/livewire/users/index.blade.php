@@ -9,6 +9,16 @@
         </div>
 
         <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
+            @interact('column_name', $row)
+            <a href="{{ route('users.show', $row) }}" class="text-blue-600 hover:underline">
+                <x-badge text="{{ $row->name }}" icon="eye" position="left"/>
+            </a>
+            @endinteract
+
+            @interact('column_email', $row)
+            {{ $row->email }}
+            @endinteract
+
             @interact('column_created_at', $row)
             {{ $row->created_at->diffForHumans() }}
             @endinteract

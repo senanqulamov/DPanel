@@ -28,6 +28,7 @@ class Index extends Component
         ['index' => 'name', 'label' => 'Name'],
         ['index' => 'location', 'label' => 'Location'],
         ['index' => 'created_at', 'label' => 'Created'],
+        ['index' => 'products_count', 'label' => 'Products'],
         ['index' => 'action', 'sortable' => false],
     ];
 
@@ -44,6 +45,7 @@ class Index extends Component
         }
 
         return Market::query()
+            ->withCount('products')
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'location'], 'like', '%'.trim($this->search).'%'))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)

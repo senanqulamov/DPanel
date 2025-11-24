@@ -13,7 +13,7 @@ class Show extends Component
 
     public Market $market;
 
-    public int $ordersQuantity = 5;
+    public int $ordersQuantity = 10;
     public int $productsQuantity = 10; // added
 
     public function mount(Market $market): void

@@ -27,6 +27,10 @@
             {{ $row->created_at->diffForHumans() }}
             @endinteract
 
+            @interact('column_products_count', $row)
+            <x-badge :text="$row->products_count" icon="archive-box" />
+            @endinteract
+
             @interact('column_action', $row)
             <div class="flex gap-1">
                 <x-button.circle icon="pencil" wire:click="$dispatch('load::market', { 'market' : '{{ $row->id }}'})"/>
