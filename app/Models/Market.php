@@ -10,10 +10,23 @@ class Market extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'location',
         'image_path',
     ];
+
+    // The seller/owner of this market
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    // Alias for seller
+    public function owner()
+    {
+        return $this->seller();
+    }
 
     // Direct order items for this market
     public function orderItems()

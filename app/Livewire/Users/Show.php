@@ -50,6 +50,14 @@ class Show extends Component
     }
 
     #[Computed]
+    public function suppliedProducts(): Collection
+    {
+        return $this->user->suppliedProducts()
+            ->with('market:id,name')
+            ->get();
+    }
+
+    #[Computed]
     public function metrics(): array
     {
         $ordersQuery = $this->user->orders();

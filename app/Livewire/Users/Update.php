@@ -38,24 +38,48 @@ class Update extends Component
     public function rules(): array
     {
         return [
-            'user.name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            'user.email' => [
-                'required',
-                'string',
-                'email',
-                'max:255',
-                Rule::unique('users', 'email')->ignore($this->user->id),
-            ],
-            'password' => [
-                'nullable',
-                'string',
-                'min:8',
-                'confirmed',
-            ],
+            // Basic Information
+            'user.name' => ['required', 'string', 'max:255'],
+            'user.email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->user->id)],
+
+            // Role flags
+            'user.is_buyer' => ['boolean'],
+            'user.is_seller' => ['boolean'],
+            'user.is_supplier' => ['boolean'],
+
+            // Business Information
+            'user.company_name' => ['nullable', 'string', 'max:255'],
+            'user.tax_id' => ['nullable', 'string', 'max:255'],
+            'user.business_type' => ['nullable', 'string', 'max:255'],
+            'user.business_description' => ['nullable', 'string', 'max:1000'],
+
+            // Contact Information
+            'user.phone' => ['nullable', 'string', 'max:255'],
+            'user.mobile' => ['nullable', 'string', 'max:255'],
+            'user.website' => ['nullable', 'url', 'max:255'],
+
+            // Address
+            'user.address_line1' => ['nullable', 'string', 'max:255'],
+            'user.address_line2' => ['nullable', 'string', 'max:255'],
+            'user.city' => ['nullable', 'string', 'max:255'],
+            'user.state' => ['nullable', 'string', 'max:255'],
+            'user.postal_code' => ['nullable', 'string', 'max:255'],
+            'user.country' => ['nullable', 'string', 'max:255'],
+
+            // Supplier Fields
+            'user.supplier_code' => ['nullable', 'string', 'max:255', Rule::unique('users', 'supplier_code')->ignore($this->user->id)],
+            'user.duns_number' => ['nullable', 'string', 'max:255'],
+            'user.ariba_network_id' => ['nullable', 'string', 'max:255'],
+            'user.currency' => ['nullable', 'string', 'max:10'],
+            'user.credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'user.supplier_status' => ['nullable', 'in:pending,active,inactive,blocked'],
+
+            // Seller Fields
+            'user.commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'user.verified_seller' => ['boolean'],
+
+            // Password
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ];
     }
 

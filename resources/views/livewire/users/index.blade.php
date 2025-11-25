@@ -19,6 +19,33 @@
             {{ $row->email }}
             @endinteract
 
+            @interact('column_company_name', $row)
+            {{ $row->company_name ?? '-' }}
+            @endinteract
+
+            @interact('column_roles', $row)
+            <div class="flex gap-1 flex-wrap">
+                @if($row->is_buyer)
+                    <x-badge color="blue" text="Buyer" sm />
+                @endif
+                @if($row->is_seller)
+                    <x-badge color="green" text="Seller" sm />
+                    @if($row->markets->isNotEmpty())
+                        <div class="text-xs text-gray-600 dark:text-gray-400 w-full mt-1">
+                            Markets: {{ $row->markets->pluck('name')->join(', ') }}
+                        </div>
+                    @endif
+                @endif
+                @if($row->is_supplier)
+                    @if($row->supplier_status === 'active')
+                        <x-badge color="purple" text="Supplier" sm />
+                    @else
+                        <x-badge color="slate" text="Supplier ({{ $row->supplier_status }})" sm />
+                    @endif
+                @endif
+            </div>
+            @endinteract
+
             @interact('column_created_at', $row)
             {{ $row->created_at->diffForHumans() }}
             @endinteract

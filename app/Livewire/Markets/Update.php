@@ -5,6 +5,7 @@ namespace App\Livewire\Markets;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -19,7 +20,8 @@ class Update extends Component
 
     public function render(): View
     {
-        return view('livewire.markets.update');
+        $sellers = User::where('is_seller', true)->orderBy('name')->get();
+        return view('livewire.markets.update', compact('sellers'));
     }
 
     #[On('load::market')]
@@ -33,6 +35,10 @@ class Update extends Component
     public function rules(): array
     {
         return [
+            'market.user_id' => [
+                'required',
+                'exists:users,id',
+            ],
             'market.name' => [
                 'required',
                 'string',

@@ -33,6 +33,61 @@ class Profile extends Component
                 'string',
                 'max:255'
             ],
+            'user.email' => [
+                'required',
+                'email',
+                'max:255'
+            ],
+            'user.company_name' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.phone' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.mobile' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.website' => [
+                'nullable',
+                'url',
+                'max:255'
+            ],
+            'user.address_line1' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.address_line2' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.city' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.state' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.postal_code' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'user.country' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
             'password' => [
                 'nullable',
                 'string',

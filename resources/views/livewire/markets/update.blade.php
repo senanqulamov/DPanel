@@ -3,6 +3,17 @@
         <x-slot name="title">{{ __('Update Market: #:id', ['id' => $market?->id]) }}</x-slot>
         <form id="market-update-{{ $market?->id }}" wire:submit="save" class="space-y-6">
 
+            <div class="grid grid-cols-1 gap-4">
+                <x-select.native
+                    label="{{ __('Owner (Seller)') }}"
+                    wire:model.blur="market.user_id"
+                    :options="$sellers"
+                    select="label:name|value:id"
+                    required
+                    hint="{{ __('Seller who owns this market') }}"
+                />
+            </div>
+
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <x-input
                     label="{{ __('Name') }}"

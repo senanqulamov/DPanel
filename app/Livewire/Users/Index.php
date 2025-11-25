@@ -30,6 +30,8 @@ class Index extends Component
         ['index' => 'id', 'label' => '#'],
         ['index' => 'name', 'label' => 'Name'],
         ['index' => 'email', 'label' => 'E-mail'],
+        ['index' => 'company_name', 'label' => 'Company'],
+        ['index' => 'roles', 'label' => 'Roles', 'sortable' => false],
         ['index' => 'created_at', 'label' => 'Created'],
         ['index' => 'action', 'sortable' => false],
     ];
@@ -47,6 +49,7 @@ class Index extends Component
         }
 
         return User::query()
+            ->with('markets')
             ->whereNotIn('id', [Auth::id()])
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'email'], 'like', '%'.trim($this->search).'%'))
             ->orderBy(...array_values($this->sort))

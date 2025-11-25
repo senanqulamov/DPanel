@@ -17,7 +17,8 @@ class Product extends Model
         'price',
         'stock',
         'category',
-        'market_id', // added
+        'market_id',
+        'supplier_id', // User who supplies this product
     ];
 
     protected $casts = [
@@ -27,6 +28,11 @@ class Product extends Model
     public function market()
     {
         return $this->belongsTo(Market::class);
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(User::class, 'supplier_id');
     }
 
     public function orderItems(): HasMany

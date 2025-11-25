@@ -23,6 +23,14 @@
             {{ $row->location ?? '-' }}
             @endinteract
 
+            @interact('column_owner', $row)
+            @if($row->seller)
+                <x-badge color="green" :text="$row->seller->name" icon="user" position="left" sm />
+            @else
+                <span class="text-gray-400">-</span>
+            @endif
+            @endinteract
+
             @interact('column_created_at', $row)
             {{ $row->created_at->diffForHumans() }}
             @endinteract

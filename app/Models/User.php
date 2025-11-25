@@ -23,6 +23,47 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        // Role flags
+        'is_buyer',
+        'is_seller',
+        'is_supplier',
+        // Business info
+        'company_name',
+        'tax_id',
+        'business_type',
+        'business_description',
+        // Contact info
+        'phone',
+        'mobile',
+        'website',
+        // Address
+        'address_line1',
+        'address_line2',
+        'city',
+        'state',
+        'postal_code',
+        'country',
+        // Supplier fields
+        'supplier_code',
+        'duns_number',
+        'ariba_network_id',
+        'payment_terms',
+        'currency',
+        'credit_limit',
+        'supplier_status',
+        'supplier_approved_at',
+        // Seller fields
+        'commission_rate',
+        'verified_seller',
+        'verified_at',
+        // Performance
+        'rating',
+        'total_orders',
+        'completed_orders',
+        'cancelled_orders',
+        // Status
+        'is_active',
+        'notes',
     ];
 
     /**
@@ -47,6 +88,17 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_buyer' => 'boolean',
+            'is_seller' => 'boolean',
+            'is_supplier' => 'boolean',
+            'verified_seller' => 'boolean',
+            'is_active' => 'boolean',
+            'payment_terms' => 'json',
+            'credit_limit' => 'decimal:2',
+            'commission_rate' => 'decimal:2',
+            'rating' => 'decimal:2',
+            'supplier_approved_at' => 'datetime',
+            'verified_at' => 'datetime',
         ];
     }
 
@@ -65,5 +117,202 @@ class User extends Authenticatable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Orders where this user is the buyer
+     */
+    public function purchaseOrders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+
+    /**
+     * Products supplied by this user (if supplier)
+     */
+    public function suppliedProducts(): HasMany
+    {
+        return $this->hasMany(Product::class, 'supplier_id');
+    }
+
+    /**
+     * Markets owned by this user (if seller)
+     */
+    public function markets(): HasMany
+    {
+        return $this->hasMany(Market::class, 'user_id');
+    }
+
+    // Role Check Methods
+
+    public function isBuyer(): bool
+    {
+        return $this->is_buyer;
+    }
+
+    public function isSeller(): bool
+    {
+        return $this->is_seller;
+    }
+
+    public function isSupplier(): bool
+    {
+        return $this->is_supplier;
+    }
+
+    public function isActiveSupplier(): bool
+    {
+        return $this->is_supplier && $this->supplier_status === 'active';
+    }
+
+    public function isVerifiedSeller(): bool
+    {
+        return $this->is_seller && $this->verified_seller;
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return match(strtolower($role)) {
+            'buyer' => $this->is_buyer,
+            'seller' => $this->is_seller,
+            'supplier' => $this->is_supplier,
+            default => false,
+        };
+    }
+
+    public function getRoles(): array
+    {
+        $roles = [];
+        if ($this->is_buyer) $roles[] = 'buyer';
+        if ($this->is_seller) $roles[] = 'seller';
+        if ($this->is_supplier) $roles[] = 'supplier';
+        return $roles;
+    }
+
+    // Address & Contact Methods
+
+    public function getFullAddress(): string
+    {
+        $parts = array_filter([
+            $this->address_line1,
+            $this->address_line2,
+            $this->city,
+            $this->state,
+            $this->postal_code,
+            $this->country,
+        ]);
+
+        return implode(', ', $parts);
+    }
+
+    public function hasCompleteAddress(): bool
+    {
+        return !empty($this->address_line1)
+            && !empty($this->city)
+            && !empty($this->country);
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->company_name ?? $this->name;
+    }
+
+    // Supplier-Specific Methods
+
+    public function canSupply(): bool
+    {
+        return $this->is_supplier
+            && $this->supplier_status === 'active'
+            && $this->is_active;
+    }
+
+    public function approveAsSupplier(): void
+    {
+        $this->update([
+            'supplier_status' => 'active',
+            'supplier_approved_at' => now(),
+        ]);
+    }
+
+    public function blockSupplier(): void
+    {
+        $this->update([
+            'supplier_status' => 'blocked',
+        ]);
+    }
+
+    public function hasAribaIntegration(): bool
+    {
+        return !empty($this->ariba_network_id);
+    }
+
+    // Performance Methods
+
+    public function updateRating(float $newRating): void
+    {
+        // Calculate new average rating
+        $totalRatings = $this->completed_orders;
+        $currentTotal = $this->rating * max($totalRatings - 1, 0);
+        $newAverage = ($currentTotal + $newRating) / max($totalRatings, 1);
+
+        $this->update(['rating' => round($newAverage, 2)]);
+    }
+
+    public function incrementOrderCount(string $status = 'total'): void
+    {
+        match($status) {
+            'completed' => $this->increment('completed_orders'),
+            'cancelled' => $this->increment('cancelled_orders'),
+            default => $this->increment('total_orders'),
+        };
+    }
+
+    public function getSuccessRate(): float
+    {
+        if ($this->total_orders === 0) {
+            return 0.0;
+        }
+
+        return round(($this->completed_orders / $this->total_orders) * 100, 2);
+    }
+
+    // Scopes
+
+    public function scopeSuppliers($query)
+    {
+        return $query->where('is_supplier', true);
+    }
+
+    public function scopeActiveSuppliers($query)
+    {
+        return $query->where('is_supplier', true)
+            ->where('supplier_status', 'active')
+            ->where('is_active', true);
+    }
+
+    public function scopeSellers($query)
+    {
+        return $query->where('is_seller', true);
+    }
+
+    public function scopeVerifiedSellers($query)
+    {
+        return $query->where('is_seller', true)
+            ->where('verified_seller', true);
+    }
+
+    public function scopeBuyers($query)
+    {
+        return $query->where('is_buyer', true);
+    }
+
+    public function scopeWithRole($query, string $role)
+    {
+        return match(strtolower($role)) {
+            'supplier' => $query->suppliers(),
+            'seller' => $query->sellers(),
+            'buyer' => $query->buyers(),
+            default => $query,
+        };
     }
 }
