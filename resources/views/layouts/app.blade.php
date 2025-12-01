@@ -60,6 +60,7 @@
             <x-side-bar.item :text="__('Users')" icon="users" :route="route('users.index')"/>
             <x-side-bar.item :text="__('Products')" icon="shopping-cart" :route="route('products.index')"/>
             <x-side-bar.item :text="__('Orders')" icon="queue-list" :route="route('orders.index')"/>
+            <x-side-bar.item :text="__('RFQ')" icon="queue-list" :route="route('rfq.index')"/>
             <x-side-bar.item :text="__('Markets')" icon="building-storefront" :route="route('markets.index')"/>
             <x-side-bar.item :text="__('Logs')" icon="clipboard-document-list" :route="route('logs.index')"/>
             {{--                <x-side-bar.item :text="__('Settings')" icon="cog-6-tooth" :route="route('settings.index')" />--}}

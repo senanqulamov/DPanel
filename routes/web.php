@@ -13,6 +13,10 @@ use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\User\Profile;
 use App\Livewire\Users\Index;
 use App\Livewire\Users\Show as UsersShow;
+use App\Livewire\Rfq\Create as RfqCreate;
+use App\Livewire\Rfq\Index as RfqIndex;
+use App\Livewire\Rfq\Show as RfqShow;
+use App\Livewire\Rfq\QuoteForm as RfqQuoteForm;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('welcome');
@@ -42,6 +46,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings
     Route::get('/settings', SettingsIndex::class)->name('settings.index');
+
+    // RFQs (buyer-facing)
+    Route::get('/rfq', RfqIndex::class)->name('rfq.index');
+    Route::get('/rfq/create', RfqCreate::class)->name('rfq.create');
+    Route::get('/rfq/{request}', RfqShow::class)->name('rfq.show');
+    Route::get('/rfq/{request}/quote', RfqQuoteForm::class)->name('rfq.quote');
 });
 
 require __DIR__.'/auth.php';
