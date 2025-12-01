@@ -16,6 +16,8 @@ class Index extends Component
 {
     use WithPagination;
 
+    public string $tab = 'users';
+
     public $quantity = 10;
 
     public ?string $search = null;
