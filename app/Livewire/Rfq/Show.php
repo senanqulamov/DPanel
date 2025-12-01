@@ -23,6 +23,8 @@ class Show extends Component
             'buyer',
             'items.product',
             'quotes.supplier',
+            'quotes.items.requestItem.product',
+            'supplierInvitations.supplier',
         ]);
 
         $this->logPageView('RFQ Show', [
@@ -31,8 +33,14 @@ class Show extends Component
 
         $user = Auth::user();
 
+        // Check if user has already submitted a quote
+        $hasSubmittedQuote = $user && $this->request->quotes()
+            ->where('supplier_id', $user->id)
+            ->exists();
+
         $this->canQuote = $user
             && $user->id !== $this->request->buyer_id
+            && !$hasSubmittedQuote
             && $this->request->status === 'open'
             && ($this->request->deadline === null || $this->request->deadline->isFuture());
     }

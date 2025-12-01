@@ -92,6 +92,10 @@ class DatabaseSeeder extends Seeder
         // Logs
         Log::factory(120)->create();
 
+        // RFQ System
+        $this->call(RfqSeeder::class);
+        $this->command->info('RFQ data seeded successfully!');
+
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin: admin@example.com / password');
         $this->command->info('Suppliers: ' . $suppliers->count());

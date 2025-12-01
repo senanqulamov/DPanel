@@ -151,54 +151,121 @@
                         </p>
                     </div>
                 @else
-                    <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-100 dark:bg-gray-700">
-                            <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    @lang('Supplier')
-                                </th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    @lang('Unit Price')
-                                </th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    @lang('Total Price')
-                                </th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    @lang('Status')
-                                </th>
-                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
-                                    @lang('Submitted')
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach($request->quotes as $quote)
-                                <tr>
-                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                        {{ $quote->supplier?->name ?? __('Unknown') }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">
-                                        {{ number_format($quote->unit_price, 2) }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">
-                                        {{ $quote->formatted_total_price }}
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                        <x-badge :text="ucfirst($quote->status ?? 'submitted')" :color="$quote->status === 'submitted' ? 'blue' : 'gray'" />
-                                    </td>
-                                    <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 text-right">
-                                        {{ $quote->created_at->diffForHumans() }}
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
+                    <div class="space-y-4">
+                        @foreach($request->quotes as $quote)
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                {{-- Quote Header --}}
+                                <div class="bg-gray-100 dark:bg-gray-800 px-4 py-3 flex justify-between items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {{ $quote->supplier?->name ?? __('Unknown Supplier') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            @lang('Submitted'): {{ $quote->submitted_at ? $quote->submitted_at->format('M d, Y H:i') : $quote->created_at->format('M d, Y H:i') }}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Total Amount')</div>
+                                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                {{ $quote->currency ?? 'USD' }} ${{ number_format($quote->total_amount ?? $quote->total_price, 2) }}
+                                            </div>
+                                        </div>
+                                        <x-badge
+                                            :text="ucfirst(str_replace('_', ' ', $quote->status ?? 'submitted'))"
+                                            :color="match($quote->status) {
+                                                'draft' => 'gray',
+                                                'submitted' => 'blue',
+                                                'under_review' => 'yellow',
+                                                'accepted', 'won' => 'green',
+                                                'rejected', 'lost' => 'red',
+                                                default => 'gray'
+                                            }"
+                                        />
+                                    </div>
+                                </div>
+
+                                {{-- Quote Items --}}
+                                @if($quote->items && $quote->items->count() > 0)
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                                                    @lang('Item')
+                                                </th>
+                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                                                    @lang('Qty')
+                                                </th>
+                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                                                    @lang('Unit Price')
+                                                </th>
+                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                                                    @lang('Tax %')
+                                                </th>
+                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                                                    @lang('Total')
+                                                </th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                            @foreach($quote->items as $item)
+                                                <tr>
+                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100">
+                                                        {{ $item->description }}
+                                                        @if($item->notes)
+                                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $item->notes }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">
+                                                        {{ $item->quantity }}
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">
+                                                        ${{ number_format($item->unit_price, 2) }}
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">
+                                                        {{ number_format($item->tax_rate, 1) }}%
+                                                    </td>
+                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right font-medium">
+                                                        ${{ number_format($item->total, 2) }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+
+                                {{-- Quote Details --}}
+                                <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                                        @if($quote->valid_until)
+                                            <div>
+                                                <span class="text-gray-500 dark:text-gray-400">@lang('Valid Until'):</span>
+                                                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ $quote->valid_until->format('M d, Y') }}</span>
+                                            </div>
+                                        @endif
+                                        @if($quote->notes)
+                                            <div class="md:col-span-2">
+                                                <span class="text-gray-500 dark:text-gray-400">@lang('Notes'):</span>
+                                                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ $quote->notes }}</span>
+                                            </div>
+                                        @endif
+                                        @if($quote->terms_conditions)
+                                            <div class="md:col-span-3">
+                                                <span class="text-gray-500 dark:text-gray-400">@lang('Terms & Conditions'):</span>
+                                                <div class="ml-1 text-gray-900 dark:text-gray-100 mt-1 text-sm whitespace-pre-line">{{ $quote->terms_conditions }}</div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
         </div>
     </x-card>
 
-    <livewire:rfq.update @updated="$refresh" />
+    <livewire:rfq.update @updated="$refresh"/>
 </div>

@@ -6,16 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('quotes', function (Blueprint $table) {
+        Schema::create('supplier_invitations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('request_id')->constrained('requests')->cascadeOnDelete();
             $table->foreignId('supplier_id')->constrained('users')->cascadeOnDelete();
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('total_price', 10, 2);
+            $table->enum('status', ['pending', 'accepted', 'declined', 'quoted'])->default('pending');
+            $table->timestamp('sent_at')->nullable();
+            $table->timestamp('responded_at')->nullable();
             $table->text('notes')->nullable();
-            $table->enum('status', ['draft', 'submitted', 'under_review', 'pending', 'accepted', 'rejected', 'won', 'lost', 'withdrawn'])->default('draft');
             $table->timestamps();
 
             $table->index('request_id');
@@ -24,8 +27,11 @@ return new class extends Migration
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('quotes');
+        Schema::dropIfExists('supplier_invitations');
     }
 };

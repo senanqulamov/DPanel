@@ -23,16 +23,33 @@
         </x-slot:header>
 
         <form wire:submit.prevent="save" class="space-y-6">
+            <!-- RFQ Information -->
+            <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <h3 class="text-md font-medium text-gray-900 dark:text-gray-100 mb-2">
+                    @lang('RFQ Details')
+                </h3>
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ $request->description }}
+                </div>
+            </div>
+
+            <!-- Quote Items -->
             <div class="space-y-4">
+                <h3 class="text-md font-medium text-gray-900 dark:text-gray-100">
+                    @lang('Quote Items')
+                </h3>
+
                 @foreach($request->items as $item)
                     <div class="border border-[var(--color-border)] rounded-lg p-4 bg-[var(--color-surface-raised)]" wire:key="quote-item-{{ $item->id }}">
-                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
                             <div class="md:col-span-4">
-                                <div class="text-sm font-medium text-[var(--color-text-high)]">
-                                    {{ $item->product?->name ?? __('Unknown product') }}
-                                </div>
-                                <div class="text-xs text-[var(--color-text-muted)]">
-                                    @lang('Requested quantity'): {{ $item->quantity }}
+                                <x-input
+                                    label="{{ __('Description') }}"
+                                    wire:model="items.{{ $item->id }}.description"
+                                    required
+                                />
+                                <div class="mt-1 text-xs text-[var(--color-text-muted)]">
+                                    @lang('Original'): {{ $item->product?->name ?? __('Unknown product') }}
                                 </div>
                                 @if($item->specifications)
                                     <div class="mt-1 text-xs text-[var(--color-text-muted)]">
@@ -41,24 +58,59 @@
                                 @endif
                             </div>
 
-                            <div class="md:col-span-3">
-                                <x-input
-                                    type="number"
-                                    min="0"
+                            <div class="md:col-span-2">
+                                <x-number
+                                    label="{{ __('Quantity') }}"
+                                    wire:model="items.{{ $item->id }}.quantity"
+                                    min="0.01"
                                     step="0.01"
-                                    label="{{ __('Unit Price') }}"
-                                    wire:model="items.{{ $item->id }}.unit_price"
+                                    required
                                 />
                             </div>
 
-                            <div class="md:col-span-3">
-                                <x-input
-                                    type="number"
+                            <div class="md:col-span-2">
+                                <x-number
+                                    label="{{ __('Unit Price') }}"
+                                    wire:model="items.{{ $item->id }}.unit_price"
                                     min="0"
                                     step="0.01"
-                                    label="{{ __('Total (auto-calculated)') }}"
-                                    :value="isset($items[$item->id]['unit_price']) ? number_format(($items[$item->id]['unit_price'] ?? 0) * ($items[$item->id]['quantity'] ?? $item->quantity), 2) : ''"
-                                    readonly
+                                    required
+                                />
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <x-number
+                                    label="{{ __('Tax (%)') }}"
+                                    wire:model="items.{{ $item->id }}.tax_rate"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                />
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    {{ __('Item Total') }}
+                                </label>
+                                <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                    @if(isset($items[$item->id]['unit_price']) && isset($items[$item->id]['quantity']))
+                                        @php
+                                            $subtotal = ($items[$item->id]['unit_price'] ?? 0) * ($items[$item->id]['quantity'] ?? 0);
+                                            $tax = $subtotal * (($items[$item->id]['tax_rate'] ?? 0) / 100);
+                                            $total = $subtotal + $tax;
+                                        @endphp
+                                        ${{ number_format($total, 2) }}
+                                    @else
+                                        $0.00
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="md:col-span-12">
+                                <x-textarea
+                                    label="{{ __('Item Notes (optional)') }}"
+                                    wire:model="items.{{ $item->id }}.notes"
+                                    rows="2"
                                 />
                             </div>
                         </div>
@@ -66,16 +118,58 @@
                 @endforeach
             </div>
 
-            <div>
-                <x-textarea
-                    label="{{ __('Notes (optional)') }}"
-                    wire:model.defer="notes"
-                    rows="3"
+            <!-- Quote Total -->
+            <div class="flex justify-end p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div class="text-right">
+                    <div class="text-sm text-gray-600 dark:text-gray-400">@lang('Total Quote Amount')</div>
+                    <div class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                        {{ $currency }} ${{ number_format($this->calculateTotal(), 2) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quote Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <x-input
+                    type="date"
+                    label="{{ __('Valid Until') }}"
+                    wire:model="valid_until"
+                    hint="{{ __('Date until which this quote is valid') }}"
+                    required
+                />
+
+                <x-input
+                    label="{{ __('Currency') }}"
+                    wire:model="currency"
+                    maxlength="3"
+                    required
                 />
             </div>
 
-            <div class="flex justify-end pt-4 border-t mt-4">
-                <x-button type="submit">
+            <x-textarea
+                label="{{ __('Notes (optional)') }}"
+                wire:model="notes"
+                hint="{{ __('Additional information or clarifications') }}"
+                rows="3"
+            />
+
+            <x-textarea
+                label="{{ __('Terms & Conditions (optional)') }}"
+                wire:model="terms_conditions"
+                hint="{{ __('Payment terms, delivery conditions, etc.') }}"
+                rows="4"
+            />
+
+            <div class="flex justify-between items-center pt-4 border-t mt-4">
+                <x-button
+                    flat
+                    color="gray"
+                    onclick="window.location.href='{{ route('rfq.show', $request) }}'"
+                >
+                    @lang('Cancel')
+                </x-button>
+
+                <x-button type="submit" color="primary">
                     @lang('Submit Quote')
                 </x-button>
             </div>

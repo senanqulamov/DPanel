@@ -57,4 +57,20 @@ class Request extends Model
     {
         return $this->hasMany(Quote::class);
     }
+
+    /**
+     * Get the supplier invitations for this request.
+     */
+    public function supplierInvitations(): HasMany
+    {
+        return $this->hasMany(SupplierInvitation::class);
+    }
+
+    /**
+     * Get the workflow events for this request.
+     */
+    public function workflowEvents()
+    {
+        return $this->morphMany(WorkflowEvent::class, 'eventable');
+    }
 }

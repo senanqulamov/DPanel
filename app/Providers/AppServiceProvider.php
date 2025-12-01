@@ -26,6 +26,43 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Registered::class, [LogAuthenticationEvents::class, 'handleRegistered']);
         Event::listen(Failed::class, [LogAuthenticationEvents::class, 'handleFailed']);
 
+        // Register RFQ workflow event listeners
+        Event::listen(
+            \App\Events\RequestStatusChanged::class,
+            [\App\Listeners\RecordWorkflowEvent::class, 'handleRequestStatusChanged']
+        );
+        Event::listen(
+            \App\Events\RequestStatusChanged::class,
+            \App\Listeners\SendRequestStatusNotification::class
+        );
+
+        Event::listen(
+            \App\Events\SupplierInvited::class,
+            [\App\Listeners\RecordWorkflowEvent::class, 'handleSupplierInvited']
+        );
+        Event::listen(
+            \App\Events\SupplierInvited::class,
+            \App\Listeners\SendSupplierInvitationNotification::class
+        );
+
+        Event::listen(
+            \App\Events\QuoteSubmitted::class,
+            [\App\Listeners\RecordWorkflowEvent::class, 'handleQuoteSubmitted']
+        );
+        Event::listen(
+            \App\Events\QuoteSubmitted::class,
+            \App\Listeners\NotifyBuyerOfQuoteSubmission::class
+        );
+
+        Event::listen(
+            \App\Events\SlaReminderDue::class,
+            [\App\Listeners\RecordWorkflowEvent::class, 'handleSlaReminderDue']
+        );
+        Event::listen(
+            \App\Events\SlaReminderDue::class,
+            \App\Listeners\SendSlaReminderNotification::class
+        );
+
         TallStackUi::personalize()
             // ==================== SLIDE ====================
             ->slide()

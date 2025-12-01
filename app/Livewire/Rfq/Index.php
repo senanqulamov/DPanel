@@ -8,7 +8,6 @@ use App\Models\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -18,7 +17,9 @@ class Index extends Component
     use Alert, WithLogging, WithPagination;
 
     public string $status = 'all';
+
     public ?string $search = null;
+
     public $quantity = 10;
 
     public array $sort = [
@@ -79,13 +80,11 @@ class Index extends Component
     {
         if ($this->quantity === 'all') {
             $this->quantity = Request::query()
-                ->where('buyer_id', Auth::id())
                 ->count();
         }
 
         $query = Request::query()
-            ->withCount(['items', 'quotes'])
-            ->where('buyer_id', Auth::id());
+            ->withCount(['items', 'quotes']);
 
         if ($this->status !== 'all') {
             $query->where('status', $this->status);

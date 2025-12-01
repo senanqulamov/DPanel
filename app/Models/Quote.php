@@ -18,10 +18,24 @@ class Quote extends Model
     protected $fillable = [
         'request_id',
         'supplier_id',
+        'supplier_invitation_id',
         'unit_price',
         'total_price',
+        'total_amount',
+        'currency',
+        'valid_until',
         'notes',
+        'terms_conditions',
         'status',
+        'submitted_at',
+    ];
+
+    protected $casts = [
+        'valid_until' => 'datetime',
+        'submitted_at' => 'datetime',
+        'total_price' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'unit_price' => 'decimal:2',
     ];
 
     /**
@@ -38,6 +52,22 @@ class Quote extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'supplier_id');
+    }
+
+    /**
+     * Get the supplier invitation this quote responds to.
+     */
+    public function supplierInvitation(): BelongsTo
+    {
+        return $this->belongsTo(SupplierInvitation::class, 'supplier_invitation_id');
+    }
+
+    /**
+     * Get the quote items.
+     */
+    public function items()
+    {
+        return $this->hasMany(QuoteItem::class);
     }
 
     /**
