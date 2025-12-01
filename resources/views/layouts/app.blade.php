@@ -33,7 +33,7 @@
                     <x-slot:action>
                         <div>
                             <button class="cursor-pointer" x-on:click="show = !show">
-                                <span class="text-base font-semibold text-primary-500" x-text="name"></span>
+                                <span icon="chevron-down" class="text-base font-semibold text-primary-500" x-text="name"></span>
                             </button>
                         </div>
                     </x-slot:action>

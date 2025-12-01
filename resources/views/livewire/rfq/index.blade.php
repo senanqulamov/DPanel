@@ -63,9 +63,12 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
+                <x-button.circle icon="pencil" wire:click="$dispatch('load::rfq', { rfq: '{{ $row->id }}' })"/>
                 <livewire:rfq.delete :rfq="$row" :key="uniqid('', true)" @deleted="$refresh"/>
             </div>
             @endinteract
         </x-table>
     </x-card>
+
+    <livewire:rfq.update @updated="$refresh"/>
 </div>

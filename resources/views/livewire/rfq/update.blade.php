@@ -1,13 +1,11 @@
 <div>
-    <x-button :text="__('Create New Request')" wire:click="$toggle('modal')" sm />
-
-    <x-modal :title="__('Create New Request')" wire x-on:open="setTimeout(() => $refs.title?.focus(), 250)" size="3xl" blur="xl">
-        <form id="rfq-create" wire:submit="save" class="space-y-4">
+    <x-slide wire="modal" size="xl" blur="xl">
+        <x-slot name="title">{{ __('Update Request: #:id', ['id' => $request?->id]) }}</x-slot>
+        <form id="rfq-update-{{ $request?->id }}" wire:submit="save" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <x-input
-                    x-ref="title"
                     label="{{ __('Title') }} *"
-                    wire:model.defer="request.title"
+                    wire:model.blur="request.title"
                     required
                 />
 
@@ -44,7 +42,7 @@
                     @foreach($items as $index => $item)
                         <div
                             class="border border-[var(--color-border)] rounded-lg p-4 bg-[var(--color-surface-raised)]"
-                            wire:key="rfq-item-{{ $index }}"
+                            wire:key="rfq-update-item-{{ $index }}"
                         >
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                                 <div class="md:col-span-5">
@@ -91,10 +89,11 @@
                 </div>
             </div>
         </form>
+
         <x-slot:footer>
-            <x-button type="submit" form="rfq-create">
-                @lang('Save')
+            <x-button type="submit" form="rfq-update-{{ $request?->id }}">
+                @lang('Save Changes')
             </x-button>
         </x-slot:footer>
-    </x-modal>
+    </x-slide>
 </div>
