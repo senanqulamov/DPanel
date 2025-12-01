@@ -7,6 +7,7 @@ use App\Livewire\Traits\WithLogging;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -47,6 +48,12 @@ class Update extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('manage_permissions')) {
+            $this->error('You do not have permission to manage permissions.');
+            return;
+        }
+
         if (!$this->role) {
             $this->error('Role not found');
             return;

@@ -17,16 +17,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'supplier'])->prefix('supplier')->name('supplier.')->group(function () {
+Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('supplier')->name('supplier.')->group(function () {
     // Supplier Dashboard
     Route::get('/dashboard', SupplierDashboard::class)->name('dashboard');
 
     // Invitations
-    Route::get('/invitations', InvitationsIndex::class)->name('invitations.index');
+    Route::get('/invitations', InvitationsIndex::class)->name('invitations.index')->middleware('can:manage_supplier_invitations');
 
     // Quotes
-    Route::get('/quotes', QuotesIndex::class)->name('quotes.index');
-    Route::get('/quotes/create/{invitation}', QuotesCreate::class)->name('quotes.create');
+    Route::get('/quotes', QuotesIndex::class)->name('quotes.index')->middleware('can:view_quotes');
+    Route::get('/quotes/create/{invitation}', QuotesCreate::class)->name('quotes.create')->middleware('can:submit_quotes');
 
     // Messages
     Route::get('/messages', MessagesIndex::class)->name('messages.index');

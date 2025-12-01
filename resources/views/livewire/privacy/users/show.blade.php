@@ -120,9 +120,9 @@
                                 @lang('This user has admin privileges and full access to all features')
                             </div>
                         </div>
-                    @elseif($permissionsByGroup->count() > 0)
+                    @elseif($this->permissionsByGroup->count() > 0)
                         <div class="space-y-4">
-                            @foreach($permissionsByGroup as $group => $groupPermissions)
+                            @foreach($this->permissionsByGroup as $group => $groupPermissions)
                                 <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                                     <div class="flex items-center gap-2 mb-3">
                                         <x-icon name="key" class="w-4 h-4 text-purple-600 dark:text-purple-400" />

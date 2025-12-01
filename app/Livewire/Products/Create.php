@@ -4,9 +4,10 @@ namespace App\Livewire\Products;
 
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
-use App\Models\Product;
 use App\Models\Market;
+use App\Models\Product;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -68,6 +69,13 @@ class Create extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (! Auth::user()->hasPermission('create_products')) {
+            $this->error('You do not have permission to create products.');
+
+            return;
+        }
+
         $this->validate();
 
         $this->product->save();
@@ -77,7 +85,6 @@ class Create extends Component
             'price' => $this->product->price,
             'market_id' => $this->product->market_id,
         ]);
-
 
         $this->dispatch('created');
 

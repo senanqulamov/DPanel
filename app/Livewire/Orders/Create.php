@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Create extends Component
@@ -273,6 +274,12 @@ class Create extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('create_orders')) {
+            $this->error('You do not have permission to create orders.');
+            return;
+        }
+
         $this->normalizeItems();
 
         if (count($this->items) === 0) {

@@ -6,6 +6,7 @@ use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Role;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Create extends Component
@@ -51,6 +52,12 @@ class Create extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('manage_roles')) {
+            $this->error('You do not have permission to create roles.');
+            return;
+        }
+
         $this->validate();
 
         $this->role->is_system = false;

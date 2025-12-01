@@ -3,6 +3,33 @@
 
     <x-modal :title="__('Create New User')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="4xl" blur="xl">
         <form id="user-create" wire:submit="save">
+
+            {{-- Validation Errors Summary --}}
+            @if ($errors->any())
+                <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r" x-data="{ show: true }" x-show="show" x-transition>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <x-icon name="exclamation-triangle" class="w-5 h-5 text-red-600 dark:text-red-400" />
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+                                {{ __('Please fix the following errors:') }}
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+                                <ul class="list-disc list-inside space-y-1">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                        <button type="button" @click="show = false" class="ml-3 flex-shrink-0">
+                            <x-icon name="x-mark" class="w-5 h-5 text-red-600 dark:text-red-400 hover:text-red-800" />
+                        </button>
+                    </div>
+                </div>
+            @endif
+
             <x-tab selected="Basic Information" :border="true">
                 <!-- Basic Information Tab -->
                 <x-tab.items tab="Basic Information">

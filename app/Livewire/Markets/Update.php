@@ -7,6 +7,7 @@ use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -59,6 +60,12 @@ class Update extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_markets')) {
+            $this->error('You do not have permission to edit markets.');
+            return;
+        }
+
         $this->validate();
 
         $changes = $this->market->getDirty();

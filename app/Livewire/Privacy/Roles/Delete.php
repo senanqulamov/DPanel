@@ -5,6 +5,7 @@ namespace App\Livewire\Privacy\Roles;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
@@ -44,6 +45,12 @@ class Delete extends Component
 
     public function delete(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('manage_roles')) {
+            $this->error('You do not have permission to delete roles.');
+            return;
+        }
+
         $roleData = [
             'name' => $this->role->name,
             'display_name' => $this->role->display_name

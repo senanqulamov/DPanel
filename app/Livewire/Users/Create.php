@@ -6,6 +6,7 @@ use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -23,7 +24,13 @@ class Create extends Component
 
     public function mount(): void
     {
-        $this->user = new User;
+        $this->user = new User([
+            'is_buyer' => false,
+            'is_seller' => false,
+            'is_supplier' => false,
+            'is_active' => true,
+            'verified_seller' => false,
+        ]);
     }
 
     public function render(): View
@@ -81,24 +88,43 @@ class Create extends Component
 
     public function save(): void
     {
-        $this->validate();
+        // Check permission
+        if (! Auth::user()->hasPermission('create_users')) {
+            $this->error('You do not have permission to create users.');
+
+            return;
+        }
+
+        try {
+            $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Show validation errors to user
+            $this->error('Please fix the validation errors before submitting.');
+            throw $e;
+        }
 
         $this->user->password = bcrypt($this->password);
         $this->user->email_verified_at = now();
 
         // Auto-approve supplier if created by admin
-        if ($this->user->is_supplier && !$this->user->supplier_status) {
+        if ($this->user->is_supplier && ! $this->user->supplier_status) {
             $this->user->supplier_status = 'active';
             $this->user->supplier_approved_at = now();
         }
 
         // Auto-verify seller if created by admin
-        if ($this->user->is_seller && !isset($this->user->verified_seller)) {
+        if ($this->user->is_seller && ! isset($this->user->verified_seller)) {
             $this->user->verified_seller = true;
             $this->user->verified_at = now();
         }
 
-        $this->user->save();
+        try {
+            $this->user->save();
+        } catch (\Exception $e) {
+            $this->error('Failed to create user: '.$e->getMessage());
+
+            return;
+        }
 
         // Log the creation
         $this->logCreate(
@@ -111,12 +137,17 @@ class Create extends Component
             ]
         );
 
-
         $this->dispatch('created');
 
-        $this->reset();
-        $this->user = new User;
+        $this->reset('password', 'password_confirmation', 'modal');
+        $this->user = new User([
+            'is_buyer' => false,
+            'is_seller' => false,
+            'is_supplier' => false,
+            'is_active' => true,
+            'verified_seller' => false,
+        ]);
 
-        $this->success();
+        $this->success('User created successfully!');
     }
 }

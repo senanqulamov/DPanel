@@ -52,8 +52,12 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
-                <x-button.circle icon="pencil" wire:click="$dispatch('load::user', { 'user' : '{{ $row->id }}'})"/>
-                <livewire:users.delete :user="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @can('edit_users')
+                    <x-button.circle icon="pencil" wire:click="$dispatch('load::user', { 'user' : '{{ $row->id }}'})"/>
+                @endcan
+                @can('delete_users')
+                    <livewire:users.delete :user="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @endcan
             </div>
             @endinteract
         </x-table>

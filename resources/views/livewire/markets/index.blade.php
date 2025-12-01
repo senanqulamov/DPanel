@@ -5,7 +5,9 @@
         </x-alert>
 
         <div class="mb-2 mt-4">
-            <livewire:markets.create @created="$refresh"/>
+            @can('create_markets')
+                <livewire:markets.create @created="$refresh"/>
+            @endcan
         </div>
 
         <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
@@ -41,8 +43,12 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
-                <x-button.circle icon="pencil" wire:click="$dispatch('load::market', { 'market' : '{{ $row->id }}'})"/>
-                <livewire:markets.delete :market="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @can('edit_markets')
+                    <x-button.circle icon="pencil" wire:click="$dispatch('load::market', { 'market' : '{{ $row->id }}'})"/>
+                @endcan
+                @can('delete_markets')
+                    <livewire:markets.delete :market="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @endcan
             </div>
             @endinteract
         </x-table>

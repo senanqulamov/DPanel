@@ -11,7 +11,9 @@
             </div>
 
             <div class="mb-2 mt-4">
-                <livewire:rfq.create @created="$refresh"/>
+                @can('create_rfqs')
+                    <livewire:rfq.create @created="$refresh"/>
+                @endcan
             </div>
         </div>
 
@@ -63,8 +65,12 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
-                <x-button.circle icon="pencil" wire:click="$dispatch('load::rfq', { rfq: '{{ $row->id }}' })"/>
-                <livewire:rfq.delete :rfq="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @can('edit_rfqs')
+                    <x-button.circle icon="pencil" wire:click="$dispatch('load::rfq', { rfq: '{{ $row->id }}' })"/>
+                @endcan
+                @can('delete_rfqs')
+                    <livewire:rfq.delete :rfq="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @endcan
             </div>
             @endinteract
         </x-table>

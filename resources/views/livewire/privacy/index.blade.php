@@ -70,7 +70,9 @@
 
                         @interact('column_action', $row)
                         <div class="flex gap-1">
-                            <x-button.circle icon="pencil" wire:click="$dispatch('load::user-roles', { 'user' : '{{ $row->id }}'})"/>
+                            @can('manage_roles')
+                                <x-button.circle icon="pencil" wire:click="$dispatch('load::user-roles', { 'user' : '{{ $row->id }}'})"/>
+                            @endcan
                         </div>
                         @endinteract
                     </x-table>
@@ -91,7 +93,7 @@
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-1">
                                             <a href="{{ route('privacy.roles.show', $role) }}" class="font-semibold text-gray-900 dark:text-gray-100 hover:text-purple-600 dark:hover:text-purple-400">
-                                                {{ $role->display_name }}
+                                                <x-badge :text="$role->display_name" icon="cursor-arrow-ripple" position="left"/>
                                             </a>
                                             @if($role->is_system)
                                                 <x-badge text="System" color="gray" sm />

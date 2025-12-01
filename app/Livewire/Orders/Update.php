@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -297,6 +298,12 @@ class Update extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_orders')) {
+            $this->error('You do not have permission to edit orders.');
+            return;
+        }
+
         $this->normalizeItems();
 
         if (count($this->items) === 0) {

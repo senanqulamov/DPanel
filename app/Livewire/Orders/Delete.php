@@ -5,6 +5,7 @@ namespace App\Livewire\Orders;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
@@ -26,6 +27,12 @@ class Delete extends Component
     #[Renderless]
     public function confirm(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('delete_orders')) {
+            $this->error('You do not have permission to delete orders.');
+            return;
+        }
+
         $this->question()
             ->confirm(method: 'delete')
             ->cancel()
@@ -34,6 +41,12 @@ class Delete extends Component
 
     public function delete(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('delete_orders')) {
+            $this->error('You do not have permission to delete orders.');
+            return;
+        }
+
         $orderData = [
             'order_number' => $this->order->order_number,
             'total' => $this->order->total,

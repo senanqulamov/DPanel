@@ -345,11 +345,13 @@ class User extends Authenticatable
 
     public function getSuccessRate(): float
     {
-        if ($this->total_orders === 0) {
+        if (!$this->total_orders || $this->total_orders === 0) {
             return 0.0;
         }
 
-        return round(($this->completed_orders / $this->total_orders) * 100, 2);
+        $completed = $this->completed_orders ?? 0;
+
+        return round(($completed / $this->total_orders) * 100, 2);
     }
 
     // Scopes

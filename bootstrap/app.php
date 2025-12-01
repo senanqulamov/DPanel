@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'supplier' => \App\Http\Middleware\EnsureUserIsSupplier::class,
+            'permission' => \App\Http\Middleware\CheckPermission::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

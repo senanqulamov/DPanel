@@ -4,6 +4,7 @@ namespace App\Livewire\Settings;
 
 use App\Livewire\Traits\Alert;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Index extends Component
@@ -40,6 +41,12 @@ class Index extends Component
 
     public function saveGeneral(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_settings')) {
+            $this->error('You do not have permission to edit settings.');
+            return;
+        }
+
         $this->validate([
             'app_name' => 'required|string|max:255',
             'app_url' => 'required|url',
@@ -53,6 +60,12 @@ class Index extends Component
 
     public function saveMail(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_settings')) {
+            $this->error('You do not have permission to edit settings.');
+            return;
+        }
+
         $this->validate([
             'mail_driver' => 'required|string',
             'mail_host' => 'required|string',
@@ -67,6 +80,12 @@ class Index extends Component
 
     public function toggleMaintenance(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_settings')) {
+            $this->error('You do not have permission to edit settings.');
+            return;
+        }
+
         $this->maintenance_mode = !$this->maintenance_mode;
 
         $status = $this->maintenance_mode ? 'enabled' : 'disabled';

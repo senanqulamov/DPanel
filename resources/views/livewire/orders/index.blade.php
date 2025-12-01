@@ -65,8 +65,12 @@
             @interact('column_action', $row)
             <div class="flex gap-1">
                 <x-button.circle icon="eye" color="primary" wire:click="$dispatch('view::order', { 'order' : '{{ $row->id }}'})"/>
-                <x-button.circle icon="pencil" wire:click="$dispatch('load::order', { 'order' : '{{ $row->id }}'})"/>
-                <livewire:orders.delete :order="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @can('edit_orders')
+                    <x-button.circle icon="pencil" wire:click="$dispatch('load::order', { 'order' : '{{ $row->id }}'})"/>
+                @endcan
+                @can('delete_orders')
+                    <livewire:orders.delete :order="$row" :key="uniqid('', true)" @deleted="$refresh"/>
+                @endcan
             </div>
             @endinteract
         </x-table>

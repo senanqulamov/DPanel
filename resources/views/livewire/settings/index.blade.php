@@ -59,9 +59,11 @@
                         />
                     </div>
 
-                    <x-button type="submit" color="primary" icon="check">
-                        {{ __('Save General Settings') }}
-                    </x-button>
+                    @can('edit_settings')
+                        <x-button type="submit" color="primary" icon="check">
+                            {{ __('Save General Settings') }}
+                        </x-button>
+                    @endcan
                 </form>
             </div>
 
@@ -126,9 +128,11 @@
                         />
                     </div>
 
-                    <x-button type="submit" color="primary" icon="check">
-                        {{ __('Save Mail Settings') }}
-                    </x-button>
+                    @can('edit_settings')
+                        <x-button type="submit" color="primary" icon="check">
+                            {{ __('Save Mail Settings') }}
+                        </x-button>
+                    @endcan
                 </form>
             </div>
 
@@ -155,7 +159,11 @@
                             {{ __('Temporarily disable public access to the application') }}
                         </p>
                     </div>
-                    <x-toggle wire:model.live="maintenance_mode" wire:change="toggleMaintenance"/>
+                    @can('edit_settings')
+                        <x-toggle wire:model.live="maintenance_mode" wire:change="toggleMaintenance"/>
+                    @else
+                        <x-toggle wire:model.live="maintenance_mode" disabled/>
+                    @endcan
                 </div>
 
                 @if($maintenance_mode)

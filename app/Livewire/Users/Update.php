@@ -6,6 +6,7 @@ use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -21,6 +22,12 @@ class Update extends Component
     public ?string $password_confirmation = null;
 
     public bool $modal = false;
+
+    public function mount(): void
+    {
+        // Initialize with empty user to prevent Livewire entangle errors
+        $this->user = new User;
+    }
 
     public function render(): View
     {
@@ -46,6 +53,7 @@ class Update extends Component
             'user.is_buyer' => ['boolean'],
             'user.is_seller' => ['boolean'],
             'user.is_supplier' => ['boolean'],
+            'user.is_active' => ['boolean'],
 
             // Business Information
             'user.company_name' => ['nullable', 'string', 'max:255'],
@@ -85,6 +93,12 @@ class Update extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_users')) {
+            $this->error('You do not have permission to edit users.');
+            return;
+        }
+
         $this->validate();
         $originalData = $this->user->getOriginal();
 

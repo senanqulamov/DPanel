@@ -72,6 +72,12 @@ class Update extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('edit_products')) {
+            $this->error('You do not have permission to edit products.');
+            return;
+        }
+
         $this->validate();
         $changes = $this->product->getDirty();
 

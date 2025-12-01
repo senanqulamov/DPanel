@@ -26,6 +26,12 @@ class Delete extends Component
     #[Renderless]
     public function confirm(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('delete_markets')) {
+            $this->error('You do not have permission to delete markets.');
+            return;
+        }
+
         $this->question()
             ->confirm(method: 'delete')
             ->cancel()
@@ -34,6 +40,12 @@ class Delete extends Component
 
     public function delete(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('delete_markets')) {
+            $this->error('You do not have permission to delete markets.');
+            return;
+        }
+
         $marketData = ['name' => $this->market->name, 'location' => $this->market->location];
         $marketId = $this->market->id;
 

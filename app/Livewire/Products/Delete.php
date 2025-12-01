@@ -26,6 +26,12 @@ class Delete extends Component
     #[Renderless]
     public function confirm(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('delete_products')) {
+            $this->error('You do not have permission to delete products.');
+            return;
+        }
+
         $this->question()
             ->confirm(method: 'delete')
             ->cancel()
@@ -34,6 +40,12 @@ class Delete extends Component
 
     public function delete(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('delete_products')) {
+            $this->error('You do not have permission to delete products.');
+            return;
+        }
+
         $productData = ['name' => $this->product->name, 'sku' => $this->product->sku];
         $productId = $this->product->id;
 

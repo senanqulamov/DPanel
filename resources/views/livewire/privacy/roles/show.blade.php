@@ -93,7 +93,9 @@
 
                     @interact('column_name', $row)
                     <div class="flex items-center gap-2">
-                        <x-badge :text="$row->name" icon="user" position="left"/>
+                        <a href="{{ route('privacy.users.show', $row) }}" class="text-blue-600 hover:underline">
+                            <x-badge :text="$row->name" icon="user" position="left"/>
+                        </a>
                         @if($row->is_admin)
                             <x-badge text="Admin" color="purple" sm />
                         @endif

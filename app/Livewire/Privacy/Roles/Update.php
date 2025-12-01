@@ -6,6 +6,7 @@ use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Role;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -60,6 +61,12 @@ class Update extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('manage_roles')) {
+            $this->error('You do not have permission to edit roles.');
+            return;
+        }
+
         if (!$this->role) {
             $this->error('Role not found');
             return;

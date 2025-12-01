@@ -27,28 +27,28 @@ Route::view('/', 'welcome')->name('welcome');
 Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', DashboardIndex::class)->name('dashboard');
-    Route::get('/users', Index::class)->name('users.index');
-    Route::get('/users/{user}', UsersShow::class)->name('users.show');
+    Route::get('/dashboard', DashboardIndex::class)->name('dashboard')->middleware('can:view_dashboard');
+    Route::get('/users', Index::class)->name('users.index')->middleware('can:view_users');
+    Route::get('/users/{user}', UsersShow::class)->name('users.show')->middleware('can:view_users');
     Route::get('/user/profile', Profile::class)->name('user.profile');
 
     // Products
-    Route::get('/products', ProductsIndex::class)->name('products.index');
-    Route::get('/products/{product}', ProductShow::class)->name('products.show');
+    Route::get('/products', ProductsIndex::class)->name('products.index')->middleware('can:view_products');
+    Route::get('/products/{product}', ProductShow::class)->name('products.show')->middleware('can:view_products');
 
     // Orders
-    Route::get('/orders', OrdersIndex::class)->name('orders.index');
-    Route::get('/orders/{order}', OrderShow::class)->name('orders.show');
+    Route::get('/orders', OrdersIndex::class)->name('orders.index')->middleware('can:view_orders');
+    Route::get('/orders/{order}', OrderShow::class)->name('orders.show')->middleware('can:view_orders');
 
     // Markets
-    Route::get('/markets', MarketsIndex::class)->name('markets.index');
-    Route::get('/markets/{market}', MarketShow::class)->name('markets.show');
+    Route::get('/markets', MarketsIndex::class)->name('markets.index')->middleware('can:view_markets');
+    Route::get('/markets/{market}', MarketShow::class)->name('markets.show')->middleware('can:view_markets');
 
     // Logs
-    Route::get('/logs', LogsIndex::class)->name('logs.index');
+    Route::get('/logs', LogsIndex::class)->name('logs.index')->middleware('can:view_logs');
 
     // Settings
-    Route::get('/settings', SettingsIndex::class)->name('settings.index');
+    Route::get('/settings', SettingsIndex::class)->name('settings.index')->middleware('can:view_settings');
 
     // Privacy & Roles Management
     Route::get('/privacy', PrivacyIndex::class)->name('privacy.index')->middleware('can:manage_roles');
@@ -56,10 +56,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/privacy/roles/{role}', PrivacyRoleShow::class)->name('privacy.roles.show')->middleware('can:manage_roles');
 
     // RFQs (buyer-facing)
-    Route::get('/rfq', RfqIndex::class)->name('rfq.index');
-    Route::get('/rfq/create', RfqCreate::class)->name('rfq.create');
-    Route::get('/rfq/{request}', RfqShow::class)->name('rfq.show');
-    Route::get('/rfq/{request}/quote', RfqQuoteForm::class)->name('rfq.quote');
+    Route::get('/rfq', RfqIndex::class)->name('rfq.index')->middleware('can:view_rfqs');
+    Route::get('/rfq/create', RfqCreate::class)->name('rfq.create')->middleware('can:create_rfqs');
+    Route::get('/rfq/{request}', RfqShow::class)->name('rfq.show')->middleware('can:view_rfqs');
+    Route::get('/rfq/{request}/quote', RfqQuoteForm::class)->name('rfq.quote')->middleware('can:submit_quotes');
 });
 
 require __DIR__.'/auth.php';

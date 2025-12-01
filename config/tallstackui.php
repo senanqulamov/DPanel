@@ -174,7 +174,7 @@ return [
         | persistent: enables the dialog to not be closed by clicking outside by default.
         */
         'dialog' => [
-            'z-index' => 'z-50',
+            'z-index' => 'z-1400',
             'overflow' => false,
             'blur' => false,
             'persistent' => false,

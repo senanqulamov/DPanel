@@ -56,6 +56,12 @@ class Create extends Component
 
     public function save(): void
     {
+        // Check permission
+        if (!Auth::user()->hasPermission('create_markets')) {
+            $this->error('You do not have permission to create markets.');
+            return;
+        }
+
         // If user_id is not set, use current authenticated user
         if (empty($this->market->user_id)) {
             $this->market->user_id = Auth::id();
