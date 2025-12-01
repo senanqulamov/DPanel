@@ -101,5 +101,8 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Suppliers: ' . $suppliers->count());
         $this->command->info('Sellers: ' . $sellers->count());
         $this->command->info('Buyers: ' . $buyers->count());
+
+        $this->call(RolesAndPermissionsSeeder::class);
+        $this->call(TestUserSeeder::class);
     }
 }

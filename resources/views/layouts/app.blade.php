@@ -41,7 +41,7 @@
                         @csrf
                         <x-dropdown.items icon="user" :text="__('Profile')" :href="route('user.profile')"/>
                         <x-dropdown.items icon="cog" :text="__('Settings')" :href="route('settings.index')"/>
-                        <x-dropdown.items icon="finger-print" :text="__('Privacy')" :href="route('user.profile')"/>
+                        <x-dropdown.items icon="finger-print" :text="__('Privacy & Roles')" :href="route('privacy.index')"/>
                         <x-dropdown.items icon="archive-box-arrow-down" :text="__('Archive')" :href="route('logs.index')"/>
                         <x-dropdown.items icon="arrow-left-on-rectangle" :text="__('Logout')" onclick="event.preventDefault(); this.closest('form').submit();" separator/>
                     </form>

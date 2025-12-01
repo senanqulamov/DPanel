@@ -4,10 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -24,6 +25,8 @@ class User extends Authenticatable
         'email',
         'password',
         // Role flags
+        'role',
+        'is_admin',
         'is_buyer',
         'is_seller',
         'is_supplier',
@@ -88,6 +91,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_admin' => 'boolean',
             'is_buyer' => 'boolean',
             'is_seller' => 'boolean',
             'is_supplier' => 'boolean',
@@ -143,11 +147,38 @@ class User extends Authenticatable
         return $this->hasMany(Market::class, 'user_id');
     }
 
+    // Role and Permission Relationships
+
+    /**
+     * Get the roles for this user.
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'role_user')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all permissions for this user through roles.
+     */
+    public function permissions()
+    {
+        return $this->roles()->with('permissions')->get()
+            ->pluck('permissions')
+            ->flatten()
+            ->unique('id');
+    }
+
     // Role Check Methods
+
+    public function isAdmin(): bool
+    {
+        return $this->is_admin;
+    }
 
     public function isBuyer(): bool
     {
-        return $this->is_buyer;
+        return $this->is_buyer || $this->role === 'buyer';
     }
 
     public function isSeller(): bool
@@ -170,12 +201,50 @@ class User extends Authenticatable
         return $this->is_seller && $this->verified_seller;
     }
 
+    /**
+     * Check if user has a permission.
+     */
+    public function hasPermission(string $permissionName): bool
+    {
+        if ($this->isAdmin()) {
+            return true; // Admin has all permissions
+        }
+
+        return $this->permissions()->contains('name', $permissionName);
+    }
+
+    /**
+     * Check if user has any of the given permissions.
+     */
+    public function hasAnyPermission(...$permissions): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if user has specific role.
+     */
     public function hasRole(string $role): bool
     {
-        return match(strtolower($role)) {
+        if ($this->isAdmin() && $role === 'admin') {
+            return true;
+        }
+
+        return match (strtolower($role)) {
             'buyer' => $this->is_buyer,
             'seller' => $this->is_seller,
             'supplier' => $this->is_supplier,
+            'admin' => $this->is_admin,
             default => false,
         };
     }
@@ -183,9 +252,16 @@ class User extends Authenticatable
     public function getRoles(): array
     {
         $roles = [];
-        if ($this->is_buyer) $roles[] = 'buyer';
-        if ($this->is_seller) $roles[] = 'seller';
-        if ($this->is_supplier) $roles[] = 'supplier';
+        if ($this->is_buyer) {
+            $roles[] = 'buyer';
+        }
+        if ($this->is_seller) {
+            $roles[] = 'seller';
+        }
+        if ($this->is_supplier) {
+            $roles[] = 'supplier';
+        }
+
         return $roles;
     }
 
@@ -207,9 +283,9 @@ class User extends Authenticatable
 
     public function hasCompleteAddress(): bool
     {
-        return !empty($this->address_line1)
-            && !empty($this->city)
-            && !empty($this->country);
+        return ! empty($this->address_line1)
+            && ! empty($this->city)
+            && ! empty($this->country);
     }
 
     public function getDisplayName(): string
@@ -243,7 +319,7 @@ class User extends Authenticatable
 
     public function hasAribaIntegration(): bool
     {
-        return !empty($this->ariba_network_id);
+        return ! empty($this->ariba_network_id);
     }
 
     // Performance Methods
@@ -260,7 +336,7 @@ class User extends Authenticatable
 
     public function incrementOrderCount(string $status = 'total'): void
     {
-        match($status) {
+        match ($status) {
             'completed' => $this->increment('completed_orders'),
             'cancelled' => $this->increment('cancelled_orders'),
             default => $this->increment('total_orders'),
@@ -308,7 +384,7 @@ class User extends Authenticatable
 
     public function scopeWithRole($query, string $role)
     {
-        return match(strtolower($role)) {
+        return match (strtolower($role)) {
             'supplier' => $query->suppliers(),
             'seller' => $query->sellers(),
             'buyer' => $query->buyers(),

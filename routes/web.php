@@ -17,6 +17,9 @@ use App\Livewire\Rfq\Create as RfqCreate;
 use App\Livewire\Rfq\Index as RfqIndex;
 use App\Livewire\Rfq\Show as RfqShow;
 use App\Livewire\Rfq\QuoteForm as RfqQuoteForm;
+use App\Livewire\Privacy\Index as PrivacyIndex;
+use App\Livewire\Privacy\Users\Show as PrivacyUserShow;
+use App\Livewire\Privacy\Roles\Show as PrivacyRoleShow;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('welcome');
@@ -46,6 +49,11 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings
     Route::get('/settings', SettingsIndex::class)->name('settings.index');
+
+    // Privacy & Roles Management
+    Route::get('/privacy', PrivacyIndex::class)->name('privacy.index')->middleware('can:manage_roles');
+    Route::get('/privacy/users/{user}', PrivacyUserShow::class)->name('privacy.users.show')->middleware('can:manage_roles');
+    Route::get('/privacy/roles/{role}', PrivacyRoleShow::class)->name('privacy.roles.show')->middleware('can:manage_roles');
 
     // RFQs (buyer-facing)
     Route::get('/rfq', RfqIndex::class)->name('rfq.index');
