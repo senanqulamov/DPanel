@@ -57,6 +57,23 @@
                 </div>
             </x-slot:brand>
             <x-side-bar.item :text="__('Dashboard')" icon="home" :route="route('dashboard')"/>
+
+            @if(auth()->user()->isAdmin())
+                <x-side-bar.item :text="__('Buyer Dashboard')" icon="shopping-cart" :route="route('buyer.dashboard')"/>
+                <x-side-bar.item :text="__('Seller Dashboard')" icon="shopping-bag" :route="route('seller.dashboard')"/>
+                <x-side-bar.item :text="__('Supplier Dashboard')" icon="building-office" :route="route('supplier.dashboard')"/>
+            @else
+                @if(auth()->user()->isBuyer())
+                    <x-side-bar.item :text="__('Buyer Dashboard')" icon="shopping-cart" :route="route('buyer.dashboard')"/>
+                @endif
+                @if(auth()->user()->isSeller())
+                    <x-side-bar.item :text="__('Seller Dashboard')" icon="shopping-bag" :route="route('seller.dashboard')"/>
+                @endif
+                @if(auth()->user()->isSupplier())
+                    <x-side-bar.item :text="__('Supplier Dashboard')" icon="building-office" :route="route('supplier.dashboard')"/>
+                @endif
+            @endif
+
             <x-side-bar.item :text="__('Users')" icon="users" :route="route('users.index')"/>
             <x-side-bar.item :text="__('Products')" icon="shopping-cart" :route="route('products.index')"/>
             <x-side-bar.item :text="__('Orders')" icon="queue-list" :route="route('orders.index')"/>

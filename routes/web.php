@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LocaleController;
+use App\Livewire\Buyer\Dashboard as BuyerDashboard;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Logs\Index as LogsIndex;
 use App\Livewire\Markets\Index as MarketsIndex;
@@ -9,6 +10,7 @@ use App\Livewire\Orders\Index as OrdersIndex;
 use App\Livewire\Orders\Show as OrderShow;
 use App\Livewire\Products\Index as ProductsIndex;
 use App\Livewire\Products\Show as ProductShow;
+use App\Livewire\Seller\Dashboard as SellerDashboard;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\User\Profile;
 use App\Livewire\Users\Index;
@@ -28,6 +30,11 @@ Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('lang.sw
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', DashboardIndex::class)->name('dashboard')->middleware('can:view_dashboard');
+
+    // Role-based Dashboards
+    Route::get('/buyer/dashboard', BuyerDashboard::class)->name('buyer.dashboard')->middleware('can:view_dashboard');
+    Route::get('/seller/dashboard', SellerDashboard::class)->name('seller.dashboard')->middleware('can:view_dashboard');
+
     Route::get('/users', Index::class)->name('users.index')->middleware('can:view_users');
     Route::get('/users/{user}', UsersShow::class)->name('users.show')->middleware('can:view_users');
     Route::get('/user/profile', Profile::class)->name('user.profile');

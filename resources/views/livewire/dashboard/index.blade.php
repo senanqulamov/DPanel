@@ -33,6 +33,46 @@
         @endforeach
     </div>
 
+    <!-- Dashboard Navigation Cards -->
+    @if(auth()->user()->isAdmin() || auth()->user()->isBuyer() || auth()->user()->isSeller() || auth()->user()->isSupplier())
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <x-icon name="squares-2x2" class="w-6 h-6 inline" /> {{ __('Role Dashboards') }}
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @if(auth()->user()->isAdmin() || auth()->user()->isBuyer())
+            <x-dashboard-card
+                :title="__('Buyer Dashboard')"
+                :description="__('Manage RFQs, review quotes, and track procurement activities.')"
+                icon="shopping-cart"
+                color="blue"
+                :href="route('buyer.dashboard')"
+            />
+            @endif
+
+            @if(auth()->user()->isAdmin() || auth()->user()->isSeller())
+            <x-dashboard-card
+                :title="__('Seller Dashboard')"
+                :description="__('Manage products, view orders, and track sales performance.')"
+                icon="shopping-bag"
+                color="green"
+                :href="route('seller.dashboard')"
+            />
+            @endif
+
+            @if(auth()->user()->isAdmin() || auth()->user()->isSupplier())
+            <x-dashboard-card
+                :title="__('Supplier Dashboard')"
+                :description="__('View invitations, submit quotes, and manage supplier activities.')"
+                icon="building-office"
+                color="purple"
+                :href="route('supplier.dashboard')"
+            />
+            @endif
+        </div>
+    </div>
+    @endif
+
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3 mb-8">
         <!-- Sales Chart - Large -->
