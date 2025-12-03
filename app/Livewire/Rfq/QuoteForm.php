@@ -4,6 +4,7 @@ namespace App\Livewire\Rfq;
 
 use App\Events\QuoteSubmitted;
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithCalculation;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Quote;
 use App\Models\QuoteItem;
@@ -15,7 +16,7 @@ use Livewire\Component;
 
 class QuoteForm extends Component
 {
-    use Alert, WithLogging;
+    use Alert, WithCalculation, WithLogging;
 
     public Request $request;
 
@@ -40,13 +41,15 @@ class QuoteForm extends Component
 
         $user = Auth::user();
 
-        if (! $user || $user->id === $this->request->buyer_id) {
+        $isAdmin = $user && method_exists($user, 'hasRole') && $user->hasRole('admin');
+
+        if (! $user || (! $isAdmin && $user->id === $this->request->buyer_id)) {
             abort(403, 'Buyers cannot quote on their own RFQs.');
         }
 
-        if ($this->request->status !== 'open' || ($this->request->deadline && $this->request->deadline->isPast())) {
+        if (! $isAdmin && ($this->request->status !== 'open' || ($this->request->deadline && $this->request->deadline->isPast()))) {
             $this->error(__('This RFQ is not open for quotes.'));
-            abort(403);
+            abort(403, 'This RFQ is not open for quotes.');
         }
 
         // Check if supplier already submitted a quote
@@ -92,6 +95,13 @@ class QuoteForm extends Component
             'terms_conditions' => ['nullable', 'string', 'max:2000'],
             'currency' => ['required', 'string', 'size:3'],
         ];
+    }
+
+    public function updated($propertyName): void
+    {
+        if (preg_match('/items\.\d+\.(quantity|unit_price|tax_rate)/', $propertyName)) {
+            $this->triggerCalculationToast($propertyName);
+        }
     }
 
     public function calculateTotal(): float
@@ -169,10 +179,13 @@ class QuoteForm extends Component
             ]);
         }
 
-        // Fire QuoteSubmitted event
         event(new QuoteSubmitted($quote, $user));
 
-        $this->logModelAction('create', $quote, 'Quote submitted for RFQ');
+        $this->logCreate(Quote::class, $quote->id, [
+            'request_id' => $this->request->id,
+            'supplier_id' => $user->id,
+            'total_amount' => $totalAmount,
+        ]);
 
         $this->success(__('Quote submitted successfully!'));
         $this->redirect(route('rfq.show', $this->request));

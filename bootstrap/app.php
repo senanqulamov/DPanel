@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/supplier.php'));
+
+            if (app()->environment('local')) {
+                Route::middleware('web')
+                    ->group(base_path('routes/test-errors.php'));
+            }
         },
     )
     ->withMiddleware(function (Middleware $middleware) {

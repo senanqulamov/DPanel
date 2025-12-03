@@ -40,6 +40,10 @@
                         @lang('Back to RFQs')
                     </x-button>
 
+{{--                    <x-button color="purple" icon="arrow-right" href="{{ route('rfq.quote', $request->id) }}">--}}
+{{--                        @lang('Quote (Only Supplier)')--}}
+{{--                    </x-button>--}}
+
                     @if($canQuote)
                         <x-button icon="currency-dollar" :href="route('rfq.quote', $request)">
                             @lang('Submit Quote')

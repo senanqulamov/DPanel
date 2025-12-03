@@ -308,7 +308,7 @@ return [
         | timeout: controls the default timeout in seconds.
         */
         'toast' => [
-            'z-index' => 'z-50',
+            'z-index' => 'z-1600',
             'progress' => true,
             'expandable' => false,
             'position' => 'top-right',

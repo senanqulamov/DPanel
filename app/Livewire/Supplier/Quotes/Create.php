@@ -3,6 +3,8 @@
 namespace App\Livewire\Supplier\Quotes;
 
 use App\Events\QuoteSubmitted;
+use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithCalculation;
 use App\Models\Quote;
 use App\Models\QuoteItem;
 use App\Models\SupplierInvitation;
@@ -12,7 +14,7 @@ use Livewire\WithFileUploads;
 
 class Create extends Component
 {
-    use WithFileUploads;
+    use Alert, WithCalculation, WithFileUploads;
 
     public SupplierInvitation $invitation;
     public array $items = [];
@@ -23,19 +25,16 @@ class Create extends Component
 
     public function mount(SupplierInvitation $invitation): void
     {
-        // Ensure the supplier owns this invitation
         if ($invitation->supplier_id !== auth()->id()) {
             abort(403, 'Unauthorized access to this invitation.');
         }
 
-        // Check if invitation is still valid
         if ($invitation->status !== 'pending' && $invitation->status !== 'accepted') {
             abort(403, 'This invitation is no longer available for quoting.');
         }
 
         $this->invitation = $invitation;
 
-        // Initialize quote items from request items
         foreach ($invitation->request->items as $requestItem) {
             $this->items[] = [
                 'request_item_id' => $requestItem->id,
@@ -47,8 +46,14 @@ class Create extends Component
             ];
         }
 
-        // Set default valid_until to 30 days from now
         $this->valid_until = now()->addDays(30)->format('Y-m-d');
+    }
+
+    public function updated($propertyName): void
+    {
+        if (preg_match('/items\.\d+\.(quantity|unit_price|tax_rate)/', $propertyName)) {
+            $this->triggerCalculationToast($propertyName);
+        }
     }
 
     public function addItem(): void

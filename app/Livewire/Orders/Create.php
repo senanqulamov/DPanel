@@ -3,6 +3,7 @@
 namespace App\Livewire\Orders;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithCalculation;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use App\Models\Order;
@@ -14,7 +15,7 @@ use Livewire\Component;
 
 class Create extends Component
 {
-    use Alert, WithLogging;
+    use Alert, WithCalculation, WithLogging;
 
     public Order $order;
 
@@ -136,6 +137,9 @@ class Create extends Component
 
     public function updatedItems($value, $key): void
     {
+        // Trigger calculation toast for relevant fields
+        $this->triggerCalculationToast("items.{$key}");
+
         // $key format: "0.market_id" or "1.product_id" etc.
         if (str_ends_with($key, '.market_id')) {
             $parts = explode('.', $key);

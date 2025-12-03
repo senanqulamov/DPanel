@@ -52,7 +52,7 @@
                                 <div class="md:col-span-2">
                                     <x-number
                                         label="{{ __('Quantity') }}"
-                                        wire:model="items.{{ $index }}.quantity"
+                                        wire:model.live="items.{{ $index }}.quantity"
                                         min="0.01"
                                         step="0.01"
                                         required
@@ -61,7 +61,7 @@
                                 <div class="md:col-span-2">
                                     <x-number
                                         label="{{ __('Unit Price') }}"
-                                        wire:model="items.{{ $index }}.unit_price"
+                                        wire:model.live="items.{{ $index }}.unit_price"
                                         min="0"
                                         step="0.01"
                                         required
@@ -70,7 +70,7 @@
                                 <div class="md:col-span-2">
                                     <x-number
                                         label="{{ __('Tax (%)') }}"
-                                        wire:model="items.{{ $index }}.tax_rate"
+                                        wire:model.live="items.{{ $index }}.tax_rate"
                                         min="0"
                                         max="100"
                                         step="0.01"

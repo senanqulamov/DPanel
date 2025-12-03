@@ -73,7 +73,7 @@
                                     <div class="col-span-2">
                                         <x-input
                                             label="{{ __('Qty') }}"
-                                            wire:model.blur="items.{{ $index }}.quantity"
+                                            wire:model.live="items.{{ $index }}.quantity"
                                             type="number"
                                             min="1"
                                         />
@@ -82,7 +82,7 @@
                                     <div class="col-span-2">
                                         <x-input
                                             label="{{ __('Price') }}"
-                                            wire:model.blur="items.{{ $index }}.unit_price"
+                                            wire:model.live="items.{{ $index }}.unit_price"
                                             type="number"
                                             step="0.01"
                                             min="0"

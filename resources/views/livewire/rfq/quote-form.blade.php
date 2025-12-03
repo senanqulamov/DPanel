@@ -47,6 +47,7 @@
                                     label="{{ __('Description') }}"
                                     wire:model="items.{{ $item->id }}.description"
                                     required
+                                    readonly
                                 />
                                 <div class="mt-1 text-xs text-[var(--color-text-muted)]">
                                     @lang('Original'): {{ $item->product?->name ?? __('Unknown product') }}
@@ -61,9 +62,9 @@
                             <div class="md:col-span-2">
                                 <x-number
                                     label="{{ __('Quantity') }}"
-                                    wire:model="items.{{ $item->id }}.quantity"
-                                    min="0.01"
-                                    step="0.01"
+                                    wire:model.live="items.{{ $item->id }}.quantity"
+                                    min="1"
+                                    step="1"
                                     required
                                 />
                             </div>
@@ -71,9 +72,9 @@
                             <div class="md:col-span-2">
                                 <x-number
                                     label="{{ __('Unit Price') }}"
-                                    wire:model="items.{{ $item->id }}.unit_price"
+                                    wire:model.live="items.{{ $item->id }}.unit_price"
                                     min="0"
-                                    step="0.01"
+                                    step="0.1"
                                     required
                                 />
                             </div>
@@ -81,10 +82,10 @@
                             <div class="md:col-span-2">
                                 <x-number
                                     label="{{ __('Tax (%)') }}"
-                                    wire:model="items.{{ $item->id }}.tax_rate"
+                                    wire:model.live="items.{{ $item->id }}.tax_rate"
                                     min="0"
                                     max="100"
-                                    step="0.01"
+                                    step="0.1"
                                 />
                             </div>
 
@@ -130,20 +131,32 @@
 
             <!-- Quote Details -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-input
-                    type="date"
+                <x-date
                     label="{{ __('Valid Until') }}"
                     wire:model="valid_until"
                     hint="{{ __('Date until which this quote is valid') }}"
                     required
                 />
 
-                <x-input
+                <x-select.styled
                     label="{{ __('Currency') }}"
                     wire:model="currency"
-                    maxlength="3"
-                    required
+                    :options="[
+                                    ['label' => 'USD - US Dollar', 'value' => 'USD'],
+                                    ['label' => 'EUR - Euro', 'value' => 'EUR'],
+                                    ['label' => 'GBP - British Pound', 'value' => 'GBP'],
+                                    ['label' => 'JPY - Japanese Yen', 'value' => 'JPY'],
+                                    ['label' => 'CNY - Chinese Yuan', 'value' => 'CNY']
+                                ]"
+                    select="label:label|value:value"
                 />
+
+{{--                <x-input--}}
+{{--                    label="{{ __('Currency') }}"--}}
+{{--                    wire:model="currency"--}}
+{{--                    maxlength="3"--}}
+{{--                    required--}}
+{{--                />--}}
             </div>
 
             <x-textarea
