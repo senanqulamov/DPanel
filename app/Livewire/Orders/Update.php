@@ -58,6 +58,12 @@ class Update extends Component
     #[On('load::order')]
     public function load(Order $order): void
     {
+        // Check ownership: only admins or the order owner can load for editing
+        if (!Auth::user()->isAdmin() && $order->user_id !== Auth::id()) {
+            $this->error('You can only edit your own orders.');
+            return;
+        }
+
         $this->order = $order->load(['items.product', 'items.market', 'user']);
 
         $this->items = [];
@@ -305,6 +311,12 @@ class Update extends Component
         // Check permission
         if (!Auth::user()->hasPermission('edit_orders')) {
             $this->error('You do not have permission to edit orders.');
+            return;
+        }
+
+        // Check ownership: only admins or the order owner can edit
+        if (!Auth::user()->isAdmin() && $this->order->user_id !== Auth::id()) {
+            $this->error('You can only edit your own orders.');
             return;
         }
 

@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'supplier' => \App\Http\Middleware\EnsureUserIsSupplier::class,
+            'seller' => \App\Http\Middleware\EnsureUserIsSeller::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);

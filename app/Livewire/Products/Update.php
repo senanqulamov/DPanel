@@ -7,6 +7,7 @@ use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
 use App\Models\Market;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -21,9 +22,14 @@ class Update extends Component
 
     public function render(): View
     {
-        return view('livewire.products.update', [
-            'markets' => Market::all(),
-        ]);
+        $user = Auth::user();
+
+        // If seller, only allow their own markets; otherwise, show all
+        $markets = $user && $user->isSeller()
+            ? Market::where('user_id', $user->id)->orderBy('name')->get()
+            : Market::orderBy('name')->get();
+
+        return view('livewire.products.update', compact('markets'));
     }
 
     #[On('load::product')]
@@ -76,6 +82,30 @@ class Update extends Component
         if (!Auth::user()->hasPermission('edit_products')) {
             $this->error('You do not have permission to edit products.');
             return;
+        }
+
+        $user = Auth::user();
+
+        if ($user && $user->isSeller()) {
+            $originalMarket = Market::where('id', $this->product->getOriginal('market_id'))
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if (!$originalMarket) {
+                $this->error('You can only edit products in your own markets.');
+                return;
+            }
+
+            $ownsMarket = Market::where('id', $this->product->market_id)
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if (!$ownsMarket) {
+                $this->error('You can only list products in your own markets.');
+                return;
+            }
+
+            $this->product->supplier_id = $user->id;
         }
 
         $this->validate();

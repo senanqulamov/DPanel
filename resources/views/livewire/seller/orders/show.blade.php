@@ -24,7 +24,7 @@
                     <x-button
                         text="{{ __('Back to List') }}"
                         icon="arrow-left"
-                        href="{{ route('orders.index') }}"
+                        href="{{ route('seller.orders.index') }}"
                     />
                 </div>
             </div>
@@ -88,10 +88,10 @@
                             <div class="bg-primary-50 dark:bg-primary-900/20 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('markets.show', $market) }}">
+                                        <a href="{{ route('seller.markets.show', $market) }}">
                                             <x-icon name="building-storefront" class="h-6 bg-accent pl-2 pr-1 rounded-l-2xl text-gray-600" />
                                         </a>
-                                        <a href="{{ route('markets.show', $market) }}">
+                                        <a href="{{ route('seller.markets.show', $market) }}">
                                             <span class="font-semibold bg-accent pl-1 pr-2 rounded-r-2xl text-gray-600 text-lg">
                                                 {{ $market ? $market->name : 'Unknown Market' }}
                                             </span>
@@ -130,7 +130,9 @@
                                     @foreach($items as $item)
                                         <tr>
                                             <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                                {{ $item->product->name ?? 'Unknown Product' }}
+                                                <a href="{{ route('seller.products.show', $item->product) }}" class="text-blue-600 hover:underline">
+                                                    {{ $item->product->name ?? 'Unknown Product' }}
+                                                </a>
                                                 @if($item->product && $item->product->sku)
                                                     <span class="text-xs text-gray-500 dark:text-gray-400">({{ $item->product->sku }})</span>
                                                 @endif

@@ -26,9 +26,14 @@ class Create extends Component
 
     public function render(): View
     {
-        return view('livewire.products.create', [
-            'markets' => Market::all(),
-        ]);
+        $user = Auth::user();
+
+        // If seller, only allow their own markets; otherwise, show all
+        $markets = $user && $user->isSeller()
+            ? Market::where('user_id', $user->id)->orderBy('name')->get()
+            : Market::orderBy('name')->get();
+
+        return view('livewire.products.create', compact('markets'));
     }
 
     public function rules(): array
@@ -74,6 +79,24 @@ class Create extends Component
             $this->error('You do not have permission to create products.');
 
             return;
+        }
+
+        $user = Auth::user();
+
+        // Additional safety: if seller, ensure selected market belongs to them
+        if ($user && $user->isSeller()) {
+            $ownsMarket = Market::where('id', $this->product->market_id)
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if (! $ownsMarket) {
+                $this->error('You can only list products in your own markets.');
+
+                return;
+            }
+
+            // Ensure supplier_id is set to current seller
+            $this->product->supplier_id = $user->id;
         }
 
         $this->validate();

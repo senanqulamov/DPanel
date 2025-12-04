@@ -11,6 +11,13 @@ use App\Livewire\Orders\Show as OrderShow;
 use App\Livewire\Products\Index as ProductsIndex;
 use App\Livewire\Products\Show as ProductShow;
 use App\Livewire\Seller\Dashboard as SellerDashboard;
+use App\Livewire\Seller\Markets\Index as SellerMarketsIndex;
+use App\Livewire\Seller\Markets\Show as SellerMarketShow;
+use App\Livewire\Seller\Products\Index as SellerProductsIndex;
+use App\Livewire\Seller\Products\Show as SellerProductShow;
+use App\Livewire\Seller\Orders\Index as SellerOrdersIndex;
+use App\Livewire\Seller\Orders\Show as SellerOrderShow;
+use App\Livewire\Seller\Logs\Index as SellerLogsIndex;
 use App\Livewire\Settings\Index as SettingsIndex;
 use App\Livewire\User\Profile;
 use App\Livewire\Users\Index;
@@ -33,7 +40,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Role-based Dashboards
     Route::get('/buyer/dashboard', BuyerDashboard::class)->name('buyer.dashboard')->middleware('can:view_dashboard');
-    Route::get('/seller/dashboard', SellerDashboard::class)->name('seller.dashboard')->middleware('can:view_dashboard');
+    Route::get('/seller/dashboard', SellerDashboard::class)->name('seller.dashboard')->middleware(['seller', 'can:view_dashboard']);
+    Route::get('/seller/markets', SellerMarketsIndex::class)->name('seller.markets.index')->middleware(['seller', 'can:view_markets']);
+    Route::get('/seller/markets/{market}', SellerMarketShow::class)->name('seller.markets.show')->middleware(['seller', 'can:view_markets']);
+    Route::get('/seller/products', SellerProductsIndex::class)->name('seller.products.index')->middleware(['seller', 'can:view_products']);
+    Route::get('/seller/products/{product}', SellerProductShow::class)->name('seller.products.show')->middleware(['seller', 'can:view_products']);
+    Route::get('/seller/orders', SellerOrdersIndex::class)->name('seller.orders.index')->middleware(['seller', 'can:view_orders']);
+    Route::get('/seller/orders/{order}', SellerOrderShow::class)->name('seller.orders.show')->middleware(['seller', 'can:view_orders']);
+    Route::get('/seller/logs', SellerLogsIndex::class)->name('seller.logs.index')->middleware(['seller', 'can:view_logs']);
 
     Route::get('/users', Index::class)->name('users.index')->middleware('can:view_users');
     Route::get('/users/{user}', UsersShow::class)->name('users.show')->middleware('can:view_users');

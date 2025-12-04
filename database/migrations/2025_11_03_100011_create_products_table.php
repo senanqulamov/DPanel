@@ -11,6 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('sku')->unique();
+            $table->text('description')->nullable();
             $table->foreignId('market_id')->constrained()->cascadeOnDelete();
             $table->foreignId('supplier_id')->nullable()->constrained('users')->nullOnDelete();
             $table->decimal('price', 10, 2)->default(0);
