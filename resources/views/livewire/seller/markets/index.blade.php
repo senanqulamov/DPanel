@@ -1,13 +1,43 @@
-<div class="space-y-4">
+<div class="space-y-6">
     <x-seller.nav />
 
-    <div>
-        <x-card>
-            <x-alert color="black" icon="map-pin">
-                @lang('My Markets')
-            </x-alert>
+    {{-- Modern Header Card - 2026 Style --}}
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-500 text-white shadow-2xl shadow-indigo-500/30">
+        <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
 
-            <div class="mb-2 mt-4">
+        <div class="relative p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                        <x-icon name="map-pin" class="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
+                            @lang('My Markets')
+                        </h1>
+                        <p class="text-sm text-indigo-100 mt-0.5">
+                            {{ __('Manage your marketplace channels and locations') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30">
+                        <div class="text-xs text-indigo-100">{{ __('Total Markets') }}</div>
+                        <div class="text-2xl font-bold">{{ $this->rows->total() }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Main Content Card --}}
+    <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10"></div>
+
+        <div class="relative p-6">
+            <div class="mb-6">
                 @can('create_markets')
                     <livewire:seller.markets.create @created="$refresh" />
                 @endcan
@@ -47,8 +77,8 @@
                     </div>
                 @endinteract
             </x-table>
-        </x-card>
-
-        <livewire:seller.markets.update @updated="$refresh" />
+        </div>
     </div>
+
+    <livewire:seller.markets.update @updated="$refresh" />
 </div>
