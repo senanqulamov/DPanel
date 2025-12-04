@@ -40,70 +40,243 @@
     {{-- Seller nav --}}
     <x-seller.nav />
 
-    {{-- KPI grid --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <x-card>
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Commission Earned') }}</p>
-                    <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-50">
-                        {{ '$' . number_format($commissionEarned, 2) }}
-                    </p>
+    {{-- KPI grid - 2026 Modern Design --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+        {{-- Commission Earned Card --}}
+        <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-500/20 dark:via-emerald-500/10 backdrop-blur-sm border border-emerald-200/50 dark:border-emerald-500/30 hover:border-emerald-400/60 dark:hover:border-emerald-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/30">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-emerald-600/0 group-hover:from-emerald-400/5 group-hover:to-emerald-600/5 transition-all duration-500"></div>
+            <div class="relative p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">{{ __('Commission Earned') }}</p>
+                        </div>
+                        <p class="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            {{ '$' . number_format($commissionEarned, 2) }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform duration-300">
+                        <x-icon name="banknotes" class="w-6 h-6 text-white" />
+                    </div>
                 </div>
-                <x-icon name="banknotes" class="w-7 h-7 text-emerald-500" />
+                <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                    {{ __('Based on your current commission rate and completed orders.') }}
+                </p>
             </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ __('Based on your current commission rate and completed orders.') }}
-            </p>
-        </x-card>
+        </div>
 
-        <x-card>
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Pending Orders') }}</p>
-                    <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-50">
-                        {{ $pendingOrders }}
-                    </p>
+        {{-- Pending Orders Card --}}
+        <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-500/20 dark:via-amber-500/10 backdrop-blur-sm border border-amber-200/50 dark:border-amber-500/30 hover:border-amber-400/60 dark:hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20 dark:hover:shadow-amber-500/30">
+            <div class="absolute inset-0 bg-gradient-to-br from-amber-400/0 to-amber-600/0 group-hover:from-amber-400/5 group-hover:to-amber-600/5 transition-all duration-500"></div>
+            <div class="relative p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">{{ __('Pending Orders') }}</p>
+                            @if($pendingOrders > 0)
+                                <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-amber-500 text-white animate-pulse">{{ $pendingOrders }}</span>
+                            @endif
+                        </div>
+                        <p class="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            {{ $pendingOrders }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 dark:from-amber-400 dark:to-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform duration-300">
+                        <x-icon name="clock" class="w-6 h-6 text-white" />
+                    </div>
                 </div>
-                <x-icon name="clock" class="w-7 h-7 text-amber-500" />
+                <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                    {{ __('Orders awaiting fulfillment or confirmation.') }}
+                </p>
             </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ __('Orders awaiting fulfillment or confirmation.') }}
-            </p>
-        </x-card>
+        </div>
 
-        <x-card>
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Seller Rating') }}</p>
-                    <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-50">
-                        {{ number_format($averageRating, 1) }}/5.0
-                    </p>
+        {{-- Seller Rating Card --}}
+        <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-yellow-500/10 via-yellow-500/5 to-transparent dark:from-yellow-500/20 dark:via-yellow-500/10 backdrop-blur-sm border border-yellow-200/50 dark:border-yellow-500/30 hover:border-yellow-400/60 dark:hover:border-yellow-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/20 dark:hover:shadow-yellow-500/30">
+            <div class="absolute inset-0 bg-gradient-to-br from-yellow-400/0 to-yellow-600/0 group-hover:from-yellow-400/5 group-hover:to-yellow-600/5 transition-all duration-500"></div>
+            <div class="relative p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-yellow-600 dark:text-yellow-400">{{ __('Seller Rating') }}</p>
+                        </div>
+                        <p class="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            {{ number_format($averageRating, 1) }}<span class="text-lg text-gray-500 dark:text-gray-400">/5.0</span>
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 dark:from-yellow-400 dark:to-yellow-500 flex items-center justify-center shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform duration-300">
+                        <x-icon name="star" class="w-6 h-6 text-white" />
+                    </div>
                 </div>
-                <x-icon name="star" class="w-7 h-7 text-yellow-400" />
+                <div class="mb-3">
+                    <div class="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2 overflow-hidden backdrop-blur-sm">
+                        <div class="h-2 rounded-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500 transition-all duration-500" style="width: {{ min(100, ($averageRating / 5) * 100) }}%"></div>
+                    </div>
+                </div>
+                <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                    {{ __('Build trust by keeping a high fulfillment and response rate.') }}
+                </p>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                <div class="bg-yellow-400 h-1.5 rounded-full" style="width: {{ min(100, ($averageRating / 5) * 100) }}%"></div>
-            </div>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                {{ __('Build trust by keeping a high fulfillment and response rate.') }}
-            </p>
-        </x-card>
+        </div>
 
-        <x-card>
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Verification') }}</p>
-                    <p class="mt-1 text-xl font-semibold text-gray-900 dark:text-gray-50">
-                        {{ auth()->user()->verified_seller ? __('Verified') : __('Not Verified') }}
-                    </p>
+        {{-- Verification Card --}}
+        <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-br {{ auth()->user()->verified_seller ? 'from-emerald-500/10 via-emerald-500/5' : 'from-gray-500/10 via-gray-500/5' }} to-transparent dark:{{ auth()->user()->verified_seller ? 'from-emerald-500/20 dark:via-emerald-500/10' : 'from-gray-500/20 dark:via-gray-500/10' }} backdrop-blur-sm border {{ auth()->user()->verified_seller ? 'border-emerald-200/50 dark:border-emerald-500/30 hover:border-emerald-400/60 dark:hover:border-emerald-400/50' : 'border-gray-200/50 dark:border-gray-500/30 hover:border-gray-400/60 dark:hover:border-gray-400/50' }} transition-all duration-300 hover:shadow-lg {{ auth()->user()->verified_seller ? 'hover:shadow-emerald-500/20 dark:hover:shadow-emerald-500/30' : 'hover:shadow-gray-500/20 dark:hover:shadow-gray-500/30' }}">
+            <div class="absolute inset-0 bg-gradient-to-br {{ auth()->user()->verified_seller ? 'from-emerald-400/0 to-emerald-600/0 group-hover:from-emerald-400/5 group-hover:to-emerald-600/5' : 'from-gray-400/0 to-gray-600/0 group-hover:from-gray-400/5 group-hover:to-gray-600/5' }} transition-all duration-500"></div>
+            <div class="relative p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <p class="text-[10px] font-bold uppercase tracking-wider {{ auth()->user()->verified_seller ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400' }}">{{ __('Verification') }}</p>
+                            @if(auth()->user()->verified_seller)
+                                <span class="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-emerald-500 text-white">✓</span>
+                            @endif
+                        </div>
+                        <p class="text-2xl font-bold bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                            {{ auth()->user()->verified_seller ? __('Verified') : __('Not Verified') }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br {{ auth()->user()->verified_seller ? 'from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 shadow-emerald-500/30' : 'from-gray-400 to-gray-500 dark:from-gray-500 dark:to-gray-600 shadow-gray-500/30' }} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <x-icon name="shield-check" class="w-6 h-6 text-white" />
+                    </div>
                 </div>
-                <x-icon name="shield-check" class="w-7 h-7 {{ auth()->user()->verified_seller ? 'text-emerald-500' : 'text-gray-400' }}" />
+                <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                    {{ __('Verified sellers gain higher visibility and customer confidence.') }}
+                </p>
             </div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">
-                {{ __('Verified sellers gain higher visibility and customer confidence.') }}
-            </p>
-        </x-card>
+        </div>
+    </div>
+
+    {{-- Performance Overview - 2026 Modern Design --}}
+    <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 dark:from-purple-500/10 dark:to-blue-500/10"></div>
+
+        <div class="relative p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                        <x-icon name="chart-bar" class="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                        <h2 class="text-base font-bold text-gray-900 dark:text-gray-50">{{ __('Performance Overview') }}</h2>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                            {{ __('Snapshot of your catalog and order flow.') }}
+                        </p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-2">
+                    <div class="px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/30 dark:border-emerald-500/20">
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-emerald-600 to-cyan-600 dark:from-emerald-400 dark:to-cyan-400 bg-clip-text text-transparent">Live Data</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                {{-- Products Listed Card --}}
+                <div class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500/5 to-purple-600/10 dark:from-purple-500/10 dark:to-purple-600/20 p-5 border border-purple-200/50 dark:border-purple-500/30 hover:border-purple-400/60 dark:hover:border-purple-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                                {{ __('Products Listed') }}
+                            </p>
+                            <span class="px-2 py-1 rounded-lg bg-purple-500/15 text-[9px] font-bold text-purple-600 dark:text-purple-300 border border-purple-500/30">
+                                {{ __('Catalog') }}
+                            </span>
+                        </div>
+
+                        <p class="text-3xl font-bold bg-gradient-to-br from-purple-600 to-fuchsia-600 dark:from-purple-300 dark:to-fuchsia-300 bg-clip-text text-transparent mb-4">
+                            {{ $productsListed }}
+                        </p>
+
+                        <div class="mb-3">
+                            <div class="flex items-center justify-between text-[10px] mb-1.5">
+                                <span class="text-gray-600 dark:text-gray-400 font-medium">{{ __('Visibility Score') }}</span>
+                                <span class="font-bold text-purple-600 dark:text-purple-400">{{ min(100, ($productsListed / 50) * 100) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2.5 overflow-hidden backdrop-blur-sm">
+                                <div class="h-2.5 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 transition-all duration-500 shadow-lg shadow-purple-500/50" style="width: {{ min(100, ($productsListed / 50) * 100) }}%"></div>
+                            </div>
+                        </div>
+
+                        <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                            {{ __('More quality products improve your visibility across markets.') }}
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Total Sales Card --}}
+                <div class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500/5 to-emerald-600/10 dark:from-emerald-500/10 dark:to-emerald-600/20 p-5 border border-emerald-200/50 dark:border-emerald-500/30 hover:border-emerald-400/60 dark:hover:border-emerald-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                                {{ __('Total Sales') }}
+                            </p>
+                            <span class="px-2 py-1 rounded-lg bg-emerald-500/15 text-[9px] font-bold text-emerald-600 dark:text-emerald-300 border border-emerald-500/30">
+                                {{ __('Orders') }}
+                            </span>
+                        </div>
+
+                        <p class="text-3xl font-bold bg-gradient-to-br from-emerald-600 to-lime-600 dark:from-emerald-300 dark:to-lime-300 bg-clip-text text-transparent mb-4">
+                            {{ $totalSales }}
+                        </p>
+
+                        <div class="mb-3">
+                            <div class="flex items-center justify-between text-[10px] mb-1.5">
+                                <span class="text-gray-600 dark:text-gray-400 font-medium">{{ __('Target Progress') }}</span>
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ min(100, ($totalSales / 100) * 100) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2.5 overflow-hidden backdrop-blur-sm">
+                                <div class="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-lime-500 transition-all duration-500 shadow-lg shadow-emerald-500/50" style="width: {{ min(100, ($totalSales / 100) * 100) }}%"></div>
+                            </div>
+                        </div>
+
+                        <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                            {{ __('Represents completed orders containing your products.') }}
+                        </p>
+                    </div>
+                </div>
+
+                {{-- Pending Orders Card --}}
+                <div class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-amber-500/5 to-amber-600/10 dark:from-amber-500/10 dark:to-amber-600/20 p-5 border border-amber-200/50 dark:border-amber-500/30 hover:border-amber-400/60 dark:hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/20 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                                {{ __('Pending Orders') }}
+                            </p>
+                            <span class="px-2 py-1 rounded-lg bg-amber-500/15 text-[9px] font-bold text-amber-600 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                @if($pendingOrders > 0)
+                                    <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                @endif
+                                {{ __('Queue') }}
+                            </span>
+                        </div>
+
+                        <p class="text-3xl font-bold bg-gradient-to-br from-amber-600 to-orange-600 dark:from-amber-300 dark:to-orange-300 bg-clip-text text-transparent mb-4">
+                            {{ $pendingOrders }}
+                        </p>
+
+                        <div class="mb-3">
+                            <div class="flex items-center justify-between text-[10px] mb-1.5">
+                                <span class="text-gray-600 dark:text-gray-400 font-medium">{{ __('Queue Status') }}</span>
+                                <span class="font-bold text-amber-600 dark:text-amber-400">{{ min(100, ($pendingOrders / 50) * 100) }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200/50 dark:bg-gray-700/50 rounded-full h-2.5 overflow-hidden backdrop-blur-sm">
+                                <div class="h-2.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 transition-all duration-500 shadow-lg shadow-amber-500/50" style="width: {{ min(100, ($pendingOrders / 50) * 100) }}%"></div>
+                            </div>
+                        </div>
+
+                        <p class="text-[11px] leading-relaxed text-gray-600 dark:text-gray-400">
+                            {{ __('Lower is better – keep this small with fast fulfillment.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Quick Actions as cards --}}
@@ -198,78 +371,6 @@
                     <x-icon name="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-gray-200" />
                 </div>
             </a>
-        </div>
-    </x-card>
-
-    {{-- Performance view under quick actions --}}
-    <x-card>
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-                <x-icon name="chart-bar" class="w-5 h-5 text-emerald-500" />
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{ __('Performance Overview') }}</h2>
-            </div>
-            <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                {{ __('Snapshot of your catalog and order flow.') }}
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {{-- Products card --}}
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <p class="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        {{ __('Products Listed') }}
-                    </p>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/30">
-                        {{ __('Catalog') }}
-                    </span>
-                </div>
-                <p class="text-xl font-semibold text-gray-900 dark:text-gray-50">{{ $productsListed }}</p>
-                <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                    <div class="bg-gradient-to-r from-purple-500 to-fuchsia-500 h-2" style="width: {{ min(100, ($productsListed / 50) * 100) }}%"></div>
-                </div>
-                <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                    {{ __('More quality products improve your visibility across markets.') }}
-                </p>
-            </div>
-
-            {{-- Sales card --}}
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <p class="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        {{ __('Total Sales') }}
-                    </p>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                        {{ __('Orders') }}
-                    </span>
-                </div>
-                <p class="text-xl font-semibold text-gray-900 dark:text-gray-50">{{ $totalSales }}</p>
-                <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                    <div class="bg-gradient-to-r from-emerald-500 to-lime-500 h-2" style="width: {{ min(100, ($totalSales / 100) * 100) }}%"></div>
-                </div>
-                <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                    {{ __('Represents completed orders containing your products.') }}
-                </p>
-            </div>
-
-            {{-- Pending card --}}
-            <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <p class="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        {{ __('Pending Orders') }}
-                    </p>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
-                        {{ __('Queue') }}
-                    </span>
-                </div>
-                <p class="text-xl font-semibold text-gray-900 dark:text-gray-50">{{ $pendingOrders }}</p>
-                <div class="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
-                    <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-2" style="width: {{ min(100, ($pendingOrders / 50) * 100) }}%"></div>
-                </div>
-                <p class="text-[11px] text-gray-500 dark:text-gray-400">
-                    {{ __('Lower is better – keep this small with fast fulfillment.') }}
-                </p>
-            </div>
         </div>
     </x-card>
 
