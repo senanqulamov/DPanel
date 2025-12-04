@@ -1,7 +1,5 @@
 <div>
-    <x-button :text="__('Create New Market')" wire:click="$toggle('modal')" sm />
-
-    <x-modal :title="__('Create New Market')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="md" blur="xl">
+    <x-modal :title="__('Create New Market')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="md" blur="xl" x-on:seller::markets::create::open.window="show = true">
         <form id="seller-market-create" wire:submit="save" class="space-y-4">
             <div>
                 <x-input label="{{ __('Name') }} *" x-ref="name" wire:model="market.name" required />

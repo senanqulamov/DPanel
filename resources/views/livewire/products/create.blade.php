@@ -1,7 +1,5 @@
 <div>
-    <x-button :text="__('Create New Product')" wire:click="$toggle('modal')" sm />
-
-    <x-modal :title="__('Create New Product')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="md" blur="xl">
+    <x-modal :title="__('Create New Product')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="md" blur="xl" x-on:products::create::open.window="show = true">
         <form id="product-create" wire:submit="save" class="space-y-4">
             <div>
                 <x-input label="{{ __('Name') }} *" x-ref="name" wire:model="product.name" required />

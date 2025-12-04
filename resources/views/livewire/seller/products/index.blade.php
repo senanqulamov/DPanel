@@ -38,7 +38,7 @@
 
         <div class="relative p-6">
             <div class="mb-6">
-                <livewire:products.create @created="$refresh" />
+                <x-button :text="__('Create New Product')" wire:click="$dispatch('products::create::open')" sm />
             </div>
 
             <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
@@ -82,5 +82,6 @@
         </div>
     </div>
 
+    <livewire:products.create @created="$refresh" />
     <livewire:products.update @updated="$refresh" />
 </div>

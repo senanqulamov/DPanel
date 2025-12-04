@@ -39,7 +39,7 @@
         <div class="relative p-6">
             <div class="mb-6">
                 @can('create_markets')
-                    <livewire:seller.markets.create @created="$refresh" />
+                    <x-button :text="__('Create New Market')" wire:click="$dispatch('seller::markets::create::open')" sm />
                 @endcan
             </div>
 
@@ -80,5 +80,6 @@
         </div>
     </div>
 
+    <livewire:seller.markets.create @created="$refresh" />
     <livewire:seller.markets.update @updated="$refresh" />
 </div>
