@@ -87,6 +87,32 @@
                     @endforeach
                 </div>
             </div>
+
+            <div class="border-t pt-4">
+                <h3 class="text-md font-semibold text-gray-900 dark:text-gray-100 mb-3">
+                    @lang('Invite Suppliers') ({{ __('Optional') }})
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    @lang('Select suppliers to invite for this RFQ. They will receive a notification.')
+                </p>
+
+                <div>
+                    <x-select.styled
+                        label="{{ __('Select Suppliers') }}"
+                        wire:model="selectedSuppliers"
+                        :options="$suppliers"
+                        select="label:name|value:id"
+                        searchable
+                        multiple
+                    />
+                </div>
+
+                @if(!empty($selectedSuppliers))
+                    <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                        <strong>{{ count($selectedSuppliers) }}</strong> {{ __('supplier(s) selected') }}
+                    </div>
+                @endif
+            </div>
         </form>
         <x-slot:footer>
             <x-button type="submit" form="buyer-rfq-create">

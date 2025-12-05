@@ -87,6 +87,37 @@
                     </div>
                 </div>
 
+                {{-- Status Change --}}
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="w-full md:w-64">
+                            <x-select.styled
+                                label="{{ __('Change Status') }}"
+                                wire:model.live="statusValue"
+                                :options="collect($availableStatuses)->map(fn($label, $value) => ['label' => $label, 'value' => $value])->values()->toArray()"
+                                select="label:label|value:value"
+                            />
+                        </div>
+                        <div class="flex items-end">
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                <p class="mb-1">
+                                    <strong>@lang('Current Status'):</strong>
+                                    <x-badge
+                                        :text="ucfirst($request->status)"
+                                        :color="match($request->status) {
+                                            'open' => 'green',
+                                            'closed' => 'red',
+                                            'awarded' => 'blue',
+                                            'cancelled' => 'gray',
+                                            default => 'yellow'
+                                        }"
+                                    />
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 @if($request->description)
                     <div class="mt-4">
                         <p class="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">@lang('Description')</p>
@@ -139,6 +170,81 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {{-- Supplier Invitations --}}
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        @lang('Supplier Invitations') ({{ $this->invitationRows->total() }})
+                    </h3>
+                    <x-button
+                        wire:click="openInviteModal"
+                        icon="user-plus"
+                        color="blue"
+                        sm
+                    >
+                        @lang('Invite More Suppliers')
+                    </x-button>
+                </div>
+
+                @if($this->invitationRows->isEmpty())
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            @lang('No suppliers invited yet.')
+                        </p>
+                    </div>
+                @else
+                    <x-table :headers="$headers" :sort="$sort" :rows="$this->invitationRows" paginate :paginator="null" :quantity="[10]">
+                        @interact('column_supplier', $row)
+                            <div class="text-sm text-gray-900 dark:text-gray-100">
+                                <div class="font-medium">{{ $row->supplier?->name ?? __('Unknown Supplier') }}</div>
+                                @if($row->supplier?->company_name)
+                                    <div class="text-xs text-gray-500">{{ $row->supplier->company_name }}</div>
+                                @endif
+                            </div>
+                        @endinteract
+
+                        @interact('column_status', $row)
+                            <x-badge
+                                :text="ucfirst($row->status)"
+                                :color="match($row->status) {
+                                    'pending' => 'yellow',
+                                    'accepted' => 'blue',
+                                    'declined' => 'red',
+                                    'quoted' => 'green',
+                                    default => 'gray'
+                                }"
+                            />
+                        @endinteract
+
+                        @interact('column_sent_at', $row)
+                            <span class="text-sm text-gray-900 dark:text-gray-100">
+                                {{ $row->sent_at ? $row->sent_at->format('M d, Y H:i') : '—' }}
+                            </span>
+                        @endinteract
+
+                        @interact('column_responded_at', $row)
+                            <span class="text-sm text-gray-900 dark:text-gray-100">
+                                {{ $row->responded_at ? $row->responded_at->format('M d, Y H:i') : '—' }}
+                            </span>
+                        @endinteract
+
+                        @interact('column_action', $row)
+                            <div class="flex justify-end">
+                                @if($row->status === 'pending')
+                                    <x-button.circle
+                                        type="button"
+                                        icon="trash"
+                                        color="red"
+                                        xs
+                                        wire:click="deleteInvitation({{ $row->id }})"
+                                    />
+                                @endif
+                            </div>
+                        @endinteract
+                    </x-table>
+                @endif
             </div>
 
             {{-- Quotes --}}
@@ -196,6 +302,58 @@
             </div>
         </div>
     </div>
+
+    {{-- Invite Suppliers Modal --}}
+    <x-modal :title="__('Invite More Suppliers')" wire="showInviteModal" blur="xl" size="2xl">
+        <div class="space-y-4">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                @lang('Select suppliers to invite for this RFQ. They will receive a notification.')
+            </p>
+
+            @if($this->availableSuppliers->isEmpty())
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                    <div class="flex items-center gap-2">
+                        <x-icon name="exclamation-triangle" class="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
+                        <p class="text-sm text-yellow-800 dark:text-yellow-300">
+                            @lang('All available suppliers have already been invited to this RFQ.')
+                        </p>
+                    </div>
+                </div>
+            @else
+                <div>
+                    <x-select.styled
+                        label="{{ __('Select Suppliers') }}"
+                        wire:model="selectedSuppliers"
+                        :options="$this->availableSuppliers"
+                        select="label:name|value:id"
+                        searchable
+                        multiple
+                    />
+                </div>
+
+                @if(!empty($selectedSuppliers))
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                        <p class="text-sm text-blue-800 dark:text-blue-300">
+                            <strong>{{ count($selectedSuppliers) }}</strong> {{ __('supplier(s) selected') }}
+                        </p>
+                    </div>
+                @endif
+            @endif
+        </div>
+
+        <x-slot:footer>
+            <div class="flex gap-3 justify-end">
+                <x-button color="white" wire:click="closeInviteModal">
+                    @lang('Cancel')
+                </x-button>
+                @if(!$this->availableSuppliers->isEmpty())
+                    <x-button color="blue" wire:click="inviteSuppliers">
+                        @lang('Send Invitations')
+                    </x-button>
+                @endif
+            </div>
+        </x-slot:footer>
+    </x-modal>
 
     <livewire:buyer.rfq.update @updated="$refresh" />
 </div>

@@ -2,18 +2,70 @@
 
 namespace App\Livewire\Buyer\Rfq;
 
+use App\Events\SupplierInvited;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Request;
+use App\Models\SupplierInvitation;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Computed;
+use Livewire\WithPagination;
 
 class Show extends Component
 {
-    use Alert, WithLogging;
+    use Alert, WithLogging, WithPagination;
 
     public Request $request;
+
+    public ?string $statusValue = null;
+
+    public bool $showInviteModal = false;
+
+    public array $selectedSuppliers = [];
+
+    public array $availableStatuses = [
+        'draft' => 'Draft',
+        'open' => 'Open',
+        'closed' => 'Closed',
+        'awarded' => 'Awarded',
+        'cancelled' => 'Cancelled',
+    ];
+
+    /**
+     * Generic table props used by <x-table> (for supplier invitations table).
+     */
+    public int $quantity = 5;
+
+    public array $sort = [
+        'column' => 'status',
+        'direction' => 'desc',
+    ];
+
+    public array $headers = [
+        ['index' => 'supplier', 'label' => 'Supplier'],
+        ['index' => 'status', 'label' => 'Status'],
+        ['index' => 'sent_at', 'label' => 'Sent At'],
+        ['index' => 'responded_at', 'label' => 'Responded At'],
+        ['index' => 'action', 'sortable' => false],
+    ];
+
+    #[Computed]
+    public function invitationRows()
+    {
+        if ($this->quantity === 'all') {
+            $this->quantity = SupplierInvitation::where('request_id', $this->request->id)->count();
+        }
+
+        return SupplierInvitation::query()
+            ->with('supplier')
+            ->where('request_id', $this->request->id)
+            ->orderBy(...array_values($this->sort))
+            ->paginate($this->quantity)
+            ->withQueryString();
+    }
 
     public function mount(Request $request): void
     {
@@ -30,9 +82,184 @@ class Show extends Component
             abort(403, 'You do not have permission to view this RFQ.');
         }
 
+        // Initialize status value
+        $this->statusValue = $this->request->status;
+
         $this->logPageView('Buyer RFQ Show', [
             'request_id' => $this->request->id,
         ]);
+    }
+
+    public function updatedStatusValue($value): void
+    {
+        if (!$value || !array_key_exists($value, $this->availableStatuses)) {
+            $this->error(__('Invalid status selected.'));
+            $this->statusValue = $this->request->status; // Reset to current status
+            return;
+        }
+
+        $oldStatus = $this->request->status;
+
+        // Don't update if it's the same status
+        if ($oldStatus === $value) {
+            return;
+        }
+
+        $this->request->status = $value;
+        $this->request->save();
+
+        $this->logUpdate(
+            Request::class,
+            $this->request->id,
+            [
+                'status' => [
+                    'old' => $oldStatus,
+                    'new' => $value,
+                ],
+            ]
+        );
+
+        $this->success(__('RFQ status updated successfully.'));
+
+        // Refresh the request
+        $this->request->refresh();
+    }
+
+    public function openInviteModal(): void
+    {
+        $this->showInviteModal = true;
+        $this->selectedSuppliers = [];
+    }
+
+    public function closeInviteModal(): void
+    {
+        $this->showInviteModal = false;
+        $this->selectedSuppliers = [];
+    }
+
+    public function inviteSuppliers(): void
+    {
+        if (empty($this->selectedSuppliers)) {
+            $this->error(__('Please select at least one supplier to invite.'));
+            return;
+        }
+
+        $user = Auth::user();
+        $invitedCount = 0;
+        $alreadyInvitedCount = 0;
+        $invitationIds = [];
+
+        foreach ($this->selectedSuppliers as $supplierId) {
+            // Check if supplier is already invited
+            $existingInvitation = SupplierInvitation::where('request_id', $this->request->id)
+                ->where('supplier_id', $supplierId)
+                ->first();
+
+            if ($existingInvitation) {
+                $alreadyInvitedCount++;
+                continue;
+            }
+
+            // Create invitation
+            $invitation = SupplierInvitation::create([
+                'request_id' => $this->request->id,
+                'supplier_id' => $supplierId,
+                'status' => 'pending',
+                'sent_at' => now(),
+            ]);
+
+            $invitationIds[] = $invitation->id;
+
+            // Dispatch event to send notification
+            $supplier = User::find($supplierId);
+            if ($supplier) {
+                event(new SupplierInvited($invitation, $user));
+                $invitedCount++;
+            }
+        }
+
+        if ($invitedCount > 0) {
+            $this->logCreate(
+                SupplierInvitation::class,
+                $invitationIds[0],
+                [
+                    'request_id' => $this->request->id,
+                    'suppliers_invited' => $invitedCount,
+                    'already_invited' => $alreadyInvitedCount,
+                    'invitation_ids' => $invitationIds,
+                    'selected_supplier_ids' => $this->selectedSuppliers,
+                ]
+            );
+        }
+
+        // Refresh the request with invitations
+        $this->request->load('supplierInvitations.supplier');
+
+        $this->closeInviteModal();
+
+        if ($invitedCount > 0) {
+            $message = $invitedCount === 1
+                ? __('1 supplier invited successfully.')
+                : __(':count suppliers invited successfully.', ['count' => $invitedCount]);
+
+            if ($alreadyInvitedCount > 0) {
+                $message .= ' ' . __(':count already invited.', ['count' => $alreadyInvitedCount]);
+            }
+
+            $this->success($message);
+        } else {
+            $this->warning(__('All selected suppliers have already been invited.'));
+        }
+    }
+
+    public function deleteInvitation(int $invitationId): void
+    {
+        $invitation = SupplierInvitation::where('id', $invitationId)
+            ->where('request_id', $this->request->id)
+            ->first();
+
+        if (! $invitation) {
+            $this->error(__('Invitation not found.'));
+
+            return;
+        }
+
+        // Optional: prevent deleting invitations that already have quotes
+        if ($invitation->quotes()->exists()) {
+            $this->warning(__('Cannot delete an invitation that already has quotes.'));
+
+            return;
+        }
+
+        $invitationId = $invitation->id;
+        $supplierName = $invitation->supplier?->name;
+
+        $invitation->delete();
+
+        $this->logDelete(
+            SupplierInvitation::class,
+            $invitationId,
+            [
+                'request_id' => $this->request->id,
+                'supplier_name' => $supplierName,
+            ]
+        );
+
+        // Reload invitations relation
+        $this->request->load('supplierInvitations.supplier');
+
+        $this->success(__('Invitation deleted successfully.'));
+    }
+
+    public function getAvailableSuppliersProperty()
+    {
+        $invitedSupplierIds = $this->request->supplierInvitations->pluck('supplier_id')->toArray();
+
+        // Return suppliers that haven't been invited yet
+        return User::activeSuppliers()
+            ->whereNotIn('id', $invitedSupplierIds)
+            ->orderBy('name')
+            ->get();
     }
 
     public function render(): View

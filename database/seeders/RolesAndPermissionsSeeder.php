@@ -56,6 +56,7 @@ class RolesAndPermissionsSeeder extends Seeder
             ['name' => 'delete_rfqs', 'display_name' => 'Delete RFQs', 'group' => 'RFQ'],
             ['name' => 'submit_quotes', 'display_name' => 'Submit Quotes', 'group' => 'RFQ'],
             ['name' => 'view_quotes', 'display_name' => 'View Quotes', 'group' => 'RFQ'],
+            ['name' => 'edit_quotes', 'display_name' => 'Edit Quotes', 'group' => 'RFQ'],
 
             // Markets
             ['name' => 'view_markets', 'display_name' => 'View Markets', 'group' => 'Markets'],
@@ -165,6 +166,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_rfqs',
             'submit_quotes',
             'view_quotes',
+            'edit_quotes',
             'access_supplier_portal',
             'manage_supplier_invitations',
             'view_settings'

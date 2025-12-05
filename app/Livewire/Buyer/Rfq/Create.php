@@ -2,11 +2,14 @@
 
 namespace App\Livewire\Buyer\Rfq;
 
+use App\Events\SupplierInvited;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
 use App\Models\Request;
 use App\Models\RequestItem;
+use App\Models\SupplierInvitation;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
@@ -24,6 +27,11 @@ class Create extends Component
      * @var array<int, array<string, mixed>>
      */
     public array $items = [];
+
+    /**
+     * @var array<int, int>
+     */
+    public array $selectedSuppliers = [];
 
     public function mount(): void
     {
@@ -103,6 +111,24 @@ class Create extends Component
             ]);
         }
 
+        // Create supplier invitations
+        if (!empty($this->selectedSuppliers)) {
+            foreach ($this->selectedSuppliers as $supplierId) {
+                $invitation = SupplierInvitation::create([
+                    'request_id' => $this->request->id,
+                    'supplier_id' => $supplierId,
+                    'status' => 'pending',
+                    'sent_at' => now(),
+                ]);
+
+                // Dispatch event to send notification
+                $supplier = User::find($supplierId);
+                if ($supplier) {
+                    event(new SupplierInvited($invitation, $user));
+                }
+            }
+        }
+
         $this->logCreate(
             Request::class,
             $this->request->id,
@@ -110,6 +136,7 @@ class Create extends Component
                 'title' => $this->request->title,
                 'deadline' => $this->request->deadline,
                 'items_count' => count($this->items),
+                'suppliers_invited' => count($this->selectedSuppliers),
                 'buyer_id' => $this->request->buyer_id,
             ]
         );
@@ -120,6 +147,7 @@ class Create extends Component
         $this->request = new Request;
         $this->request->status = 'draft';
         $this->items = [$this->makeEmptyItem()];
+        $this->selectedSuppliers = [];
 
         $this->success(__('RFQ created successfully.'));
     }
@@ -128,6 +156,7 @@ class Create extends Component
     {
         return view('livewire.buyer.rfq.create', [
             'products' => Product::orderBy('name')->get(),
+            'suppliers' => User::activeSuppliers()->orderBy('name')->get(),
         ]);
     }
 }
