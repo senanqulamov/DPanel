@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Supplier\Rfq;
+namespace App\Livewire\Supplier\Quotes;
 
 use App\Events\QuoteSubmitted;
 use App\Livewire\Traits\Alert;
@@ -8,17 +8,15 @@ use App\Livewire\Traits\WithCalculation;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Quote;
 use App\Models\QuoteItem;
-use App\Models\Request;
-use App\Models\SupplierInvitation;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-class QuoteForm extends Component
+class Edit extends Component
 {
     use Alert, WithCalculation, WithLogging;
 
-    public Request $request;
+    public Quote $quote;
 
     /**
      * Quote items - keyed by request_item_id
@@ -31,54 +29,40 @@ class QuoteForm extends Component
     public ?string $valid_until = null;
     public string $currency = 'USD';
 
-    public function mount(Request $request): void
+    public function mount(Quote $quote): void
     {
-        $this->request = $request->load('items.product');
-
-        $this->logPageView('Supplier RFQ Quote Form');
-
-        $user = Auth::user();
-
-        if (! $user) {
-            abort(403, 'You must be logged in to submit a quote.');
+        // Security check - only supplier can edit their own quote
+        if ($quote->supplier_id !== Auth::id()) {
+            abort(403, 'You can only edit your own quotes.');
         }
 
-        if ($user->id === $this->request->buyer_id) {
-            abort(403, 'Suppliers cannot quote on RFQs they created.');
-        }
-
-        if ($this->request->status !== 'open' || ($this->request->deadline && $this->request->deadline->isPast())) {
-            $this->error(__('This RFQ is not open for quotes.'));
-            abort(403, 'This RFQ is not open for quotes.');
-        }
-
-        // Check if supplier already submitted a quote
-        $existingQuote = Quote::where('request_id', $this->request->id)
-            ->where('supplier_id', $user->id)
-            ->first();
-
-        if ($existingQuote) {
-            $this->error(__('You have already submitted a quote for this RFQ.'));
-            $this->redirect(route('supplier.rfq.show', $this->request));
+        // Can only edit draft or submitted quotes
+        if (!in_array($quote->status, ['draft', 'submitted'])) {
+            $this->error(__('This quote cannot be edited anymore.'));
+            $this->redirect(route('supplier.quotes.index'));
             return;
         }
 
-        // Initialize items from request items
-        foreach ($this->request->items as $item) {
-            $this->items[$item->id] = [
-                'description' => $item->product->name ?? 'Product Item',
+        $this->quote = $quote->load(['request.items.product', 'items']);
+
+        $this->logPageView('Supplier Quote Edit Form');
+
+        // Load existing quote data
+        $this->currency = $this->quote->currency ?? 'USD';
+        $this->valid_until = $this->quote->valid_until?->format('Y-m-d');
+        $this->notes = $this->quote->notes;
+        $this->terms_conditions = $this->quote->terms_conditions;
+
+        // Initialize items from existing quote items
+        foreach ($this->quote->items as $item) {
+            $this->items[$item->request_item_id] = [
+                'description' => $item->description,
                 'quantity' => $item->quantity,
-                'unit_price' => null,
-                'tax_rate' => 0,
-                'notes' => null,
+                'unit_price' => $item->unit_price,
+                'tax_rate' => $item->tax_rate ?? 0,
+                'notes' => $item->notes,
             ];
         }
-
-        // Set default valid_until to 30 days from now
-        $this->valid_until = now()->addDays(30)->format('Y-m-d');
-
-        // Set currency from user or default
-        $this->currency = $user->currency ?? 'USD';
     }
 
     public function rules(): array
@@ -125,8 +109,8 @@ class QuoteForm extends Component
 
         $user = Auth::user();
 
-        if (! $user) {
-            $this->error(__('You must be logged in to submit a quote.'));
+        if (!$user) {
+            $this->error(__('You must be logged in to update a quote.'));
             return;
         }
 
@@ -137,35 +121,28 @@ class QuoteForm extends Component
             return;
         }
 
-        // Find supplier invitation (if exists)
-        $invitation = SupplierInvitation::where('request_id', $this->request->id)
-            ->where('supplier_id', $user->id)
-            ->first();
-
-        // Create the quote
-        $quote = Quote::create([
-            'request_id' => $this->request->id,
-            'supplier_id' => $user->id,
-            'supplier_invitation_id' => $invitation?->id,
-            'unit_price' => 0,
-            'total_price' => 0,
+        // Update the quote
+        $this->quote->update([
             'total_amount' => $totalAmount,
             'currency' => $this->currency,
             'valid_until' => $this->valid_until,
             'notes' => $this->notes,
             'terms_conditions' => $this->terms_conditions,
             'status' => 'submitted',
-            'submitted_at' => now(),
+            'submitted_at' => $this->quote->submitted_at ?? now(),
         ]);
 
-        // Save quote items
+        // Delete existing quote items
+        $this->quote->items()->delete();
+
+        // Save updated quote items
         foreach ($this->items as $requestItemId => $item) {
             $subtotal = $item['quantity'] * $item['unit_price'];
             $tax = $subtotal * (($item['tax_rate'] ?? 0) / 100);
             $total = $subtotal + $tax;
 
             QuoteItem::create([
-                'quote_id' => $quote->id,
+                'quote_id' => $this->quote->id,
                 'request_item_id' => $requestItemId,
                 'description' => $item['description'],
                 'quantity' => $item['quantity'],
@@ -176,31 +153,23 @@ class QuoteForm extends Component
             ]);
         }
 
-        // Update invitation status if exists
-        if ($invitation && $invitation->status === 'accepted') {
-            $invitation->update(['status' => 'quoted']);
-        }
-
-        // Fire event
-        event(new QuoteSubmitted($quote));
-
-        $this->logCreate(
+        $this->logUpdate(
             model: Quote::class,
-            modelId: $quote->id,
-            data: [
-                'request_id' => $this->request->id,
+            modelId: $this->quote->id,
+            changes: [
                 'total_amount' => $totalAmount,
                 'currency' => $this->currency,
+                'valid_until' => $this->valid_until,
             ]
         );
 
-        $this->success(__('Quote submitted successfully!'));
+        $this->success(__('Quote updated successfully!'));
         $this->redirect(route('supplier.quotes.index'));
     }
 
     public function render(): View
     {
-        return view('livewire.supplier.rfq.quote-form')
+        return view('livewire.supplier.quotes.edit')
             ->layout('layouts.app');
     }
 }

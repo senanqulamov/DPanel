@@ -37,9 +37,22 @@
         <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 dark:from-indigo-500/10 dark:to-purple-500/10"></div>
 
         <div class="relative p-6">
-            <div class="mb-6">
+            <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <div class="text-sm text-gray-600 dark:text-gray-400">
                     {{ __('View-only access. Browse RFQs and submit quotes through invitations.') }}
+                </div>
+
+                <div class="w-full sm:w-64">
+                    <x-select.styled
+                        :label="__('Filter by Status')"
+                        wire:model.live="statusFilter"
+                        :options="[
+                            ['label' => 'All Statuses', 'value' => null],
+                            ['label' => 'Open', 'value' => 'open'],
+                            ['label' => 'Closed', 'value' => 'closed'],
+                        ]"
+                        select="label:label|value:value"
+                    />
                 </div>
             </div>
 
@@ -79,19 +92,12 @@
                 @endinteract
 
                 @interact('column_action', $row)
-                    <div class="flex gap-1">
-                        @if($row->status === 'open')
-                            <x-button
-                                text="{{ __('Quote Now') }}"
-                                color="purple"
-                                icon="document-plus"
-                                href="{{ route('supplier.rfq.quote', $row) }}"
-                                sm
-                            />
-                        @else
-                            <x-badge text="{{ __('Closed') }}" color="gray" />
-                        @endif
-                    </div>
+                    <x-button.circle
+                        icon="eye"
+                        color="indigo"
+                        href="{{ route('supplier.rfq.show', $row) }}"
+                        title="{{ __('View Details') }}"
+                    />
                 @endinteract
             </x-table>
         </div>

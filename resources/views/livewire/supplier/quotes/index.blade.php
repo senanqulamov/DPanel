@@ -123,13 +123,14 @@
                         <x-button.circle
                             icon="eye"
                             color="blue"
-                            wire:click="$dispatch('view-quote', { id: {{ $row->id }} })"
-                            title="{{ __('View Details') }}"
+                            href="{{ route('supplier.rfq.show', $row->request) }}"
+                            title="{{ __('View RFQ') }}"
                         />
-                        @if($row->status === 'draft')
+                        @if(in_array($row->status, ['draft', 'submitted']))
                             <x-button.circle
                                 icon="pencil"
                                 color="purple"
+                                href="{{ route('supplier.quotes.edit', $row) }}"
                                 title="{{ __('Edit Quote') }}"
                             />
                         @endif

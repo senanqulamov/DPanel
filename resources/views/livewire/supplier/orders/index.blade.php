@@ -70,6 +70,15 @@
                 @interact('column_created_at', $row)
                     {{ $row->created_at->format('Y-m-d') }}
                 @endinteract
+
+                @interact('column_action', $row)
+                    <x-button.circle
+                        icon="eye"
+                        color="sky"
+                        wire:click="$dispatch('view-order', { id: {{ $row->id }} })"
+                        title="{{ __('View Details') }}"
+                    />
+                @endinteract
             </x-table>
         </div>
     </div>

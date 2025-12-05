@@ -32,6 +32,7 @@ class Index extends Component
         ['index' => 'status', 'label' => 'Status'],
         ['index' => 'items_count', 'label' => 'Items'],
         ['index' => 'created_at', 'label' => 'Date'],
+        ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
     ];
 
     public function render(): View

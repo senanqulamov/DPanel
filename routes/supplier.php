@@ -4,8 +4,10 @@ use App\Livewire\Supplier\Dashboard as SupplierDashboard;
 use App\Livewire\Supplier\Invitations\Index as InvitationsIndex;
 use App\Livewire\Supplier\Quotes\Index as QuotesIndex;
 use App\Livewire\Supplier\Quotes\Create as QuotesCreate;
+use App\Livewire\Supplier\Quotes\Edit as SupplierQuotesEdit;
 use App\Livewire\Supplier\Messages\Index as MessagesIndex;
 use App\Livewire\Supplier\Rfq\Index as SupplierRfqIndex;
+use App\Livewire\Supplier\Rfq\Show as SupplierRfqShow;
 use App\Livewire\Supplier\Rfq\QuoteForm as SupplierRfqQuoteForm;
 use App\Livewire\Supplier\Products\Index as SupplierProductsIndex;
 use App\Livewire\Supplier\Products\Show as SupplierProductsShow;
@@ -35,12 +37,14 @@ Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('s
     // Quotes
     Route::get('/quotes', QuotesIndex::class)->name('quotes.index')->middleware('can:view_quotes');
     Route::get('/quotes/create/{invitation}', QuotesCreate::class)->name('quotes.create')->middleware('can:submit_quotes');
+    Route::get('/quotes/{quote}/edit', SupplierQuotesEdit::class)->name('quotes.edit')->middleware('can:edit_quotes');
 
     // Messages
     Route::get('/messages', MessagesIndex::class)->name('messages.index');
 
-    // RFQs (View-only + Quote submission)
+    // RFQs (View + Show + Quote submission)
     Route::get('/rfq', SupplierRfqIndex::class)->name('rfq.index')->middleware('can:view_rfqs');
+    Route::get('/rfq/{request}', SupplierRfqShow::class)->name('rfq.show')->middleware('can:view_rfqs');
     Route::get('/rfq/{request}/quote', SupplierRfqQuoteForm::class)->name('rfq.quote')->middleware('can:submit_quotes');
 
     // Products (View-only + Show page)
