@@ -5,9 +5,11 @@ namespace App\Livewire\Buyer\Rfq;
 use App\Events\SupplierInvited;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
+use App\Models\Quote;
 use App\Models\Request;
 use App\Models\SupplierInvitation;
 use App\Models\User;
+use App\Notifications\QuoteStatusChanged;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -260,6 +262,115 @@ class Show extends Component
             ->whereNotIn('id', $invitedSupplierIds)
             ->orderBy('name')
             ->get();
+    }
+
+    public function acceptQuote(int $quoteId): void
+    {
+        $quote = Quote::where('id', $quoteId)
+            ->where('request_id', $this->request->id)
+            ->first();
+
+        if (!$quote) {
+            $this->error(__('Quote not found.'));
+            return;
+        }
+
+        $oldStatus = $quote->status;
+
+        // Update quote status to accepted
+        $quote->status = 'accepted';
+        $quote->save();
+
+        // Optionally, reject all other quotes for this RFQ
+        Quote::where('request_id', $this->request->id)
+            ->where('id', '!=', $quoteId)
+            ->where('status', '!=', 'rejected')
+            ->update(['status' => 'rejected']);
+
+        // Update RFQ status to awarded
+        $this->request->status = 'awarded';
+        $this->request->save();
+        $this->statusValue = 'awarded';
+
+        // Send notification to supplier
+        if ($quote->supplier) {
+            $quote->supplier->notify(new QuoteStatusChanged($quote, $oldStatus, 'accepted'));
+        }
+
+        // Notify other suppliers their quotes were rejected
+        $otherQuotes = Quote::where('request_id', $this->request->id)
+            ->where('id', '!=', $quoteId)
+            ->with('supplier')
+            ->get();
+
+        foreach ($otherQuotes as $otherQuote) {
+            if ($otherQuote->supplier) {
+                $otherQuote->supplier->notify(new QuoteStatusChanged($otherQuote, $otherQuote->status, 'rejected'));
+            }
+        }
+
+        $this->logUpdate(
+            Quote::class,
+            $quote->id,
+            [
+                'status' => [
+                    'old' => $oldStatus,
+                    'new' => 'accepted',
+                ],
+                'action' => 'Quote accepted by buyer',
+            ]
+        );
+
+        // Refresh the request
+        $this->request->refresh()->load([
+            'quotes.supplier',
+            'quotes.items.requestItem.product',
+        ]);
+
+        $this->success(__('Quote accepted successfully. Other quotes have been rejected.'));
+    }
+
+    public function rejectQuote(int $quoteId): void
+    {
+        $quote = Quote::where('id', $quoteId)
+            ->where('request_id', $this->request->id)
+            ->first();
+
+        if (!$quote) {
+            $this->error(__('Quote not found.'));
+            return;
+        }
+
+        $oldStatus = $quote->status;
+
+        // Update quote status to rejected
+        $quote->status = 'rejected';
+        $quote->save();
+
+        // Send notification to supplier
+        if ($quote->supplier) {
+            $quote->supplier->notify(new QuoteStatusChanged($quote, $oldStatus, 'rejected'));
+        }
+
+        $this->logUpdate(
+            Quote::class,
+            $quote->id,
+            [
+                'status' => [
+                    'old' => $oldStatus,
+                    'new' => 'rejected',
+                ],
+                'action' => 'Quote rejected by buyer',
+            ]
+        );
+
+        // Refresh the request
+        $this->request->refresh()->load([
+            'quotes.supplier',
+            'quotes.items.requestItem.product',
+        ]);
+
+        $this->success(__('Quote rejected successfully.'));
     }
 
     public function render(): View

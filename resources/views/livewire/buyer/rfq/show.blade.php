@@ -295,6 +295,90 @@
                                         />
                                     </div>
                                 </div>
+
+                                {{-- Quote Actions --}}
+                                @if(!in_array($quote->status, ['accepted', 'rejected']))
+                                    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700">
+                                        <x-button
+                                            color="green"
+                                            sm
+                                            icon="check-circle"
+                                            wire:click="acceptQuote({{ $quote->id }})"
+                                            wire:confirm="Are you sure you want to accept this quote? All other quotes will be automatically rejected."
+                                        >
+                                            @lang('Accept Quote')
+                                        </x-button>
+                                        <x-button
+                                            color="red"
+                                            sm
+                                            icon="x-circle"
+                                            wire:click="rejectQuote({{ $quote->id }})"
+                                            wire:confirm="Are you sure you want to reject this quote?"
+                                        >
+                                            @lang('Reject Quote')
+                                        </x-button>
+                                    </div>
+                                @endif
+
+                                {{-- Quote Items (Optional - can be expanded) --}}
+                                @if($quote->items && $quote->items->count() > 0)
+                                    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                                        <details class="group">
+                                            <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 list-none flex items-center justify-between">
+                                                <span>@lang('View Quote Items') ({{ $quote->items->count() }})</span>
+                                                <x-icon name="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180" />
+                                            </summary>
+                                            <div class="mt-3 overflow-x-auto">
+                                                <table class="min-w-full text-sm">
+                                                    <thead class="bg-gray-50 dark:bg-gray-800">
+                                                        <tr>
+                                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Product')</th>
+                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Quantity')</th>
+                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Unit Price')</th>
+                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Total')</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                                        @foreach($quote->items as $item)
+                                                            <tr>
+                                                                <td class="px-3 py-2 text-gray-900 dark:text-gray-100">
+                                                                    {{ $item->requestItem?->product?->name ?? __('Unknown') }}
+                                                                </td>
+                                                                <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100">
+                                                                    {{ $item->quantity }}
+                                                                </td>
+                                                                <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100">
+                                                                    ${{ number_format($item->unit_price ?? 0, 2) }}
+                                                                </td>
+                                                                <td class="px-3 py-2 text-right font-medium text-gray-900 dark:text-gray-100">
+                                                                    ${{ number_format($item->total_price ?? 0, 2) }}
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </details>
+                                    </div>
+                                @endif
+
+                                {{-- Quote Notes/Terms --}}
+                                @if($quote->notes || $quote->terms_conditions)
+                                    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                                        @if($quote->notes)
+                                            <div class="mb-2">
+                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">@lang('Notes'):</p>
+                                                <p class="text-sm text-gray-700 dark:text-gray-300">{{ $quote->notes }}</p>
+                                            </div>
+                                        @endif
+                                        @if($quote->terms_conditions)
+                                            <div>
+                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">@lang('Terms & Conditions'):</p>
+                                                <p class="text-sm text-gray-700 dark:text-gray-300">{{ $quote->terms_conditions }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>

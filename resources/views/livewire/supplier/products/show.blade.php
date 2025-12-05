@@ -73,6 +73,19 @@
                         <span>{{ $product->created_at->format('M d, Y') }}</span>
                     </div>
                 </div>
+
+                @if($product->market)
+                    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-slate-700">
+                        <x-button
+                            color="cyan"
+                            icon="building-storefront"
+                            href="{{ route('supplier.markets.show', $product->market) }}"
+                            class="w-full justify-center"
+                        >
+                            {{ __('View Market') }}
+                        </x-button>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
