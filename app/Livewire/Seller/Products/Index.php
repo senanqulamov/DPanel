@@ -18,6 +18,8 @@ class Index extends Component
 
     public ?string $search = null;
 
+    public ?int $marketFilter = null;
+
     public array $sort = [
         'column' => 'created_at',
         'direction' => 'desc',
@@ -44,16 +46,28 @@ class Index extends Component
     {
         $user = auth()->user();
 
+        // Get all market IDs owned by the seller
+        $marketIds = \App\Models\Market::where('user_id', $user->id)->pluck('id');
+
         if ($this->quantity == 'all') {
-            $this->quantity = Product::where('supplier_id', $user->id)->count();
+            $this->quantity = Product::whereIn('market_id', $marketIds)->count();
         }
 
         return Product::query()
-            ->where('supplier_id', $user->id)
+            ->whereIn('market_id', $marketIds)
             ->with('market')
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'sku', 'category'], 'like', '%'.trim($this->search).'%'))
+            ->when($this->marketFilter !== null, fn (Builder $query) => $query->where('market_id', $this->marketFilter))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)
             ->withQueryString();
+    }
+
+    #[Computed]
+    public function markets(): \Illuminate\Database\Eloquent\Collection
+    {
+        return \App\Models\Market::where('user_id', auth()->id())
+            ->orderBy('name')
+            ->get();
     }
 }

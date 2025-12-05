@@ -37,8 +37,19 @@
         <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-fuchsia-500/5 dark:from-purple-500/10 dark:to-fuchsia-500/10"></div>
 
         <div class="relative p-6">
-            <div class="mb-6">
+            <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <x-button :text="__('Create New Product')" wire:click="$dispatch('products::create::open')" sm />
+
+                <div class="w-full sm:w-64">
+                    <x-select.styled
+                        :label="__('Filter by Market')"
+                        wire:model.live="marketFilter"
+                        :options="$this->markets"
+                        select="label:name|value:id"
+                        searchable
+                        :placeholder="__('All Markets')"
+                    />
+                </div>
             </div>
 
             <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
