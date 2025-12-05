@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\LocaleController;
 use App\Livewire\Buyer\Dashboard as BuyerDashboard;
+use App\Livewire\Buyer\Logs\Index as BuyerLogsIndex;
+use App\Livewire\Buyer\Markets\Index as BuyerMarketsIndex;
+use App\Livewire\Buyer\Products\Index as BuyerProductsIndex;
+use App\Livewire\Buyer\Rfq\Index as BuyerRfqIndex;
+use App\Livewire\Buyer\Rfq\Show as BuyerRfqShow;
 use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\Logs\Index as LogsIndex;
 use App\Livewire\Markets\Index as MarketsIndex;
@@ -40,6 +45,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Role-based Dashboards
     Route::get('/buyer/dashboard', BuyerDashboard::class)->name('buyer.dashboard')->middleware('can:view_dashboard');
+
+    // Buyer Panel Routes
+    Route::get('/buyer/rfq', BuyerRfqIndex::class)->name('buyer.rfq.index')->middleware('can:view_rfqs');
+    Route::get('/buyer/rfq/{request}', BuyerRfqShow::class)->name('buyer.rfq.show')->middleware('can:view_rfqs');
+    Route::get('/buyer/products', BuyerProductsIndex::class)->name('buyer.products.index')->middleware('can:view_products');
+    Route::get('/buyer/markets', BuyerMarketsIndex::class)->name('buyer.markets.index')->middleware('can:view_markets');
+    Route::get('/buyer/logs', BuyerLogsIndex::class)->name('buyer.logs.index')->middleware('can:view_logs');
+
     Route::get('/seller/dashboard', SellerDashboard::class)->name('seller.dashboard')->middleware(['seller', 'can:view_dashboard']);
     Route::get('/seller/markets', SellerMarketsIndex::class)->name('seller.markets.index')->middleware(['seller', 'can:view_markets']);
     Route::get('/seller/markets/{market}', SellerMarketShow::class)->name('seller.markets.show')->middleware(['seller', 'can:view_markets']);

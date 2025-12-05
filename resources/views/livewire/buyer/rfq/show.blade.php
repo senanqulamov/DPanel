@@ -1,0 +1,201 @@
+<div class="space-y-6">
+    <x-buyer.nav />
+
+    {{-- Modern Header Card --}}
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 text-white shadow-2xl shadow-blue-500/30">
+        <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+
+        <div class="relative p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
+                        <x-icon name="document-text" class="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
+                            {{ $request->title }}
+                        </h1>
+                        <p class="text-sm text-blue-100 mt-0.5">
+                            @lang('RFQ #:id', ['id' => $request->id])
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-end gap-2">
+                    <x-badge
+                        :text="ucfirst($request->status)"
+                        :color="match($request->status) {
+                            'open' => 'green',
+                            'closed' => 'red',
+                            default => 'gray'
+                        }"
+                        class="text-white"
+                    />
+                    <div class="text-xs text-blue-100">
+                        @lang('Deadline'): {{ optional($request->deadline)->format('Y-m-d') ?? '—' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Actions Card --}}
+    <div class="flex flex-wrap gap-3">
+        <x-button icon="arrow-left" href="{{ route('buyer.rfq.index') }}" color="white">
+            @lang('Back to RFQs')
+        </x-button>
+        @can('edit_rfqs')
+            <x-button
+                icon="pencil"
+                color="lime"
+                wire:click="$dispatch('buyer::load::rfq', { rfq: '{{ $request->id }}' })"
+            >
+                @lang('Edit Request')
+            </x-button>
+        @endcan
+    </div>
+
+    {{-- Main Content Card --}}
+    <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 dark:from-blue-500/10 dark:to-cyan-500/10"></div>
+
+        <div class="relative p-6 space-y-6">
+            {{-- RFQ Details --}}
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                    @lang('RFQ Details')
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">@lang('Buyer')</p>
+                        <p class="text-gray-900 dark:text-gray-100 font-medium">
+                            {{ $request->buyer?->name ?? __('Unknown') }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">@lang('Created at')</p>
+                        <p class="text-gray-900 dark:text-gray-100 font-medium">
+                            {{ $request->created_at->format('Y-m-d H:i') }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">@lang('Deadline')</p>
+                        <p class="text-gray-900 dark:text-gray-100 font-medium">
+                            {{ optional($request->deadline)->format('Y-m-d') ?? '—' }}
+                        </p>
+                    </div>
+                </div>
+
+                @if($request->description)
+                    <div class="mt-4">
+                        <p class="text-gray-500 dark:text-gray-400 text-xs uppercase mb-1">@lang('Description')</p>
+                        <p class="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-line">{{ $request->description }}</p>
+                    </div>
+                @endif
+            </div>
+
+            {{-- RFQ Items --}}
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    @lang('Items') ({{ $request->items->count() }})
+                </h3>
+
+                <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                @lang('Product')
+                            </th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                @lang('Quantity')
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                @lang('Specifications')
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        @forelse($request->items as $item)
+                            <tr>
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    {{ $item->product?->name ?? __('Unknown product') }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">
+                                    {{ $item->quantity }}
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+                                    {{ $item->specifications ?: '—' }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
+                                    @lang('No items found.')
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Quotes --}}
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        @lang('Quotes Received') ({{ $request->quotes->count() }})
+                    </h3>
+                </div>
+
+                @if($request->quotes->isEmpty())
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            @lang('No quotes submitted yet.')
+                        </p>
+                    </div>
+                @else
+                    <div class="space-y-4">
+                        @foreach($request->quotes as $quote)
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                                {{-- Quote Header --}}
+                                <div class="bg-gray-100 dark:bg-gray-800 px-4 py-3 flex justify-between items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                            {{ $quote->supplier?->name ?? __('Unknown Supplier') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                            @lang('Submitted'): {{ $quote->submitted_at ? $quote->submitted_at->format('M d, Y H:i') : $quote->created_at->format('M d, Y H:i') }}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-right">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Total Amount')</div>
+                                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                ${{ number_format($quote->total_amount ?? $quote->total_price ?? 0, 2) }}
+                                            </div>
+                                        </div>
+                                        <x-badge
+                                            :text="ucfirst(str_replace('_', ' ', $quote->status ?? 'submitted'))"
+                                            :color="match($quote->status) {
+                                                'draft' => 'gray',
+                                                'submitted' => 'blue',
+                                                'under_review' => 'yellow',
+                                                'accepted', 'won' => 'green',
+                                                'rejected', 'lost' => 'red',
+                                                default => 'gray'
+                                            }"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <livewire:buyer.rfq.update @updated="$refresh" />
+</div>

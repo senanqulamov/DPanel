@@ -5,6 +5,14 @@ use App\Livewire\Supplier\Invitations\Index as InvitationsIndex;
 use App\Livewire\Supplier\Quotes\Index as QuotesIndex;
 use App\Livewire\Supplier\Quotes\Create as QuotesCreate;
 use App\Livewire\Supplier\Messages\Index as MessagesIndex;
+use App\Livewire\Supplier\Rfq\Index as SupplierRfqIndex;
+use App\Livewire\Supplier\Rfq\QuoteForm as SupplierRfqQuoteForm;
+use App\Livewire\Supplier\Products\Index as SupplierProductsIndex;
+use App\Livewire\Supplier\Products\Show as SupplierProductsShow;
+use App\Livewire\Supplier\Markets\Index as SupplierMarketsIndex;
+use App\Livewire\Supplier\Markets\Show as SupplierMarketsShow;
+use App\Livewire\Supplier\Orders\Index as SupplierOrdersIndex;
+use App\Livewire\Supplier\Logs\Index as SupplierLogsIndex;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,4 +38,22 @@ Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('s
 
     // Messages
     Route::get('/messages', MessagesIndex::class)->name('messages.index');
+
+    // RFQs (View-only + Quote submission)
+    Route::get('/rfq', SupplierRfqIndex::class)->name('rfq.index')->middleware('can:view_rfqs');
+    Route::get('/rfq/{request}/quote', SupplierRfqQuoteForm::class)->name('rfq.quote')->middleware('can:submit_quotes');
+
+    // Products (View-only + Show page)
+    Route::get('/products', SupplierProductsIndex::class)->name('products.index')->middleware('can:view_products');
+    Route::get('/products/{product}', SupplierProductsShow::class)->name('products.show')->middleware('can:view_products');
+
+    // Markets (View-only + Show page)
+    Route::get('/markets', SupplierMarketsIndex::class)->name('markets.index')->middleware('can:view_markets');
+    Route::get('/markets/{market}', SupplierMarketsShow::class)->name('markets.show')->middleware('can:view_markets');
+
+    // Orders (View-only - supplier's own orders)
+    Route::get('/orders', SupplierOrdersIndex::class)->name('orders.index')->middleware('can:view_orders');
+
+    // Logs
+    Route::get('/logs', SupplierLogsIndex::class)->name('logs.index')->middleware('can:view_logs');
 });
