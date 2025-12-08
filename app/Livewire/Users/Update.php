@@ -88,6 +88,9 @@ class Update extends Component
 
             // Password
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+
+            //notes
+            'user.notes' => ['nullable', 'string', 'max:2000']
         ];
     }
 

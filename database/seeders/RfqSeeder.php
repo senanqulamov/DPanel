@@ -20,17 +20,23 @@ class RfqSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create buyers and suppliers
-        $buyers = User::factory()->count(5)->create([
-            'is_buyer' => true,
-            'is_supplier' => false,
-            'is_seller' => false,
-        ]);
+        // Reuse existing seeded users and products from DatabaseSeeder
+        $buyers = User::where('is_buyer', true)->get();
+        $suppliers = User::where('is_supplier', true)->get();
+        $products = Product::all();
 
-        $suppliers = User::factory()->supplier()->count(10)->create();
+        // Fallbacks if run in isolation (e.g. seeding this seeder alone)
+        if ($buyers->isEmpty()) {
+            $buyers = User::factory()->buyer()->count(5)->create();
+        }
 
-        // Create products
-        $products = Product::factory()->count(20)->create();
+        if ($suppliers->isEmpty()) {
+            $suppliers = User::factory()->supplier()->count(10)->create();
+        }
+
+        if ($products->isEmpty()) {
+            $products = Product::factory()->count(40)->create();
+        }
 
         // Create RFQs in different states
         $this->createDraftRfqs($buyers, $products);

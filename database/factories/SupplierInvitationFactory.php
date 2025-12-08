@@ -26,13 +26,25 @@ class SupplierInvitationFactory extends Factory
      */
     public function definition(): array
     {
-        $sentAt = $this->faker->dateTimeBetween('-1 month', 'now');
-        $respondedAt = $this->faker->optional(0.7)->dateTimeBetween($sentAt, 'now');
+        $sentAt = $this->faker->dateTimeBetween('-2 months', 'now');
+
+        // Weighted status distribution: more accepted, some pending, few declined
+        $statusPool = array_merge(
+            array_fill(0, 5, 'accepted'),
+            array_fill(0, 3, 'pending'),
+            array_fill(0, 2, 'declined'),
+        );
+        $status = $this->faker->randomElement($statusPool);
+
+        $respondedAt = null;
+        if ($status !== 'pending') {
+            $respondedAt = $this->faker->dateTimeBetween($sentAt, 'now');
+        }
 
         return [
             'request_id' => Request::factory(),
             'supplier_id' => User::factory(),
-            'status' => $this->faker->randomElement(['pending', 'accepted', 'declined']),
+            'status' => $status,
             'sent_at' => $sentAt,
             'responded_at' => $respondedAt,
             'notes' => $this->faker->optional(0.5)->paragraph(),

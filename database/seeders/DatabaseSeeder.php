@@ -28,71 +28,79 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Create suppliers (10 users who can supply products)
-        $suppliers = User::factory()->supplier()->count(10)->create();
-
-        // Create sellers (5 verified sellers)
+        // Core user segments
+        $suppliers = User::factory()->supplier()->count(15)->create();
         $sellers = User::factory()->seller()->count(5)->create();
+        $buyers = User::factory()->buyer()->count(15)->create();
 
-        // Create regular buyers (5 users)
-        $buyers = User::factory()->buyer()->count(5)->create();
-
-        // Combine all users
+        // Combine all users (for generic relationships like logs etc.)
         $users = collect([$admin])
             ->merge($suppliers)
             ->merge($sellers)
             ->merge($buyers);
 
-        // Products and Markets
-        // Create markets and assign them to sellers
+        // Markets: each seller gets multiple markets; admin has a couple of global ones
         $markets = collect();
         foreach ($sellers as $seller) {
-            // Each seller gets 1-3 markets
-            $marketsForSeller = Market::factory(rand(1, 3))->create(['user_id' => $seller->id]);
+            $marketsForSeller = Market::factory(rand(2, 4))->create(['user_id' => $seller->id]);
             $markets = $markets->merge($marketsForSeller);
         }
 
-        // Add some markets for admin as well
         $adminMarkets = Market::factory(2)->create(['user_id' => $admin->id]);
         $markets = $markets->merge($adminMarkets);
 
-        // Ensure products are associated with a market AND a supplier
-        $products = Product::factory(40)->make()->each(function (Product $product) use ($markets, $suppliers) {
-            $product->market_id = $markets->random()->id;
-            $product->supplier_id = $suppliers->random()->id; // Assign random supplier
-            $product->save();
-        });
-
-        Order::factory(100)
-            ->make()
-            ->each(function (Order $order) use ($users, $products) {
-                $order->user_id = $users->random()->id;
-                $order->save();
-
-                // Attach 1-4 items
-                $items = $products->random(rand(1, 4));
-                $total = 0;
-                foreach ($items as $product) {
-                    $qty = rand(1, 5);
-                    $unit = (float) $product->price;
-                    $subtotal = round($qty * $unit, 2);
-                    $order->items()->create([
-                        'product_id' => $product->id,
-                        'market_id' => $product->market_id,
-                        'quantity' => $qty,
-                        'unit_price' => $unit,
-                        'subtotal' => $subtotal,
-                    ]);
-                    $total += $subtotal;
-                }
-
-                $order->forceFill(['total' => $total])->saveQuietly();
+        // Products: richer catalogue across markets, each linked to a supplier
+        $products = collect();
+        foreach ($markets as $market) {
+            $count = rand(10, 25);
+            $marketProducts = Product::factory($count)->make()->each(function (Product $product) use ($market, $suppliers) {
+                $product->market_id = $market->id;
+                $product->supplier_id = $suppliers->random()->id;
+                $product->save();
             });
+            $products = $products->merge($marketProducts);
+        }
 
-        // Logs
-        Log::factory(120)->create();
+        // Orders: build realistic orders directly from existing products and markets
+        for ($i = 0; $i < 90; $i++) {
+            /** @var \App\Models\User $buyer */
+            $buyer = $buyers->random();
 
-        // RFQ System
+            /** @var \App\Models\Order $order */
+            $order = Order::create([
+                'order_number' => 'ORD-' . str_pad((string) ($i + 1), 10, '0', STR_PAD_LEFT),
+                'user_id' => $buyer->id,
+                'total' => 0,
+                'status' => fake()->randomElement(['processing', 'completed', 'cancelled']),
+            ]);
+
+            // Attach 1-4 items from existing products
+            $lineProducts = $products->random(rand(1, 4));
+            $total = 0;
+
+            foreach ($lineProducts as $product) {
+                $qty = rand(1, 5);
+                $unit = (float) $product->price;
+                $subtotal = round($qty * $unit, 2);
+
+                $order->items()->create([
+                    'product_id' => $product->id,
+                    'market_id' => $product->market_id,
+                    'quantity' => $qty,
+                    'unit_price' => $unit,
+                    'subtotal' => $subtotal,
+                ]);
+
+                $total += $subtotal;
+            }
+
+            $order->forceFill(['total' => $total])->saveQuietly();
+        }
+
+        // Logs - keep them fairly numerous to exercise log viewers and analytics
+        Log::factory(200)->create();
+
+        // RFQ System - relies on already seeded buyers/suppliers/products
         $this->call(RfqSeeder::class);
         $this->command->info('RFQ data seeded successfully!');
 
@@ -102,6 +110,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Sellers: ' . $sellers->count());
         $this->command->info('Buyers: ' . $buyers->count());
 
+        // Keep roles and permissions seeding untouched
         $this->call(RolesAndPermissionsSeeder::class);
         $this->call(TestUserSeeder::class);
     }

@@ -12,10 +12,12 @@ class OrderFactory extends Factory
 
     public function definition(): array
     {
+        $statusPool = ['processing', 'completed', 'cancelled'];
+
         return [
             'order_number' => 'ORD-'.fake()->unique()->numerify('##########'),
             'total' => 0,
-            'status' => fake()->randomElement(['processing', 'completed', 'cancelled']),
+            'status' => fake()->randomElement($statusPool),
         ];
     }
 

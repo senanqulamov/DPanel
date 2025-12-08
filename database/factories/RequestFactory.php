@@ -28,9 +28,9 @@ class RequestFactory extends Factory
     {
         return [
             'buyer_id' => User::factory(),
-            'title' => $this->faker->sentence(4),
-            'description' => $this->faker->paragraph(3),
-            'deadline' => $this->faker->dateTimeBetween('+1 week', '+4 weeks'),
+            'title' => $this->faker->sentence(6),
+            'description' => $this->faker->paragraphs(asText: true),
+            'deadline' => $this->faker->dateTimeBetween('+3 days', '+6 weeks'),
             'status' => $this->faker->randomElement([
                 RequestStatus::DRAFT->value,
                 RequestStatus::OPEN->value,
