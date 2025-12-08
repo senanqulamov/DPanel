@@ -163,10 +163,13 @@ class RolesAndPermissionsSeeder extends Seeder
         $roles['supplier']->givePermissionTo(
             'view_dashboard',
             'view_products',
+            'view_markets',
             'view_rfqs',
             'submit_quotes',
             'view_quotes',
             'edit_quotes',
+            'view_orders',
+            'create_orders',
             'access_supplier_portal',
             'manage_supplier_invitations',
             'view_settings'

@@ -23,6 +23,14 @@
                 </div>
 
                 <div class="flex items-center gap-3">
+                    <x-button
+                        color="white"
+                        icon="plus"
+                        href="{{ route('supplier.orders.create') }}"
+                    >
+                        {{ __('Create Order') }}
+                    </x-button>
+
                     <div class="px-4 py-2 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30">
                         <div class="text-xs text-sky-100">{{ __('Total Orders') }}</div>
                         <div class="text-2xl font-bold">{{ $this->rows->total() }}</div>

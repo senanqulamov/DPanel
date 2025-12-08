@@ -211,6 +211,87 @@
         </div>
     </div>
 
+    {{-- Order Actions for Sellers (Accept/Reject) --}}
+    @if($order->isPending())
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 backdrop-blur-xl border-2 border-amber-200/50 dark:border-amber-700/50 shadow-xl">
+            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+
+            <div class="relative p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                        <x-icon name="exclamation-triangle" class="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                            {{ __('Order Awaiting Your Response') }}
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ __('This order is pending. Please review and accept or reject it.') }}
+                        </p>
+                    </div>
+                </div>
+
+                @if($order->notes)
+                    <div class="mb-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
+                            {{ __('Supplier Notes') }}:
+                        </label>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">{{ $order->notes }}</p>
+                    </div>
+                @endif
+
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ __('Response Notes') }} <span class="text-red-500">*</span>
+                    </label>
+                    <textarea
+                        wire:model="sellerNotes"
+                        rows="3"
+                        class="w-full rounded-lg border-gray-300 dark:border-slate-600 dark:bg-slate-800 text-sm"
+                        placeholder="{{ __('Add notes for your response (required for rejection)...') }}"
+                    ></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <x-button
+                        color="green"
+                        icon="check-circle"
+                        wire:click="acceptOrder"
+                        wire:confirm="{{ __('Are you sure you want to accept this order?') }}"
+                        class="flex-1 justify-center"
+                    >
+                        {{ __('Accept Order') }}
+                    </x-button>
+                    <x-button
+                        color="red"
+                        icon="x-circle"
+                        wire:click="rejectOrder"
+                        wire:confirm="{{ __('Are you sure you want to reject this order? Stock will be restored.') }}"
+                        class="flex-1 justify-center"
+                    >
+                        {{ __('Reject Order') }}
+                    </x-button>
+                </div>
+            </div>
+        </div>
+    @elseif($order->seller_notes)
+        <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl">
+            <div class="relative p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <x-icon name="chat-bubble-left-right" class="w-5 h-5 text-white" />
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {{ __('Seller Response') }}
+                    </h3>
+                </div>
+                <div class="p-4 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
+                    <p class="text-sm text-gray-700 dark:text-gray-300">{{ $order->seller_notes }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Timestamps Card --}}
     <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl">
         <div class="absolute inset-0 bg-gradient-to-br from-slate-500/5 via-transparent to-gray-500/5 dark:from-slate-500/10 dark:to-gray-500/10"></div>

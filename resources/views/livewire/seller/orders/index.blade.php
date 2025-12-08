@@ -92,5 +92,5 @@
         </div>
     </div>
 
-    <livewire:orders.view-order />
+    <livewire:seller.orders.view-order />
 </div>
