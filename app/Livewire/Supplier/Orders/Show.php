@@ -7,6 +7,7 @@ use App\Livewire\Traits\WithLogging;
 use App\Models\Order;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class Show extends Component
@@ -31,7 +32,8 @@ class Show extends Component
             ->layout('layouts.app');
     }
 
-    public function delete(): void
+    #[Renderless]
+    public function confirmDelete(): void
     {
         // Suppliers can only delete their own pending orders
         if ($this->order->user_id !== Auth::id()) {
@@ -44,6 +46,17 @@ class Show extends Component
             return;
         }
 
+        $this->question(
+            __('Are you sure you want to delete this order? Stock will be restored.'),
+            __('Delete Order?')
+        )
+            ->confirm(method: 'delete')
+            ->cancel()
+            ->send();
+    }
+
+    public function delete(): void
+    {
         $orderNumber = $this->order->order_number;
 
         // Restore stock for all items

@@ -37,7 +37,7 @@
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-green-500/5 dark:from-emerald-500/10 dark:to-green-500/10"></div>
 
         <div class="relative p-6">
-            <form wire:submit="save" class="space-y-6">
+            <div class="space-y-6">
                 {{-- Order Items Section --}}
                 <div>
                     <div class="flex justify-between items-center mb-4">
@@ -103,7 +103,7 @@
                                         <div class="col-span-10 flex justify-end items-center gap-2">
                                             @if(isset($item['max_stock']) && $item['max_stock'] > 0)
                                                 <span class="text-xs text-gray-500 dark:text-gray-400">
-                                                    {{ __('Available') }}: {{ $item['max_stock'] }}
+                                                    <x-badge color="primary" text="{{ __('Available') }}: {{ $item['max_stock'] }}" icon="shopping-cart" position="left" />
                                                 </span>
                                             @endif
                                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -199,15 +199,14 @@
                     </x-button>
 
                     <x-button
-                        type="submit"
+                        wire:click="confirmSave"
                         color="emerald"
                         icon="check"
-                        wire:confirm="{{ __('Are you sure you want to place this order?') }}"
                     >
                         {{ __('Place Order') }}
                     </x-button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

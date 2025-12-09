@@ -62,9 +62,9 @@ class Index extends Component
     protected function baseQuery(int $sellerId): Builder
     {
         return Order::query()
-            ->whereHas('items.product', function (Builder $q) use ($sellerId) {
-                $q->where('supplier_id', $sellerId);
+            ->whereHas('items.market', function (Builder $q) use ($sellerId) {
+                $q->where('user_id', $sellerId);
             })
-            ->with(['items.market']);
+            ->with(['items.market', 'items.product', 'user']);
     }
 }

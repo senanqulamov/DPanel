@@ -7,6 +7,7 @@ use App\Livewire\Traits\WithLogging;
 use App\Models\Order;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class Show extends Component
@@ -24,13 +25,25 @@ class Show extends Component
         $this->authorize('view', $order);
     }
 
-    public function acceptOrder(): void
+    #[Renderless]
+    public function confirmAccept(): void
     {
         if (!$this->order->isPending()) {
             $this->error(__('Order is not in pending status'));
             return;
         }
 
+        $this->question(
+            __('Are you sure you want to accept this order?'),
+            __('Accept Order?')
+        )
+            ->confirm(method: 'acceptOrder')
+            ->cancel()
+            ->send();
+    }
+
+    public function acceptOrder(): void
+    {
         $oldStatus = $this->order->status;
         $this->order->accept($this->sellerNotes);
 
@@ -49,7 +62,8 @@ class Show extends Component
         $this->success(__('Order accepted successfully'));
     }
 
-    public function rejectOrder(): void
+    #[Renderless]
+    public function confirmReject(): void
     {
         if (!$this->order->isPending()) {
             $this->error(__('Order is not in pending status'));
@@ -61,6 +75,17 @@ class Show extends Component
             return;
         }
 
+        $this->question(
+            __('Are you sure you want to reject this order? Stock will be restored.'),
+            __('Reject Order?')
+        )
+            ->confirm(method: 'rejectOrder')
+            ->cancel()
+            ->send();
+    }
+
+    public function rejectOrder(): void
+    {
         $oldStatus = $this->order->status;
         $this->order->reject($this->sellerNotes);
 

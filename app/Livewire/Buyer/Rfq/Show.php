@@ -264,6 +264,27 @@ class Show extends Component
             ->get();
     }
 
+    #[Renderless]
+    public function confirmAcceptQuote(int $quoteId): void
+    {
+        $quote = Quote::where('id', $quoteId)
+            ->where('request_id', $this->request->id)
+            ->first();
+
+        if (!$quote) {
+            $this->error(__('Quote not found.'));
+            return;
+        }
+
+        $this->question(
+            __('Are you sure you want to accept this quote? All other quotes will be automatically rejected.'),
+            __('Accept Quote?')
+        )
+            ->confirm(method: 'acceptQuote', params: ['quoteId' => $quoteId])
+            ->cancel()
+            ->send();
+    }
+
     public function acceptQuote(int $quoteId): void
     {
         $quote = Quote::where('id', $quoteId)
@@ -328,6 +349,27 @@ class Show extends Component
         ]);
 
         $this->success(__('Quote accepted successfully. Other quotes have been rejected.'));
+    }
+
+    #[Renderless]
+    public function confirmRejectQuote(int $quoteId): void
+    {
+        $quote = Quote::where('id', $quoteId)
+            ->where('request_id', $this->request->id)
+            ->first();
+
+        if (!$quote) {
+            $this->error(__('Quote not found.'));
+            return;
+        }
+
+        $this->question(
+            __('Are you sure you want to reject this quote?'),
+            __('Reject Quote?')
+        )
+            ->confirm(method: 'rejectQuote', params: ['quoteId' => $quoteId])
+            ->cancel()
+            ->send();
     }
 
     public function rejectQuote(int $quoteId): void

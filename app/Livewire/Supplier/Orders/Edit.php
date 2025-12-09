@@ -11,6 +11,7 @@ use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class Edit extends Component
@@ -288,6 +289,25 @@ class Edit extends Component
                 'max:1000',
             ],
         ];
+    }
+
+    #[Renderless]
+    public function confirmUpdate(): void
+    {
+        $this->normalizeItems();
+
+        if (count($this->items) === 0) {
+            $this->error(__('Please add at least one product to the order'));
+            return;
+        }
+
+        $this->question(
+            __('Are you sure you want to update this order?'),
+            __('Update Order?')
+        )
+            ->confirm(method: 'update')
+            ->cancel()
+            ->send();
     }
 
     public function update(): void

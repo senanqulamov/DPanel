@@ -35,8 +35,7 @@
                         <x-button
                             color="red"
                             icon="trash"
-                            wire:click="delete"
-                            wire:confirm="{{ __('Are you sure you want to delete this order? Stock will be restored.') }}"
+                            wire:click="confirmDelete"
                         >
                             {{ __('Delete') }}
                         </x-button>

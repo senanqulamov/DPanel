@@ -30,19 +30,19 @@ class OrderPolicy
             return true;
         }
 
-        // Seller can view orders that contain their products
+        // Seller can view orders that contain products from their markets
         if ($user->isSeller()) {
-            $hasSellerProducts = $order->items()
-                ->whereHas('product', function ($query) use ($user) {
-                    $query->where('supplier_id', $user->id);
+            $hasSellerMarkets = $order->items()
+                ->whereHas('market', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
                 })
                 ->exists();
 
-            if ($hasSellerProducts) {
+            if ($hasSellerMarkets) {
                 return true;
             }
 
-            // Or if they're the designated seller
+            // Or if they're the designated seller (for legacy orders)
             if ($order->seller_id === $user->id) {
                 return true;
             }

@@ -303,8 +303,7 @@
                                             color="green"
                                             sm
                                             icon="check-circle"
-                                            wire:click="acceptQuote({{ $quote->id }})"
-                                            wire:confirm="Are you sure you want to accept this quote? All other quotes will be automatically rejected."
+                                            wire:click="confirmAcceptQuote({{ $quote->id }})"
                                         >
                                             @lang('Accept Quote')
                                         </x-button>
@@ -312,8 +311,7 @@
                                             color="red"
                                             sm
                                             icon="x-circle"
-                                            wire:click="rejectQuote({{ $quote->id }})"
-                                            wire:confirm="Are you sure you want to reject this quote?"
+                                            wire:click="confirmRejectQuote({{ $quote->id }})"
                                         >
                                             @lang('Reject Quote')
                                         </x-button>

@@ -256,8 +256,7 @@
                     <x-button
                         color="green"
                         icon="check-circle"
-                        wire:click="acceptOrder"
-                        wire:confirm="{{ __('Are you sure you want to accept this order?') }}"
+                        wire:click="confirmAccept"
                         class="flex-1 justify-center"
                     >
                         {{ __('Accept Order') }}
@@ -265,8 +264,7 @@
                     <x-button
                         color="red"
                         icon="x-circle"
-                        wire:click="rejectOrder"
-                        wire:confirm="{{ __('Are you sure you want to reject this order? Stock will be restored.') }}"
+                        wire:click="confirmReject"
                         class="flex-1 justify-center"
                     >
                         {{ __('Reject Order') }}

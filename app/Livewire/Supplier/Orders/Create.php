@@ -12,6 +12,7 @@ use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
 class Create extends Component
@@ -264,6 +265,25 @@ class Create extends Component
                 'max:1000',
             ],
         ];
+    }
+
+    #[Renderless]
+    public function confirmSave(): void
+    {
+        $this->normalizeItems();
+
+        if (count($this->items) === 0) {
+            $this->error(__('Please add at least one product to the order'));
+            return;
+        }
+
+        $this->question(
+            __('Are you sure you want to place this order?'),
+            __('Place Order?')
+        )
+            ->confirm(method: 'save')
+            ->cancel()
+            ->send();
     }
 
     public function save(): void
