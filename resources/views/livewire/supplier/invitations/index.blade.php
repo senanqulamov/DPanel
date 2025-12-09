@@ -130,14 +130,14 @@
                             <x-button.circle
                                 icon="document-plus"
                                 color="purple"
-                                onclick="window.location.href='{{ route('supplier.quotes.create', $row) }}'"
+                                href="{{ route('supplier.rfq.quote', $row->request) }}"
                                 title="{{ __('Submit Quote') }}"
                             />
                         @endif
                         <x-button.circle
                             icon="eye"
                             color="blue"
-                            wire:click="$dispatch('view-invitation', { id: {{ $row->id }} })"
+                            href="{{ route('supplier.rfq.show', $row->request) }}"
                             title="{{ __('View Details') }}"
                         />
                     </div>

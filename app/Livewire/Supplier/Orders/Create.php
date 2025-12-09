@@ -33,6 +33,11 @@ class Create extends Component
     /** Preloaded markets with product counts and label/value for selects. */
     public $marketOptions;
 
+    // Product search and comparison
+    public ?string $searchQuery = null;
+    public array $searchResults = [];
+    public bool $showSearchResults = false;
+
     /**
      * Initialize component state.
      */
@@ -43,6 +48,14 @@ class Create extends Component
         ];
 
         $this->loadMarketOptions();
+    }
+
+    /**
+     * Triggered when searchQuery is updated
+     */
+    public function updatedSearchQuery(): void
+    {
+        $this->searchProducts();
     }
 
     protected function loadMarketOptions(): void
@@ -231,6 +244,131 @@ class Create extends Component
         }
 
         $this->items = $normalized;
+    }
+
+    /**
+     * Search for products across all markets
+     */
+    public function searchProducts(): void
+    {
+        \Log::info('Search triggered', ['query' => $this->searchQuery, 'length' => strlen($this->searchQuery ?? '')]);
+
+        if (empty($this->searchQuery) || strlen($this->searchQuery) < 2) {
+            $this->searchResults = [];
+            $this->showSearchResults = false;
+            return;
+        }
+
+        try {
+            $query = trim($this->searchQuery);
+
+            \Log::info('Searching for products', ['query' => $query]);
+
+            // Search for similar products across all markets with stock
+            $products = Product::query()
+                ->select(['id', 'name', 'sku', 'price', 'stock', 'market_id', 'category'])
+                ->with(['market.seller'])
+                ->where('stock', '>', 0)
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'like', "%{$query}%")
+                      ->orWhere('sku', 'like', "%{$query}%")
+                      ->orWhere('category', 'like', "%{$query}%");
+                })
+                ->orderBy('name')
+                ->limit(50)
+                ->get();
+
+            \Log::info('Products found', ['count' => $products->count()]);
+
+            // Group similar products by name for comparison
+            $grouped = $products->groupBy(function ($product) {
+                // Normalize product name for grouping
+                return strtolower(trim(preg_replace('/[^a-zA-Z0-9\s]/', '', $product->name)));
+            });
+
+            $this->searchResults = $grouped->map(function ($group) {
+                return [
+                    'name' => $group->first()->name,
+                    'products' => $group->map(function ($product) {
+                        return [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'sku' => $product->sku,
+                            'price' => (float) $product->price,
+                            'stock' => (int) $product->stock,
+                            'market_id' => $product->market_id,
+                            'market_name' => $product->market?->name ?? 'Unknown',
+                            'seller_name' => $product->market?->seller?->name ?? 'Unknown',
+                            'category' => $product->category,
+                        ];
+                    })->sortBy('price')->values()->all(),
+                    'min_price' => (float) $group->min('price'),
+                    'max_price' => (float) $group->max('price'),
+                    'total_stock' => (int) $group->sum('stock'),
+                    'markets_count' => $group->pluck('market_id')->unique()->count(),
+                ];
+            })->values()->all();
+
+            \Log::info('Search results', ['groups' => count($this->searchResults)]);
+
+            $this->showSearchResults = true;
+        } catch (\Exception $e) {
+            \Log::error('Search failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->error(__('Search failed. Please try again.'));
+            $this->searchResults = [];
+            $this->showSearchResults = false;
+        }
+    }
+
+    /**
+     * Add product from search results to order
+     */
+    public function addProductFromSearch(int $productId): void
+    {
+        $product = Product::with('market')->find($productId);
+
+        if (!$product || $product->stock < 1) {
+            $this->error(__('Product is out of stock'));
+            return;
+        }
+
+        // Find the first empty item or add a new one
+        $emptyIndex = null;
+        foreach ($this->items as $index => $item) {
+            if (empty($item['product_id'])) {
+                $emptyIndex = $index;
+                break;
+            }
+        }
+
+        if ($emptyIndex === null) {
+            $this->items[] = $this->makeEmptyItem();
+            $emptyIndex = count($this->items) - 1;
+        }
+
+        // Set the product details
+        $this->items[$emptyIndex] = [
+            'market_id' => $product->market_id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'unit_price' => (float) $product->price,
+            'max_stock' => (int) $product->stock,
+        ];
+
+        // Cache products for this market
+        $this->cacheProductsForMarket($product->market_id);
+
+        $this->success(__('Product added to order'));
+    }
+
+    /**
+     * Clear search results
+     */
+    public function clearSearch(): void
+    {
+        $this->searchQuery = null;
+        $this->searchResults = [];
+        $this->showSearchResults = false;
     }
 
     public function rules(): array
