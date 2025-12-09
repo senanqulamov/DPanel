@@ -84,7 +84,7 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-48 rounded-xl bg-slate-800 border border-slate-700 shadow-2xl overflow-hidden z-50"
+                         class="absolute right-30 mt-2 w-48 rounded-xl bg-slate-800 border border-slate-700 shadow-2xl overflow-hidden z-50"
                          style="display: none;">
                         @foreach(['en' => 'English', 'de' => 'Deutsch', 'es' => 'Español', 'fr' => 'Français', 'tr' => 'Türkçe'] as $code => $name)
                             <a href="{{ route('lang.switch', $code) }}"
