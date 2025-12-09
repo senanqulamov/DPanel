@@ -21,7 +21,12 @@ class AuthenticatedSessionController
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+        $dashboardRoute = method_exists($user, 'getDashboardRouteName')
+            ? $user->getDashboardRouteName()
+            : 'dashboard';
+
+        return redirect()->intended(route($dashboardRoute, absolute: false));
     }
 
     public function destroy(Request $request): RedirectResponse

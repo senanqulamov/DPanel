@@ -393,4 +393,23 @@ class User extends Authenticatable
             default => $query,
         };
     }
+
+    public function getDashboardRouteName(): string
+    {
+        // Priority: supplier > seller > buyer > admin/generic
+        if ($this->isSupplier()) {
+            return 'supplier.dashboard';
+        }
+
+        if ($this->isSeller()) {
+            return 'seller.dashboard';
+        }
+
+        if ($this->isBuyer()) {
+            return 'buyer.dashboard';
+        }
+
+        // Fallback to global dashboard
+        return 'dashboard';
+    }
 }
