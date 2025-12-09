@@ -14,78 +14,117 @@
     @livewireStyles
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-dark-bg text-dark-text"
+<body class="font-sans antialiased bg-slate-950 text-slate-200"
       x-cloak
       x-data="{ name: @js(auth()->user()->name) }"
       x-on:name-updated.window="name = $event.detail.name">
-<x-layout>
-    <x-slot:top>
-        <x-dialog/>
-        <x-toast/>
-    </x-slot:top>
-    <x-slot:header>
-        <x-layout.header>
-            <x-slot:left>
-                <x-lang-switch/>
-            </x-slot:left>
-            <x-slot:right>
-                <x-dropdown>
-                    <x-slot:action>
-                        <div>
-                            <button class="cursor-pointer" x-on:click="show = !show">
-                                <span icon="chevron-down" class="text-base font-semibold text-primary-500" x-text="name"></span>
-                            </button>
+
+<x-dialog/>
+<x-toast/>
+
+@php
+    $currentRole = 'admin';
+    if (request()->routeIs('buyer.*')) {
+        $currentRole = 'buyer';
+    } elseif (request()->routeIs('seller.*')) {
+        $currentRole = 'seller';
+    } elseif (request()->routeIs('supplier.*')) {
+        $currentRole = 'supplier';
+    }
+@endphp
+
+<div class="flex min-h-screen bg-slate-950">
+    {{-- Sidebar --}}
+    <x-layout.role-sidebar :role="$currentRole"/>
+
+    {{-- Main Content Area --}}
+    <div class="flex-1 flex flex-col min-w-0">
+        {{-- Header --}}
+        <x-layout.role-header :role="$currentRole">
+        <x-slot:right>
+            <div x-data="{ open: false }" x-on:click.away="open = false" class="relative">
+                <button x-on:click="open = !open"
+                        class="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition group">
+                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                    <div class="hidden lg:block text-left">
+                        <div class="text-sm font-medium text-slate-200 group-hover:text-white transition" x-text="name"></div>
+                        <div class="text-xs text-slate-400">{{ ucfirst($currentRole) }}</div>
+                    </div>
+                    <x-icon name="chevron-down" class="w-4 h-4 text-slate-400 group-hover:text-white transition"/>
+                </button>
+
+                <div x-show="open"
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-64 rounded-xl bg-slate-800 border border-slate-700 shadow-2xl overflow-hidden z-50"
+                     style="display: none;">
+
+                    {{-- User Info Header --}}
+                    <div class="px-4 py-3 border-b border-slate-700 bg-slate-700/30">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-semibold text-white truncate" x-text="name"></div>
+                                <div class="text-xs text-slate-400">{{ auth()->user()->email }}</div>
+                            </div>
                         </div>
-                    </x-slot:action>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <x-dropdown.items icon="user" :text="__('Profile')" :href="route('user.profile')"/>
-                        <x-dropdown.items icon="cog" :text="__('Settings')" :href="route('settings.index')"/>
-                        <x-dropdown.items icon="finger-print" :text="__('Privacy & Roles')" :href="route('privacy.index')"/>
-                        <x-dropdown.items icon="archive-box-arrow-down" :text="__('Archive')" :href="route('logs.index')"/>
-                        <x-dropdown.items icon="arrow-left-on-rectangle" :text="__('Logout')" onclick="event.preventDefault(); this.closest('form').submit();" separator/>
-                    </form>
-                </x-dropdown>
-            </x-slot:right>
-        </x-layout.header>
-    </x-slot:header>
-    <x-slot:menu>
-        <x-side-bar smart collapsible>
-            <x-slot:brand>
-                <div class="mt-8 flex items-center justify-center">
-                    <img src="{{ asset('/assets/images/JVD.png') }}" width="40" height="40" alt="Brand logo"/>
+                    </div>
+
+                    {{-- Menu Items --}}
+                    <div class="py-1">
+                        <a href="{{ route('user.profile') }}"
+                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                            <x-icon name="user" class="w-4 h-4"/>
+                            <span class="text-sm font-medium">{{ __('Profile') }}</span>
+                        </a>
+                        <a href="{{ route('settings.index') }}"
+                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                            <x-icon name="cog-6-tooth" class="w-4 h-4"/>
+                            <span class="text-sm font-medium">{{ __('Settings') }}</span>
+                        </a>
+                        <a href="{{ route('privacy.index') }}"
+                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                            <x-icon name="finger-print" class="w-4 h-4"/>
+                            <span class="text-sm font-medium">{{ __('Privacy & Roles') }}</span>
+                        </a>
+                        <a href="{{ route('logs.index') }}"
+                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                            <x-icon name="clipboard-document-list" class="w-4 h-4"/>
+                            <span class="text-sm font-medium">{{ __('Activity Log') }}</span>
+                        </a>
+                    </div>
+
+                    {{-- Logout --}}
+                    <div class="border-t border-slate-700">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-600/20 transition text-red-400 hover:text-red-300">
+                                <x-icon name="arrow-left-on-rectangle" class="w-4 h-4"/>
+                                <span class="text-sm font-medium">{{ __('Logout') }}</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </x-slot:brand>
-            <x-side-bar.item :text="__('Dashboard')" icon="home" :route="route('dashboard')"/>
+            </div>
+        </x-slot:right>
+    </x-layout.role-header>
 
-            @if(auth()->user()->isAdmin())
-                <x-side-bar.item :text="__('Buyer Dashboard')" icon="shopping-cart" :route="route('buyer.dashboard')"/>
-                <x-side-bar.item :text="__('Seller Dashboard')" icon="shopping-bag" :route="route('seller.dashboard')"/>
-                <x-side-bar.item :text="__('Supplier Dashboard')" icon="building-office" :route="route('supplier.dashboard')"/>
-            @else
-                @if(auth()->user()->isBuyer())
-                    <x-side-bar.item :text="__('Buyer Dashboard')" icon="shopping-cart" :route="route('buyer.dashboard')"/>
-                @endif
-                @if(auth()->user()->isSeller())
-                    <x-side-bar.item :text="__('Seller Dashboard')" icon="shopping-bag" :route="route('seller.dashboard')"/>
-                @endif
-                @if(auth()->user()->isSupplier())
-                    <x-side-bar.item :text="__('Supplier Dashboard')" icon="building-office" :route="route('supplier.dashboard')"/>
-                @endif
-            @endif
+        {{-- Main Content --}}
+        <main class="flex-1 p-6 overflow-x-hidden">
+            {{ $slot }}
+        </main>
+    </div>
+</div>
 
-            <x-side-bar.item :text="__('Users')" icon="users" :route="route('users.index')"/>
-            <x-side-bar.item :text="__('Products')" icon="shopping-cart" :route="route('products.index')"/>
-            <x-side-bar.item :text="__('Orders')" icon="queue-list" :route="route('orders.index')"/>
-            <x-side-bar.item :text="__('RFQ')" icon="queue-list" :route="route('rfq.index')"/>
-            <x-side-bar.item :text="__('Markets')" icon="building-storefront" :route="route('markets.index')"/>
-            <x-side-bar.item :text="__('Logs')" icon="clipboard-document-list" :route="route('logs.index')"/>
-            {{--                <x-side-bar.item :text="__('Settings')" icon="cog-6-tooth" :route="route('settings.index')" />--}}
-            {{--                <x-side-bar.item :text="__('Welcome Page')" icon="arrow-uturn-left" :route="route('welcome')" />--}}
-        </x-side-bar>
-    </x-slot:menu>
-    {{ $slot }}
-</x-layout>
 @livewireScripts
 @stack('scripts')
 </body>

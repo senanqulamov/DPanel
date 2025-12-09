@@ -38,7 +38,7 @@
     </x-card>
 
     {{-- Seller nav --}}
-    <x-seller.nav />
+
 
     {{-- KPI grid - 2026 Modern Design --}}
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">

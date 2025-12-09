@@ -1,5 +1,4 @@
 <div class="space-y-6">
-    <x-buyer.nav />
 
     {{-- Modern Header Card - 2026 Style --}}
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 text-white shadow-2xl shadow-blue-500/30">

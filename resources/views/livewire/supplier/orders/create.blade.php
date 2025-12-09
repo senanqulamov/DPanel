@@ -1,5 +1,4 @@
 <div class="space-y-6">
-    <x-supplier.nav />
 
     {{-- Modern Header Card --}}
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-500 to-green-500 text-white shadow-2xl shadow-emerald-500/30">

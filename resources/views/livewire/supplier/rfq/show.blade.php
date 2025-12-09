@@ -1,5 +1,4 @@
 <div>
-    <x-supplier.nav />
 
     <x-card>
         {{-- Header / Title + Actions --}}

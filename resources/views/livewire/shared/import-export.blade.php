@@ -1,12 +1,4 @@
 <div class="space-y-6">
-    {{-- Dashboard Navigation --}}
-    @if($dashboardType === 'buyer')
-        <x-buyer.nav />
-    @elseif($dashboardType === 'seller')
-        <x-seller.nav />
-    @elseif($dashboardType === 'supplier')
-        <x-supplier.nav />
-    @endif
 
     {{-- Header --}}
     <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 via-purple-500 to-indigo-500 text-white shadow-2xl shadow-purple-500/30">
