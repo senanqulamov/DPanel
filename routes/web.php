@@ -34,6 +34,8 @@ use App\Livewire\Rfq\QuoteForm as RfqQuoteForm;
 use App\Livewire\Privacy\Index as PrivacyIndex;
 use App\Livewire\Privacy\Users\Show as PrivacyUserShow;
 use App\Livewire\Privacy\Roles\Show as PrivacyRoleShow;
+use App\Livewire\Shared\ImportExport;
+use App\Http\Controllers\DownloadController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('welcome');
@@ -52,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/buyer/products', BuyerProductsIndex::class)->name('buyer.products.index')->middleware('can:view_products');
     Route::get('/buyer/markets', BuyerMarketsIndex::class)->name('buyer.markets.index')->middleware('can:view_markets');
     Route::get('/buyer/logs', BuyerLogsIndex::class)->name('buyer.logs.index')->middleware('can:view_logs');
+    Route::get('/buyer/import-export', ImportExport::class)->name('buyer.import-export')->middleware('can:view_dashboard');
 
     Route::get('/seller/dashboard', SellerDashboard::class)->name('seller.dashboard')->middleware(['seller', 'can:view_dashboard']);
     Route::get('/seller/markets', SellerMarketsIndex::class)->name('seller.markets.index')->middleware(['seller', 'can:view_markets']);
@@ -61,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seller/orders', SellerOrdersIndex::class)->name('seller.orders.index')->middleware(['seller', 'can:view_orders']);
     Route::get('/seller/orders/{order}', SellerOrderShow::class)->name('seller.orders.show')->middleware(['seller', 'can:view_orders']);
     Route::get('/seller/logs', SellerLogsIndex::class)->name('seller.logs.index')->middleware(['seller', 'can:view_logs']);
+    Route::get('/seller/import-export', ImportExport::class)->name('seller.import-export')->middleware(['seller', 'can:view_dashboard']);
 
     Route::get('/users', Index::class)->name('users.index')->middleware('can:view_users');
     Route::get('/users/{user}', UsersShow::class)->name('users.show')->middleware('can:view_users');
@@ -94,6 +98,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rfq/create', RfqCreate::class)->name('rfq.create')->middleware('can:create_rfqs');
     Route::get('/rfq/{request}', RfqShow::class)->name('rfq.show')->middleware('can:view_rfqs');
     Route::get('/rfq/{request}/quote', RfqQuoteForm::class)->name('rfq.quote')->middleware('can:submit_quotes');
+
+    // Download routes for import/export
+    Route::get('/download/template', [DownloadController::class, 'downloadTemplate'])->name('download.template');
+    Route::get('/download/export', [DownloadController::class, 'downloadExport'])->name('download.export');
 });
 
 require __DIR__.'/auth.php';

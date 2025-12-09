@@ -1,18 +1,19 @@
 @php
     $items = [
-        ['route' => 'seller.dashboard',      'label' => __('Overview'),     'icon' => 'home-modern'],
-        ['route' => 'seller.products.index', 'label' => __('Products'),     'icon' => 'cube'],
-        ['route' => 'seller.orders.index',   'label' => __('Orders'),       'icon' => 'receipt-percent'],
-        ['route' => 'seller.markets.index',  'label' => __('Markets'),      'icon' => 'building-storefront'],
-        ['route' => 'seller.logs.index',     'label' => __('Activity Log'), 'icon' => 'clipboard-document-list'],
-        ['route' => 'settings.index',        'label' => __('Settings'),     'icon' => 'cog-6-tooth'],
+        ['route' => 'seller.dashboard',      'pattern' => 'seller.dashboard',      'label' => __('Overview'),     'icon' => 'home-modern'],
+        ['route' => 'seller.products.index', 'pattern' => 'seller.products.*',     'label' => __('Products'),     'icon' => 'cube'],
+        ['route' => 'seller.orders.index',   'pattern' => 'seller.orders.*',       'label' => __('Orders'),       'icon' => 'receipt-percent'],
+        ['route' => 'seller.markets.index',  'pattern' => 'seller.markets.*',      'label' => __('Markets'),      'icon' => 'building-storefront'],
+        ['route' => 'seller.logs.index',     'pattern' => 'seller.logs.*',         'label' => __('Activity Log'), 'icon' => 'clipboard-document-list'],
+        ['route' => 'settings.index',        'pattern' => 'settings.*',            'label' => __('Settings'),     'icon' => 'cog-6-tooth'],
+        ['route' => 'seller.import-export', 'pattern' => 'seller.import-export', 'label' => __('Import/Export'), 'icon' => 'arrows-up-down'],
     ];
 @endphp
 
-<x-card class="bg-slate-950/60 border-slate-800">
+<div class="sticky top-20 z-50 -mx-6 -mt-6 mb-6 px-6 py-4 backdrop-blur-sm shadow-lg rounded-full">
     <div class="flex flex-wrap items-center gap-2">
         @foreach ($items as $item)
-            @php $active = request()->routeIs($item['route']); @endphp
+            @php $active = request()->routeIs($item['pattern']); @endphp
 
             <a href="{{ route($item['route']) }}"
                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition
@@ -25,4 +26,4 @@
             </a>
         @endforeach
     </div>
-</x-card>
+</div>

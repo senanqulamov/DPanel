@@ -18,6 +18,7 @@ use App\Livewire\Supplier\Orders\Create as SupplierOrdersCreate;
 use App\Livewire\Supplier\Orders\Show as SupplierOrdersShow;
 use App\Livewire\Supplier\Orders\Edit as SupplierOrdersEdit;
 use App\Livewire\Supplier\Logs\Index as SupplierLogsIndex;
+use App\Livewire\Shared\ImportExport;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,4 +67,7 @@ Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('s
 
     // Logs
     Route::get('/logs', SupplierLogsIndex::class)->name('logs.index')->middleware('can:view_logs');
+
+    // Import/Export
+    Route::get('/import-export', ImportExport::class)->name('import-export')->middleware('can:view_dashboard');
 });
