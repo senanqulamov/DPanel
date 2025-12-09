@@ -22,6 +22,11 @@ class Index extends Component
 
     public ?string $search = null;
 
+    /**
+     * Currently selected role filter; null means "all roles".
+     */
+    public ?int $roleFilter = null;
+
     public array $sort = [
         'column' => 'name',
         'direction' => 'asc',
@@ -35,6 +40,16 @@ class Index extends Component
         ['index' => 'created_at', 'label' => 'Joined'],
         ['index' => 'action', 'sortable' => false],
     ];
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingRoleFilter(): void
+    {
+        $this->resetPage();
+    }
 
     public function render(): View
     {
@@ -50,6 +65,11 @@ class Index extends Component
 
         return User::query()
             ->with('roles')
+            ->when($this->roleFilter, function (Builder $query) {
+                $query->whereHas('roles', function (Builder $roleQuery) {
+                    $roleQuery->where('roles.id', $this->roleFilter);
+                });
+            })
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'email'], 'like', '%'.trim($this->search).'%'))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)

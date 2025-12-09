@@ -15,7 +15,9 @@ class OrderFactory extends Factory
         $statusPool = ['processing', 'completed', 'cancelled'];
 
         return [
-            'order_number' => 'ORD-'.fake()->unique()->numerify('##########'),
+            // Let the Order model generate the order_number so factories
+            // stay consistent with runtime behavior
+            'order_number' => null,
             'total' => 0,
             'status' => fake()->randomElement($statusPool),
         ];

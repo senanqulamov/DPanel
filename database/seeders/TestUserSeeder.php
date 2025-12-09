@@ -18,6 +18,7 @@ class TestUserSeeder extends Seeder
             'name' => 'Buyer Admin',
             'email' => 'buyer@dpanel.test',
             'password' => Hash::make('password'),
+            'role' => 'buyer',
             'is_buyer' => true,
             'is_seller' => false,
             'is_supplier' => false,

@@ -46,9 +46,9 @@ class WorkflowEventFactory extends Factory
         }
 
         return [
-            'eventable_type' => Request::class,
-            'eventable_id' => Request::factory(),
-            'user_id' => User::factory(),
+            'eventable_type' => null,
+            'eventable_id' => null,
+            'user_id' => null, // Must be set explicitly; do not auto-create users
             'event_type' => $eventType,
             'from_state' => $fromState,
             'to_state' => $toState,

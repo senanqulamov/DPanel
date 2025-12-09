@@ -42,8 +42,8 @@ class SupplierInvitationFactory extends Factory
         }
 
         return [
-            'request_id' => Request::factory(),
-            'supplier_id' => User::factory(),
+            'request_id' => null, // Must be set explicitly
+            'supplier_id' => null, // Must be set explicitly; do not auto-create users
             'status' => $status,
             'sent_at' => $sentAt,
             'responded_at' => $respondedAt,

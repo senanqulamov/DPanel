@@ -12,14 +12,19 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->command->info('🔐 Setting up roles and permissions...');
+
         // Create Permissions
         $permissions = $this->createPermissions();
+        $this->command->info("✅ Created " . count($permissions) . " permissions");
 
         // Create Roles
         $roles = $this->createRoles();
+        $this->command->info("✅ Created " . count($roles) . " roles");
 
         // Assign Permissions to Roles
         $this->assignPermissionsToRoles($roles, $permissions);
+        $this->command->info('✅ Assigned permissions to roles');
 
         // Create Admin User
         $this->createAdminUser($roles);
@@ -82,7 +87,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $permissions = [];
         foreach ($permissionsList as $perm) {
-            $permissions[$perm['name']] = Permission::create($perm);
+            $permissions[$perm['name']] = Permission::firstOrCreate(
+                ['name' => $perm['name']],
+                $perm
+            );
         }
 
         return $permissions;
@@ -119,7 +127,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $roles = [];
         foreach ($rolesList as $role) {
-            $roles[$role['name']] = Role::create($role);
+            $roles[$role['name']] = Role::firstOrCreate(
+                ['name' => $role['name']],
+                $role
+            );
         }
 
         return $roles;
@@ -127,72 +138,95 @@ class RolesAndPermissionsSeeder extends Seeder
 
     private function assignPermissionsToRoles(array $roles, array $permissions): void
     {
-        // Admin - All permissions
-        $roles['admin']->givePermissionTo(...array_keys($permissions));
+        // Admin - all permissions
+        $roles['admin']->permissions()->sync(array_map(fn ($perm) => $perm->id, $permissions));
 
         // Buyer permissions
-        $roles['buyer']->givePermissionTo(
-            'view_dashboard',
-            'view_products',
-            'view_orders',
-            'create_orders',
-            'view_rfqs',
-            'create_rfqs',
-            'edit_rfqs',
-            'view_quotes',
-            'view_markets',
-            'view_settings',
-            'view_logs'
-        );
+        $roles['buyer']->permissions()->sync([
+            $permissions['view_dashboard']->id,
+            $permissions['view_products']->id,
+            $permissions['view_orders']->id,
+            $permissions['create_orders']->id,
+            $permissions['view_rfqs']->id,
+            $permissions['create_rfqs']->id,
+            $permissions['edit_rfqs']->id,
+            $permissions['view_quotes']->id,
+            $permissions['view_markets']->id,
+            $permissions['view_settings']->id,
+            $permissions['view_logs']->id,
+        ]);
 
         // Seller permissions
-        $roles['seller']->givePermissionTo(
-            'view_dashboard',
-            'view_products',
-            'create_products',
-            'edit_products',
-            'view_orders',
-            'view_markets',
-            'create_markets',
-            'edit_markets',
-            'view_settings',
-            'view_logs'
-        );
+        $roles['seller']->permissions()->sync([
+            $permissions['view_dashboard']->id,
+            $permissions['view_products']->id,
+            $permissions['create_products']->id,
+            $permissions['edit_products']->id,
+            $permissions['view_orders']->id,
+            $permissions['view_markets']->id,
+            $permissions['create_markets']->id,
+            $permissions['edit_markets']->id,
+            $permissions['view_settings']->id,
+            $permissions['view_logs']->id,
+        ]);
 
         // Supplier permissions
-        $roles['supplier']->givePermissionTo(
-            'view_dashboard',
-            'view_products',
-            'view_markets',
-            'view_rfqs',
-            'submit_quotes',
-            'view_quotes',
-            'edit_quotes',
-            'view_orders',
-            'create_orders',
-            'access_supplier_portal',
-            'manage_supplier_invitations',
-            'view_settings'
-        );
+        $roles['supplier']->permissions()->sync([
+            $permissions['view_dashboard']->id,
+            $permissions['view_products']->id,
+            $permissions['view_markets']->id,
+            $permissions['view_rfqs']->id,
+            $permissions['submit_quotes']->id,
+            $permissions['view_quotes']->id,
+            $permissions['edit_quotes']->id,
+            $permissions['view_orders']->id,
+            $permissions['create_orders']->id,
+            $permissions['access_supplier_portal']->id,
+            $permissions['manage_supplier_invitations']->id,
+            $permissions['view_settings']->id,
+        ]);
     }
 
     private function createAdminUser(array $roles): void
     {
-        $admin = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@dpanel.test',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'is_admin' => true,
-            'is_buyer' => true,
-            'is_seller' => true,
-            'is_supplier' => true,
-            'role' => 'admin',
-            'is_active' => true,
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@dpanel.test'],
+            [
+                'name' => 'System Administrator',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+                'is_admin' => true,
+                'is_buyer' => true,
+                'is_seller' => true,
+                'is_supplier' => true,
+                'role' => 'admin',
+                'is_active' => true,
+                // Complete profile for admin
+                'company_name' => 'DPanel Administration',
+                'tax_id' => 'TAX-ADMIN001',
+                'business_type' => 'Corporation',
+                'business_description' => 'System administration and management',
+                'phone' => '+1-555-0100',
+                'mobile' => '+1-555-0101',
+                'website' => 'https://dpanel.test',
+                'address_line1' => '123 Admin Street',
+                'address_line2' => 'Suite 100',
+                'city' => 'Tech City',
+                'state' => 'California',
+                'postal_code' => '90210',
+                'country' => 'United States',
+                'rating' => 5.0,
+                'total_orders' => 0,
+                'completed_orders' => 0,
+                'cancelled_orders' => 0,
+            ]
+        );
 
-        $admin->roles()->attach($roles['admin']);
+        // Ensure admin role is attached
+        if (!$admin->roles()->where('name', 'admin')->exists()) {
+            $admin->roles()->attach($roles['admin']);
+        }
 
-        $this->command->info('✅ Admin user created: admin@dpanel.test / password');
+        $this->command->info('✅ Admin user: admin@dpanel.test / password');
     }
 }

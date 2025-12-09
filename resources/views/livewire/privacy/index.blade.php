@@ -36,6 +36,26 @@
             {{-- Tab 1: Users & Roles --}}
             @if($tab === 'users')
                 <div>
+                    {{-- Role filter --}}
+                    <div class="mb-4 flex flex-wrap items-center gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                                @lang('Filter by Role')
+                            </label>
+                            <select
+                                wire:model.live="roleFilter"
+                                class="block w-48 rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 text-sm"
+                            >
+                                <option value="">@lang('All roles')</option>
+                                @foreach($this->roles as $role)
+                                    <option value="{{ $role->id }}">
+                                        {{ $role->display_name }} ({{ $role->users_count }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
                     <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
                         @interact('column_id', $row)
                         {{ $row->id }}

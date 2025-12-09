@@ -27,7 +27,7 @@ class RequestFactory extends Factory
     public function definition(): array
     {
         return [
-            'buyer_id' => User::factory(),
+            'buyer_id' => null, // Must be set explicitly; do not auto-create users
             'title' => $this->faker->sentence(6),
             'description' => $this->faker->paragraphs(asText: true),
             'deadline' => $this->faker->dateTimeBetween('+3 days', '+6 weeks'),

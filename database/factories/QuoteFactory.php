@@ -32,8 +32,8 @@ class QuoteFactory extends Factory
         $totalAmount = $totalPrice; // Can be different if there are multiple items
 
         return [
-            'request_id' => Request::factory(),
-            'supplier_id' => User::factory(),
+            'request_id' => null, // Must be set explicitly
+            'supplier_id' => null, // Must be set explicitly; do not auto-create users
             'supplier_invitation_id' => null, // Will be set when creating with invitation
             'unit_price' => $unitPrice,
             'total_price' => $totalPrice,

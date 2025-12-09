@@ -12,7 +12,7 @@ class MarketFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => null, // Must be set explicitly; do not auto-create users
             'name' => $this->faker->city(),
             'location' => $this->faker->city().', '.$this->faker->country(),
             'image_path' => null,

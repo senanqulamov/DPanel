@@ -24,6 +24,17 @@ enum RequestStatus: string
         };
     }
 
+    public function color(): string
+    {
+        return match($this) {
+            self::DRAFT => 'gray',
+            self::OPEN => 'blue',
+            self::CLOSED => 'orange',
+            self::AWARDED => 'green',
+            self::CANCELLED => 'red',
+        };
+    }
+
     /**
      * Check if the status is a final status (no further changes expected)
      */

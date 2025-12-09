@@ -25,12 +25,16 @@ class RfqSeeder extends Seeder
         $suppliers = User::where('is_supplier', true)->get();
         $products = Product::all();
 
-        // Fallbacks if run in isolation (e.g. seeding this seeder alone)
-        if ($buyers->isEmpty()) {
+        // IMPORTANT: when running as part of DatabaseSeeder we now have a
+        // fixed user pool (50 suppliers, 40 buyers, 10 sellers). We must
+        // NOT create any extra users here, otherwise the global user cap
+        // is violated. Therefore, the fallback user creation is only
+        // allowed when RFQ seeding is executed in isolation.
+        if ($buyers->isEmpty() && ! app()->runningInConsole('db:seed --class=DatabaseSeeder')) {
             $buyers = User::factory()->buyer()->count(5)->create();
         }
 
-        if ($suppliers->isEmpty()) {
+        if ($suppliers->isEmpty() && ! app()->runningInConsole('db:seed --class=DatabaseSeeder')) {
             $suppliers = User::factory()->supplier()->count(10)->create();
         }
 
@@ -105,7 +109,7 @@ class RfqSeeder extends Seeder
             }
 
             // Invite 3-5 suppliers
-            $invitedSuppliers = $suppliers->random(rand(3, 5));
+            $invitedSuppliers = $this->getRandomItems($suppliers, rand(3, 5));
             foreach ($invitedSuppliers as $supplier) {
                 SupplierInvitation::factory()->create([
                     'request_id' => $rfq->id,
@@ -115,7 +119,7 @@ class RfqSeeder extends Seeder
             }
 
             // Some suppliers have submitted quotes
-            $quotingSuppliers = $invitedSuppliers->random(rand(0, count($invitedSuppliers) - 1));
+            $quotingSuppliers = $this->getRandomItems($invitedSuppliers, rand(0, count($invitedSuppliers) - 1));
             foreach ($quotingSuppliers as $supplier) {
                 $quote = Quote::factory()->create([
                     'request_id' => $rfq->id,
@@ -185,7 +189,7 @@ class RfqSeeder extends Seeder
             }
 
             // Invite 3-5 suppliers (all have responded)
-            $invitedSuppliers = $suppliers->random(rand(3, 5));
+            $invitedSuppliers = $this->getRandomItems($suppliers, rand(3, 5));
             foreach ($invitedSuppliers as $supplier) {
                 SupplierInvitation::factory()->create([
                     'request_id' => $rfq->id,
@@ -278,7 +282,7 @@ class RfqSeeder extends Seeder
             }
 
             // Invite 3-5 suppliers (all have responded)
-            $invitedSuppliers = $suppliers->random(rand(3, 5));
+            $invitedSuppliers = $this->getRandomItems($suppliers, rand(3, 5));
             $winningSupplier = $invitedSuppliers->random();
 
             foreach ($invitedSuppliers as $supplier) {
@@ -396,7 +400,7 @@ class RfqSeeder extends Seeder
             // 50% chance of having invited suppliers
             if (rand(0, 1) === 1) {
                 // Invite 1-3 suppliers
-                $invitedSuppliers = $suppliers->random(rand(1, 3));
+                $invitedSuppliers = $this->getRandomItems($suppliers, rand(1, 3));
                 foreach ($invitedSuppliers as $supplier) {
                     SupplierInvitation::factory()->create([
                         'request_id' => $rfq->id,
@@ -478,5 +482,24 @@ class RfqSeeder extends Seeder
         ];
 
         return $reasons[array_rand($reasons)];
+    }
+
+    /**
+     * Get random items from a collection, clamping the requested count to the collection size
+     */
+    protected function getRandomItems($collection, int $requested)
+    {
+        $count = $collection->count();
+
+        if ($count === 0) {
+            return $collection; // empty
+        }
+
+        // If requested is greater than available, just return all items in random order
+        if ($requested >= $count) {
+            return $collection->shuffle();
+        }
+
+        return $collection->random($requested);
     }
 }

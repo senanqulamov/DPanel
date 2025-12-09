@@ -26,7 +26,7 @@ class LogFactory extends Factory
         $models = ['User', 'Product', 'Order', 'Market', null];
 
         return [
-            'user_id' => $this->faker->boolean(80) ? User::inRandomOrder()->first()?->id : null,
+            'user_id' => null, // Should be set explicitly by seeder for better control
             'type' => $type,
             'action' => $this->faker->randomElement($actions),
             'model' => $this->faker->randomElement($models),
