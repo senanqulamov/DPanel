@@ -52,8 +52,8 @@ class DatabaseSeeder extends Seeder
         $sellers = collect();
         for ($i = 1; $i <= 10; $i++) {
             $seller = User::factory()->seller()->create([
-                'name' => "Seller User {$i}",
-                'email' => "seller{$i}@example.com",
+//                'name' => "Seller User {$i}",
+                'email' => "seller_{$i}@example.com",
             ]);
             $sellers->push($seller);
         }
@@ -64,8 +64,8 @@ class DatabaseSeeder extends Seeder
         $suppliers = collect();
         for ($i = 1; $i <= 50; $i++) {
             $supplier = User::factory()->supplier()->create([
-                'name' => "Supplier User {$i}",
-                'email' => "supplier{$i}@example.com",
+//                'name' => "Supplier User {$i}",
+                'email' => "supplier_{$i}@example.com",
             ]);
             $suppliers->push($supplier);
         }
@@ -76,8 +76,8 @@ class DatabaseSeeder extends Seeder
         $buyers = collect();
         for ($i = 1; $i <= 40; $i++) {
             $buyer = User::factory()->buyer()->create([
-                'name' => "Buyer User {$i}",
-                'email' => "buyer{$i}@example.com",
+//                'name' => "Buyer User {$i}",
+                'email' => "buyer_{$i}@example.com",
             ]);
             $buyers->push($buyer);
         }
@@ -91,7 +91,6 @@ class DatabaseSeeder extends Seeder
             for ($m = 1; $m <= 10; $m++) {
                 $market = Market::factory()->create([
                     'user_id' => $seller->id,
-                    'name' => "Market S{$sellerNumber}-M{$m}",
                 ]);
                 $markets->push($market);
             }
@@ -115,11 +114,11 @@ class DatabaseSeeder extends Seeder
         }
         $this->command->info("  ✓ Created {$totalProducts} products across {$markets->count()} markets");
 
-        // STEP 5: Create orders for buyers
-        $this->command->info('🛒 Step 5: Creating orders for buyers...');
+        // STEP 5: Create orders for suppliers
+        $this->command->info('🛒 Step 5: Creating orders for suppliers...');
         $orderCount = 0;
-        foreach ($buyers as $buyer) {
-            // Each buyer gets 2-5 orders
+        foreach ($suppliers as $supplier) {
+            // Each supplier gets 2-5 orders
             $numOrders = rand(2, 5);
             for ($o = 0; $o < $numOrders; $o++) {
                 // Pick a random market (and thus a seller)
@@ -128,7 +127,7 @@ class DatabaseSeeder extends Seeder
 
                 /** @var \App\Models\Order $order */
                 $order = Order::create([
-                    'user_id' => $buyer->id,
+                    'user_id' => $supplier->id,
                     'seller_id' => $seller->id,
                     'total' => 0,
                     'status' => fake()->randomElement(['pending', 'accepted', 'processing', 'completed', 'cancelled']),

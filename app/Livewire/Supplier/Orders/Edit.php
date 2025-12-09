@@ -7,16 +7,17 @@ use App\Livewire\Traits\WithCalculation;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
-class Create extends Component
+class Edit extends Component
 {
     use Alert, WithCalculation, WithLogging;
+
+    public Order $order;
 
     /**
      * Flat list of order items.
@@ -32,14 +33,36 @@ class Create extends Component
     /** Preloaded markets with product counts and label/value for selects. */
     public $marketOptions;
 
-    /**
-     * Initialize component state.
-     */
-    public function mount(): void
+    public function mount(Order $order): void
     {
-        $this->items = [
-            $this->makeEmptyItem(),
-        ];
+        // Ensure supplier can only edit their own pending orders
+        if ($order->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to order');
+        }
+
+        if ($order->status !== Order::STATUS_PENDING) {
+            $this->error(__('Only pending orders can be edited'));
+            $this->redirect(route('supplier.orders.show', $order));
+            return;
+        }
+
+        $this->order = $order->load(['items.product', 'items.market']);
+        $this->notes = $order->notes;
+
+        // Load existing items
+        foreach ($this->order->items as $item) {
+            $this->items[] = [
+                'id' => $item->id,
+                'market_id' => $item->market_id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'unit_price' => (float) $item->unit_price,
+                'max_stock' => $item->product->stock + $item->quantity, // Current stock + what was taken
+            ];
+
+            // Cache products for this market
+            $this->cacheProductsForMarket($item->market_id);
+        }
 
         $this->loadMarketOptions();
     }
@@ -64,6 +87,7 @@ class Create extends Component
     protected function makeEmptyItem(): array
     {
         return [
+            'id' => null,
             'market_id' => null,
             'product_id' => null,
             'quantity' => 1,
@@ -266,7 +290,7 @@ class Create extends Component
         ];
     }
 
-    public function save(): void
+    public function update(): void
     {
         $this->normalizeItems();
 
@@ -280,21 +304,27 @@ class Create extends Component
         try {
             DB::beginTransaction();
 
-            // Calculate total for the entire order
+            // First, restore stock for all existing items
+            foreach ($this->order->items as $oldItem) {
+                $oldItem->product->increment('stock', $oldItem->quantity);
+            }
+
+            // Delete all existing items
+            $this->order->items()->delete();
+
+            // Calculate new total
             $orderTotal = 0;
             foreach ($this->items as $item) {
                 $orderTotal += $item['quantity'] * $item['unit_price'];
             }
 
-            // Create ONE order with all items
-            $order = Order::create([
-                'user_id' => Auth::id(),
+            // Update order
+            $this->order->update([
                 'total' => $orderTotal,
-                'status' => Order::STATUS_PENDING,
                 'notes' => $this->notes,
             ]);
 
-            // Add all items to this single order
+            // Add new items and deduct stock
             foreach ($this->items as $item) {
                 $product = Product::lockForUpdate()->find($item['product_id']);
 
@@ -306,7 +336,7 @@ class Create extends Component
                     throw new \Exception(__('Insufficient stock for :name', ['name' => $product->name]));
                 }
 
-                $order->items()->create([
+                $this->order->items()->create([
                     'product_id' => $item['product_id'],
                     'market_id' => $item['market_id'],
                     'quantity' => $item['quantity'],
@@ -317,31 +347,27 @@ class Create extends Component
                 $product->decrement('stock', $item['quantity']);
             }
 
-            $this->logCreate(Order::class, $order->id, [
-                'order_number' => $order->order_number,
-                'total' => $order->total,
+            $this->logUpdate(Order::class, $this->order->id, [
+                'order_number' => $this->order->order_number,
+                'total' => $this->order->total,
                 'items_count' => count($this->items),
             ]);
 
             DB::commit();
 
-            $this->success(__('Order placed successfully! Order number: :number', ['number' => $order->order_number]));
+            $this->success(__('Order updated successfully!'));
 
-            $this->reset(['items', 'notes']);
-            $this->items = [$this->makeEmptyItem()];
-            $this->loadMarketOptions();
-
-            $this->redirect(route('supplier.orders.index'));
+            $this->redirect(route('supplier.orders.show', $this->order));
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            $this->error(__('Failed to place order: :error', ['error' => $e->getMessage()]));
+            $this->error(__('Failed to update order: :error', ['error' => $e->getMessage()]));
         }
     }
 
     public function render(): View
     {
-        return view('livewire.supplier.orders.create', [
+        return view('livewire.supplier.orders.edit', [
             'markets' => $this->marketOptions,
         ])
             ->layout('layouts.app');

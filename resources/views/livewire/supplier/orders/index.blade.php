@@ -80,12 +80,23 @@
                 @endinteract
 
                 @interact('column_action', $row)
-                    <x-button.circle
-                        icon="eye"
-                        color="sky"
-                        wire:click="$dispatch('view-order', { id: {{ $row->id }} })"
-                        title="{{ __('View Details') }}"
-                    />
+                    <div class="flex items-center gap-2">
+                        <x-button.circle
+                            icon="eye"
+                            color="sky"
+                            href="{{ route('supplier.orders.show', $row) }}"
+                            title="{{ __('View Details') }}"
+                        />
+
+                        @if($row->status === App\Models\Order::STATUS_PENDING)
+                            <x-button.circle
+                                icon="pencil"
+                                color="amber"
+                                href="{{ route('supplier.orders.edit', $row) }}"
+                                title="{{ __('Edit Order') }}"
+                            />
+                        @endif
+                    </div>
                 @endinteract
             </x-table>
         </div>

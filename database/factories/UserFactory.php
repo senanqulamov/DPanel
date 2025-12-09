@@ -125,6 +125,7 @@ class UserFactory extends Factory
     public function supplier(): static
     {
         return $this->state(fn (array $attributes) => [
+            'name' => fake()->firstName().' '.fake()->lastName(),
             'role' => 'supplier',
             'is_supplier' => true,
             'supplier_code' => 'SUP-' . strtoupper(Str::random(8)),
@@ -150,6 +151,7 @@ class UserFactory extends Factory
     public function seller(): static
     {
         return $this->state(fn (array $attributes) => [
+            'name' => fake()->firstName().' '.fake()->lastName(),
             'role' => 'seller',
             'is_seller' => true,
             'commission_rate' => fake()->randomFloat(2, 5, 20),
@@ -167,6 +169,7 @@ class UserFactory extends Factory
     public function buyer(): static
     {
         return $this->state(fn (array $attributes) => [
+            'name' => fake()->firstName().' '.fake()->lastName(),
             'role' => 'buyer',
             'is_buyer' => true,
             'total_orders' => fake()->numberBetween(5, 30),

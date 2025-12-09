@@ -15,6 +15,8 @@ use App\Livewire\Supplier\Markets\Index as SupplierMarketsIndex;
 use App\Livewire\Supplier\Markets\Show as SupplierMarketsShow;
 use App\Livewire\Supplier\Orders\Index as SupplierOrdersIndex;
 use App\Livewire\Supplier\Orders\Create as SupplierOrdersCreate;
+use App\Livewire\Supplier\Orders\Show as SupplierOrdersShow;
+use App\Livewire\Supplier\Orders\Edit as SupplierOrdersEdit;
 use App\Livewire\Supplier\Logs\Index as SupplierLogsIndex;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +61,8 @@ Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('s
     // Orders (View-only - supplier's own orders)
     Route::get('/orders', SupplierOrdersIndex::class)->name('orders.index')->middleware('can:view_orders');
     Route::get('/orders/create', SupplierOrdersCreate::class)->name('orders.create')->middleware('can:create_orders');
+    Route::get('/orders/{order}', SupplierOrdersShow::class)->name('orders.show')->middleware('can:view_orders');
+    Route::get('/orders/{order}/edit', SupplierOrdersEdit::class)->name('orders.edit')->middleware('can:edit_orders');
 
     // Logs
     Route::get('/logs', SupplierLogsIndex::class)->name('logs.index')->middleware('can:view_logs');

@@ -24,9 +24,10 @@
     </div>
 
     {{-- Main Content --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {{-- Market Details --}}
-        <div class="lg:col-span-2 space-y-6">
+    <div class="space-y-6">
+        {{-- Top three cards in a single row with equal width --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- Market Information --}}
             <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-6">
                 <h2 class="text-xl font-bold mb-4">{{ __('Market Information') }}</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -53,6 +54,21 @@
                         <p class="mt-1">{{ $market->description }}</p>
                     </div>
                 @endif
+            </div>
+
+            {{-- Market Stats --}}
+            <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-6">
+                <h3 class="text-lg font-bold mb-4">{{ __('Market Stats') }}</h3>
+                <div class="space-y-4">
+                    <div class="p-3 rounded-lg bg-cyan-50 dark:bg-cyan-900/20">
+                        <div class="text-xs text-cyan-600 dark:text-cyan-400 mb-1">{{ __('Products') }}</div>
+                        <div class="text-2xl font-bold">{{ $market->products->count() }}</div>
+                    </div>
+                    <div class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                        <div class="text-xs text-green-600 dark:text-green-400 mb-1">{{ __('In Stock') }}</div>
+                        <div class="text-2xl font-bold">{{ $market->products->where('stock', '>', 0)->count() }}</div>
+                    </div>
+                </div>
             </div>
 
             {{-- Market Owner Information --}}
@@ -117,12 +133,14 @@
                     </div>
                 </div>
             @endif
+        </div>
 
-            {{-- Products in this Market --}}
+        {{-- Products in this Market --}}
+        <div class="space-y-6">
             @if($market->products->count() > 0)
                 <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-6">
                     <h2 class="text-xl font-bold mb-4">{{ __('Products in this Market') }} ({{ $market->products->count() }})</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         @foreach($market->products as $product)
                             <div class="p-4 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all hover:shadow-lg bg-white dark:bg-slate-800">
                                 <div class="flex justify-between items-start mb-3">
@@ -172,23 +190,6 @@
                     @endif
                 </div>
             @endif
-        </div>
-
-        {{-- Sidebar --}}
-        <div class="space-y-6">
-            <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-6">
-                <h3 class="text-lg font-bold mb-4">{{ __('Market Stats') }}</h3>
-                <div class="space-y-4">
-                    <div class="p-3 rounded-lg bg-cyan-50 dark:bg-cyan-900/20">
-                        <div class="text-xs text-cyan-600 dark:text-cyan-400 mb-1">{{ __('Products') }}</div>
-                        <div class="text-2xl font-bold">{{ $market->products->count() }}</div>
-                    </div>
-                    <div class="p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
-                        <div class="text-xs text-green-600 dark:text-green-400 mb-1">{{ __('In Stock') }}</div>
-                        <div class="text-2xl font-bold">{{ $market->products->where('stock', '>', 0)->count() }}</div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
