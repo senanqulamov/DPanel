@@ -28,14 +28,20 @@ class Update extends Component
     public function render(): View
     {
         return view('livewire.rfq.update', [
-            'products' => Product::orderBy('name')->get(),
+            'productNames' => Product::query()
+                ->select('name')
+                ->distinct()
+                ->orderBy('name')
+                ->limit(100)
+                ->pluck('name')
+                ->toArray(),
         ]);
     }
 
     #[On('load::rfq')]
     public function load(int $rfq): void
     {
-        $request = Request::with(['items.product', 'buyer'])->find($rfq);
+        $request = Request::with(['items', 'buyer'])->find($rfq);
 
         if (! $request) {
             $this->error(__('The requested RFQ could not be found.'));
@@ -50,7 +56,7 @@ class Update extends Component
         foreach ($this->request->items as $item) {
             $this->items[] = [
                 'id' => $item->id,
-                'product_id' => $item->product_id,
+                'product_name' => $item->product_name,
                 'quantity' => $item->quantity,
                 'specifications' => $item->specifications,
             ];
@@ -59,7 +65,7 @@ class Update extends Component
         if (empty($this->items)) {
             $this->items[] = [
                 'id' => null,
-                'product_id' => null,
+                'product_name' => '',
                 'quantity' => 1,
                 'specifications' => null,
             ];
@@ -75,7 +81,7 @@ class Update extends Component
             'request.description' => ['nullable', 'string'],
             'request.deadline' => ['required', 'date', 'after:today'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.product_name' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.specifications' => ['nullable', 'string'],
         ];
@@ -85,7 +91,7 @@ class Update extends Component
     {
         $this->items[] = [
             'id' => null,
-            'product_id' => null,
+            'product_name' => '',
             'quantity' => 1,
             'specifications' => null,
         ];
@@ -109,7 +115,7 @@ class Update extends Component
         $normalized = [];
 
         foreach ($this->items as $item) {
-            if (! isset($item['product_id']) || ! $item['product_id']) {
+            if (! isset($item['product_name']) || trim($item['product_name']) === '') {
                 continue;
             }
 
@@ -144,7 +150,7 @@ class Update extends Component
                 $item = new RequestItem(['request_id' => $this->request->id]);
             }
 
-            $item->product_id = $itemData['product_id'];
+            $item->product_name = trim($itemData['product_name']);
             $item->quantity = $itemData['quantity'];
             $item->specifications = $itemData['specifications'] ?? null;
             $item->save();

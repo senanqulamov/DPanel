@@ -16,7 +16,7 @@ class Show extends Component
 
     public function mount(Request $request): void
     {
-        $this->request = $request->load(['buyer', 'items.product', 'quotes.supplier', 'quotes.items']);
+        $this->request = $request->load(['buyer', 'items', 'quotes.supplier', 'quotes.items']);
 
         $user = Auth::user();
 

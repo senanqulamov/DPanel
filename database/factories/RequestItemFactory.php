@@ -28,7 +28,7 @@ class RequestItemFactory extends Factory
     {
         return [
             'request_id' => Request::factory(),
-            'product_id' => Product::factory(),
+            'product_name' => $this->faker->words(3, true),
             'quantity' => $this->faker->numberBetween(1, 100),
             'specifications' => $this->faker->optional(0.7)->paragraph(),
         ];

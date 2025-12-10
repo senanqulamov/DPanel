@@ -33,7 +33,7 @@ class QuoteForm extends Component
 
     public function mount(Request $request): void
     {
-        $this->request = $request->load('items.product');
+        $this->request = $request->load('items');
 
         $this->logPageView('RFQ Quote Form', [
             'request_id' => $this->request->id,
@@ -66,7 +66,7 @@ class QuoteForm extends Component
         // Initialize items from request items
         foreach ($this->request->items as $item) {
             $this->items[$item->id] = [
-                'description' => $item->product->name ?? 'Product Item',
+                'description' => $item->product_name ?? 'Product Item',
                 'quantity' => $item->quantity,
                 'unit_price' => null,
                 'tax_rate' => 0,

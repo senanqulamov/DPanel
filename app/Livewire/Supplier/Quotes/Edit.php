@@ -43,7 +43,7 @@ class Edit extends Component
             return;
         }
 
-        $this->quote = $quote->load(['request.items.product', 'items']);
+        $this->quote = $quote->load(['request.items', 'items']);
 
         $this->logPageView('Supplier Quote Edit Form');
 

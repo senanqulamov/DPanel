@@ -45,12 +45,11 @@
                         >
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                                 <div class="md:col-span-5">
-                                    <x-select.styled
-                                        label="{{ __('Product') }} *"
-                                        wire:model="items.{{ $index }}.product_id"
-                                        :options="$products"
-                                        select="label:name|value:id"
-                                        searchable
+                                    <x-input
+                                        label="{{ __('Product Name') }} *"
+                                        wire:model="items.{{ $index }}.product_name"
+                                        list="product-names-datalist"
+                                        placeholder="{{ __('Type or select product name') }}"
                                         required
                                     />
                                 </div>
@@ -86,6 +85,13 @@
                         </div>
                     @endforeach
                 </div>
+
+                {{-- Datalist for product name autocomplete suggestions --}}
+                <datalist id="product-names-datalist">
+                    @foreach($productNames as $productName)
+                        <option value="{{ $productName }}">
+                    @endforeach
+                </datalist>
             </div>
 
             <div class="border-t pt-4">

@@ -150,7 +150,7 @@
                         @forelse($request->items as $item)
                             <tr>
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $item->product?->name ?? __('Unknown product') }}
+                                    {{ $item->product_name ?? __('Unknown product') }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">
                                     {{ $item->quantity }}

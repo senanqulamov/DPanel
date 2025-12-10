@@ -51,7 +51,7 @@
                                     readonly
                                 />
                                 <div class="mt-1 text-xs text-[var(--color-text-muted)]">
-                                    @lang('Original'): {{ $item->product?->name ?? __('Unknown product') }}
+                                    @lang('Original'): {{ $item->product_name ?? __('Unknown product') }}
                                 </div>
                                 @if($item->specifications)
                                     <div class="mt-1 text-xs text-[var(--color-text-muted)]">

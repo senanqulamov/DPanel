@@ -32,7 +32,7 @@ class RfqService
             foreach ($data['items'] as $item) {
                 $requestItem = new RequestItem();
                 $requestItem->request_id = $rfq->id;
-                $requestItem->product_id = $item['product_id'];
+                $requestItem->product_name = $item['product_name'];
                 $requestItem->quantity = $item['quantity'];
                 $requestItem->specifications = $item['specifications'] ?? null;
                 $requestItem->save();
@@ -72,7 +72,7 @@ class RfqService
                 if (isset($item['id']) && in_array($item['id'], $existingItemIds)) {
                     // Update existing item
                     $requestItem = RequestItem::find($item['id']);
-                    $requestItem->product_id = $item['product_id'] ?? $requestItem->product_id;
+                    $requestItem->product_name = $item['product_name'] ?? $requestItem->product_name;
                     $requestItem->quantity = $item['quantity'] ?? $requestItem->quantity;
                     $requestItem->specifications = $item['specifications'] ?? $requestItem->specifications;
                     $requestItem->save();
@@ -81,7 +81,7 @@ class RfqService
                     // Create new item
                     $requestItem = new RequestItem();
                     $requestItem->request_id = $rfq->id;
-                    $requestItem->product_id = $item['product_id'];
+                    $requestItem->product_name = $item['product_name'];
                     $requestItem->quantity = $item['quantity'];
                     $requestItem->specifications = $item['specifications'] ?? null;
                     $requestItem->save();

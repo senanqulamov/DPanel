@@ -46,7 +46,7 @@ class Create extends Component
     protected function makeEmptyItem(): array
     {
         return [
-            'product_id' => null,
+            'product_name' => '',
             'quantity' => 1,
             'specifications' => null,
         ];
@@ -80,7 +80,7 @@ class Create extends Component
             'request.description' => ['nullable', 'string'],
             'request.deadline' => ['required', 'date', 'after:today'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.product_name' => ['required', 'string', 'max:255'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.specifications' => ['nullable', 'string'],
         ];
@@ -105,7 +105,7 @@ class Create extends Component
         foreach ($this->items as $item) {
             RequestItem::create([
                 'request_id' => $this->request->id,
-                'product_id' => $item['product_id'],
+                'product_name' => trim($item['product_name']),
                 'quantity' => $item['quantity'],
                 'specifications' => $item['specifications'] ?? null,
             ]);
@@ -152,10 +152,24 @@ class Create extends Component
         $this->success(__('RFQ created successfully.'));
     }
 
+    /**
+     * Get unique product names for autocomplete suggestions
+     */
+    public function getProductNamesProperty(): array
+    {
+        return Product::query()
+            ->select('name')
+            ->distinct()
+            ->orderBy('name')
+            ->limit(100)
+            ->pluck('name')
+            ->toArray();
+    }
+
     public function render(): View
     {
         return view('livewire.buyer.rfq.create', [
-            'products' => Product::orderBy('name')->get(),
+            'productNames' => $this->productNames,
             'suppliers' => User::activeSuppliers()->orderBy('name')->get(),
         ]);
     }

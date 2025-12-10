@@ -21,9 +21,9 @@ class Show extends Component
     {
         $this->request = $request->load([
             'buyer',
-            'items.product',
+            'items',
             'quotes.supplier',
-            'quotes.items.requestItem.product',
+            'quotes.items.requestItem',
             'supplierInvitations.supplier',
         ]);
 

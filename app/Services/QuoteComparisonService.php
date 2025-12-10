@@ -66,7 +66,7 @@ class QuoteComparisonService
         foreach ($rfq->items as $requestItem) {
             $itemComparisons[$requestItem->id] = [
                 'request_item' => $requestItem,
-                'product' => $requestItem->product,
+                'product_name' => $requestItem->product_name,
                 'quotes' => [],
                 'price_range' => [
                     'min' => PHP_FLOAT_MAX,

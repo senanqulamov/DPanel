@@ -17,7 +17,7 @@ class RequestItem extends Model
      */
     protected $fillable = [
         'request_id',
-        'product_id',
+        'product_name',
         'quantity',
         'specifications',
     ];
@@ -28,13 +28,5 @@ class RequestItem extends Model
     public function request(): BelongsTo
     {
         return $this->belongsTo(Request::class);
-    }
-
-    /**
-     * Get the product associated with this item.
-     */
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
     }
 }

@@ -67,7 +67,7 @@ class RfqSeeder extends Seeder
             for ($j = 0; $j < $itemCount; $j++) {
                 RequestItem::factory()->create([
                     'request_id' => $rfq->id,
-                    'product_id' => $products->random()->id,
+                    'product_name' => $products->random()->name,
                 ]);
             }
 
@@ -101,11 +101,12 @@ class RfqSeeder extends Seeder
             $itemCount = rand(2, 5);
             $requestItems = [];
             for ($j = 0; $j < $itemCount; $j++) {
+                $product = $products->random();
                 $item = RequestItem::factory()->create([
                     'request_id' => $rfq->id,
-                    'product_id' => $products->random()->id,
+                    'product_name' => $product->name,
                 ]);
-                $requestItems[] = $item->load('product');
+                $requestItems[] = $item;
             }
 
             // Invite 3-5 suppliers
@@ -134,7 +135,7 @@ class RfqSeeder extends Seeder
                     QuoteItem::factory()->create([
                         'quote_id' => $quote->id,
                         'request_item_id' => $requestItem->id,
-                        'description' => $requestItem->product->name ?? 'Product Item',
+                        'description' => $requestItem->product_name ?? 'Product Item',
                         'unit_price' => $unitPrice,
                         'quantity' => $quantity,
                         'tax_rate' => rand(0, 20),
@@ -181,11 +182,12 @@ class RfqSeeder extends Seeder
             $itemCount = rand(2, 5);
             $requestItems = [];
             for ($j = 0; $j < $itemCount; $j++) {
+                $product = $products->random();
                 $item = RequestItem::factory()->create([
                     'request_id' => $rfq->id,
-                    'product_id' => $products->random()->id,
+                    'product_name' => $product->name,
                 ]);
-                $requestItems[] = $item->load('product');
+                $requestItems[] = $item;
             }
 
             // Invite 3-5 suppliers (all have responded)
@@ -213,7 +215,7 @@ class RfqSeeder extends Seeder
                     QuoteItem::factory()->create([
                         'quote_id' => $quote->id,
                         'request_item_id' => $requestItem->id,
-                        'description' => $requestItem->product->name ?? 'Product Item',
+                        'description' => $requestItem->product_name ?? 'Product Item',
                         'unit_price' => $unitPrice,
                         'quantity' => $quantity,
                         'tax_rate' => rand(0, 20),
@@ -274,11 +276,12 @@ class RfqSeeder extends Seeder
             $itemCount = rand(2, 5);
             $requestItems = [];
             for ($j = 0; $j < $itemCount; $j++) {
+                $product = $products->random();
                 $item = RequestItem::factory()->create([
                     'request_id' => $rfq->id,
-                    'product_id' => $products->random()->id,
+                    'product_name' => $product->name,
                 ]);
-                $requestItems[] = $item->load('product');
+                $requestItems[] = $item;
             }
 
             // Invite 3-5 suppliers (all have responded)
@@ -314,7 +317,7 @@ class RfqSeeder extends Seeder
                     QuoteItem::factory()->create([
                         'quote_id' => $quote->id,
                         'request_item_id' => $requestItem->id,
-                        'description' => $requestItem->product->name ?? 'Product Item',
+                        'description' => $requestItem->product_name ?? 'Product Item',
                         'unit_price' => $unitPrice,
                         'quantity' => $quantity,
                         'tax_rate' => rand(0, 20),
@@ -393,7 +396,7 @@ class RfqSeeder extends Seeder
             for ($j = 0; $j < $itemCount; $j++) {
                 RequestItem::factory()->create([
                     'request_id' => $rfq->id,
-                    'product_id' => $products->random()->id,
+                    'product_name' => $products->random()->name,
                 ]);
             }
 
