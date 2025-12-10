@@ -102,21 +102,37 @@ class Update extends Component
             return;
         }
 
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $firstError = collect($e->errors())->flatten()->first();
+            $this->error($firstError);
+            throw $e;
+        }
+
         $originalData = $this->user->getOriginal();
 
-        $this->user->password = when($this->password !== null, bcrypt($this->password), $this->user->password);
+        // Update password if provided
+        if ($this->password !== null && !empty($this->password)) {
+            $this->user->password = bcrypt($this->password);
+        }
+
+        // Auto-generate supplier code if supplier and code is empty
+        if ($this->user->is_supplier && empty($this->user->supplier_code)) {
+            $this->user->supplier_code = 'SUP-' . strtoupper(substr(uniqid(), -8));
+        }
+
         $this->user->save();
 
         // Log the update with changes
         $changes = [];
-        if ($this->user->wasChanged('name')) {
-            $changes['name'] = ['old' => $originalData['name'], 'new' => $this->user->name];
+        foreach (['name', 'email', 'company_name', 'supplier_status', 'is_supplier', 'is_buyer', 'is_seller', 'is_active'] as $field) {
+            if ($this->user->wasChanged($field)) {
+                $changes[$field] = ['old' => $originalData[$field] ?? null, 'new' => $this->user->$field];
+            }
         }
-        if ($this->user->wasChanged('email')) {
-            $changes['email'] = ['old' => $originalData['email'], 'new' => $this->user->email];
-        }
-        if ($this->password !== null) {
+
+        if ($this->password !== null && !empty($this->password)) {
             $changes['password'] = 'updated';
         }
 
@@ -124,8 +140,10 @@ class Update extends Component
 
         $this->dispatch('updated');
 
-        $this->resetExcept('user');
+        $this->reset(['password', 'password_confirmation']);
 
-        $this->success();
+        $this->success(__('User updated successfully.'));
+
+        $this->modal = false;
     }
 }

@@ -89,7 +89,7 @@ class Create extends Component
     public function save(): void
     {
         // Check permission
-        if (! Auth::user()->hasPermission('create_users')) {
+        if (!Auth::user()->hasPermission('create_users')) {
             $this->error('You do not have permission to create users.');
 
             return;
@@ -98,33 +98,27 @@ class Create extends Component
         try {
             $this->validate();
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Show validation errors to user
-            $this->error('Please fix the validation errors before submitting.');
+            // Show first validation error
+            $firstError = collect($e->errors())->flatten()->first();
+            $this->error($firstError);
             throw $e;
         }
 
+        // Hash the password
         $this->user->password = bcrypt($this->password);
-        $this->user->email_verified_at = now();
 
-        // Auto-approve supplier if created by admin
-        if ($this->user->is_supplier && ! $this->user->supplier_status) {
-            $this->user->supplier_status = 'active';
-            $this->user->supplier_approved_at = now();
+        // Auto-generate supplier code if supplier
+        if ($this->user->is_supplier && empty($this->user->supplier_code)) {
+            $this->user->supplier_code = 'SUP-' . strtoupper(substr(uniqid(), -8));
         }
 
-        // Auto-verify seller if created by admin
-        if ($this->user->is_seller && ! isset($this->user->verified_seller)) {
-            $this->user->verified_seller = true;
-            $this->user->verified_at = now();
+        // Set initial supplier status
+        if ($this->user->is_supplier && empty($this->user->supplier_status)) {
+            $this->user->supplier_status = 'pending';
         }
 
-        try {
-            $this->user->save();
-        } catch (\Exception $e) {
-            $this->error('Failed to create user: '.$e->getMessage());
-
-            return;
-        }
+        // Save the user
+        $this->user->save();
 
         // Log the creation
         $this->logCreate(
@@ -134,20 +128,21 @@ class Create extends Component
                 'name' => $this->user->name,
                 'email' => $this->user->email,
                 'roles' => $this->user->getRoles(),
+                'company_name' => $this->user->company_name,
             ]
         );
 
+        // Dispatch event
         $this->dispatch('created');
 
-        $this->reset('password', 'password_confirmation', 'modal');
-        $this->user = new User([
-            'is_buyer' => false,
-            'is_seller' => false,
-            'is_supplier' => false,
-            'is_active' => true,
-            'verified_seller' => false,
-        ]);
+        // Reset form
+        $this->reset();
+        $this->mount();
 
-        $this->success('User created successfully!');
+        // Success message
+        $this->success(__('User created successfully.'));
+
+        // Close modal
+        $this->modal = false;
     }
 }

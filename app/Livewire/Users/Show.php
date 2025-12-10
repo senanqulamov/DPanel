@@ -7,6 +7,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -21,6 +22,12 @@ class Show extends Component
     public function mount(User $user): void
     {
         $this->user = $user;
+    }
+
+    #[On('supplier::updated')]
+    public function refreshUser(): void
+    {
+        $this->user = $this->user->fresh();
     }
 
     public function render(): View

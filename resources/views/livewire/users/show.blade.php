@@ -32,11 +32,68 @@
                 <x-button icon="arrow-left" href="{{ route('users.index') }}">
                     @lang('Back to Users')
                 </x-button>
+
+                @if($user->is_supplier)
+                    @if($user->supplier_status === 'pending')
+                        <x-button
+                            icon="check-circle"
+                            color="green"
+                            wire:click="$dispatch('load::supplier::approve', { 'supplier' : '{{ $user->id }}' })"
+                        >
+                            @lang('Approve Supplier')
+                        </x-button>
+                        <x-button
+                            icon="x-circle"
+                            color="red"
+                            wire:click="$dispatch('load::supplier::reject', { 'supplier' : '{{ $user->id }}' })"
+                        >
+                            @lang('Reject')
+                        </x-button>
+                    @elseif($user->supplier_status === 'active')
+                        <x-button
+                            icon="shield-exclamation"
+                            color="orange"
+                            wire:click="$dispatch('load::supplier::block', { 'supplier' : '{{ $user->id }}' })"
+                        >
+                            @lang('Block Supplier')
+                        </x-button>
+                    @elseif(in_array($user->supplier_status, ['blocked', 'inactive']))
+                        <x-button
+                            icon="arrow-path"
+                            color="green"
+                            wire:click="$dispatch('load::supplier::reactivate', { 'supplier' : '{{ $user->id }}' })"
+                        >
+                            @lang('Reactivate Supplier')
+                        </x-button>
+                    @endif
+                @endif
+
                 <x-button icon="pencil" wire:click="$dispatch('load::user', { user: '{{ $user->id }}' })">
                     @lang('Edit User')
                 </x-button>
             </div>
         </div>
+
+        <!-- Supplier Status Alert -->
+        @if($user->is_supplier && $user->supplier_status !== 'active')
+            <div class="mt-4 p-4 rounded-lg {{ $user->supplier_status === 'pending' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500' : ($user->supplier_status === 'blocked' ? 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500' : 'bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-500') }}">
+                <div class="flex items-center">
+                    <x-icon name="{{ $user->supplier_status === 'pending' ? 'clock' : ($user->supplier_status === 'blocked' ? 'shield-exclamation' : 'information-circle') }}" class="w-5 h-5 mr-2 {{ $user->supplier_status === 'pending' ? 'text-yellow-600 dark:text-yellow-400' : ($user->supplier_status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400') }}" />
+                    <span class="font-medium {{ $user->supplier_status === 'pending' ? 'text-yellow-800 dark:text-yellow-200' : ($user->supplier_status === 'blocked' ? 'text-red-800 dark:text-red-200' : 'text-gray-800 dark:text-gray-200') }}">
+                        Supplier Status: {{ ucfirst($user->supplier_status) }}
+                    </span>
+                </div>
+                @if($user->supplier_status === 'pending')
+                    <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                        This supplier is awaiting approval. Review their information and approve or reject their application.
+                    </p>
+                @elseif($user->supplier_status === 'blocked')
+                    <p class="text-sm text-red-700 dark:text-red-300 mt-1">
+                        This supplier has been blocked and cannot participate in RFQs.
+                    </p>
+                @endif
+            </div>
+        @endif
 
         <!-- Business Information Section -->
         @if($user->is_supplier || $user->is_seller || $user->company_name)
@@ -168,5 +225,11 @@
         </div>
     </x-card>
 
-    <livewire:users.update @updated="$refresh" />
+    {{-- Include Supplier Actions Component --}}
+    @if($user->is_supplier)
+        <livewire:users.supplier-actions wire:key="supplier-actions-{{ $user->id }}" />
+    @endif
+
+    {{-- Include User Update Component --}}
+    <livewire:users.update />
 </div>

@@ -31,14 +31,27 @@ Your platform has achieved a **strong foundation** with the RFQ lifecycle, suppl
 | **Audit & Compliance** | 🟡 Partial | 55% | ✅ Log model, page view tracking<br>❌ Missing: before/after snapshots, data retention policies, compliance reports |
 | **Security & Access Control** | 🟡 Partial | 60% | ✅ Role flags (buyer, seller, supplier, admin)<br>❌ Missing: granular RBAC, policies for all entities, 2FA |
 
-**Overall Average: 62%**
+**Overall Average: 65%**
 
 ---
 
 ## 2. What You've Built (Strengths)
 
 ### ✅ **Strong Foundation (75-80% complete)**
-1. **RFQ Lifecycle Management**
+1. **Supplier Lifecycle Management** ⭐ NEW
+   - Complete supplier data model with all SAP Ariba fields
+   - Status workflow: Pending → Active → Blocked/Inactive
+   - `SupplierLifecycleService` with business logic:
+     - Approve/reject supplier applications
+     - Block/reactivate suppliers with reason tracking
+     - Performance metrics calculation
+     - Qualification status assessment
+   - Admin UI components for supplier management
+   - Automated supplier code generation
+   - Performance tracking: win rate, response time, participation rate
+   - Notes/audit trail for all status changes
+
+2. **RFQ Lifecycle Management**
    - Complete data model: `Request`, `RequestItem`, `SupplierInvitation`, `Quote`, `QuoteItem`, `WorkflowEvent`
    - Status enum with transitions: Draft → Open → Closed → Awarded/Cancelled
    - Full CRUD via Livewire components (Index, Create, Show, Update, Delete)
@@ -181,16 +194,23 @@ Your platform has achieved a **strong foundation** with the RFQ lifecycle, suppl
 **Effort:** 1-2 weeks
 
 #### **Supplier Onboarding & Qualification**
-**Current:** Basic supplier user accounts  
-**Missing:**
-- Registration wizard with multi-step forms
-- Qualification questionnaires (financial, compliance, capability)
-- Document requirements tracking
-- Approval workflow for new suppliers
-- Risk assessment scoring
-- Periodic re-qualification reminders
+**Current:** Basic supplier user accounts with approval workflow ✅  
+**Implemented:**
+- Full supplier data capture (company, tax ID, DUNS, certifications)
+- Manual approve/reject workflow with reason tracking
+- Status management (pending/active/inactive/blocked)
+- Performance metrics tracking
+- Qualification status assessment
 
-**Effort:** 2-3 weeks
+**Still Missing:**
+- Self-service registration wizard with multi-step forms
+- Automated qualification questionnaires (financial, compliance, capability)
+- Document upload requirements tracking
+- Automated risk assessment scoring algorithm
+- Periodic re-qualification reminders
+- Certificate expiration tracking
+
+**Effort:** 1-2 weeks (reduced from 2-3 weeks)
 
 ### 🟢 **Nice-to-Have Gaps (60-80% complete)**
 

@@ -147,6 +147,30 @@ class User extends Authenticatable
         return $this->hasMany(Market::class, 'user_id');
     }
 
+    /**
+     * Supplier invitations received by this supplier
+     */
+    public function supplierInvitations(): HasMany
+    {
+        return $this->hasMany(SupplierInvitation::class, 'supplier_id');
+    }
+
+    /**
+     * Quotes submitted by this supplier
+     */
+    public function quotes(): HasMany
+    {
+        return $this->hasMany(Quote::class, 'supplier_id');
+    }
+
+    /**
+     * RFQs created by this buyer
+     */
+    public function rfqs(): HasMany
+    {
+        return $this->hasMany(Request::class, 'buyer_id');
+    }
+
     // Role and Permission Relationships
 
     /**

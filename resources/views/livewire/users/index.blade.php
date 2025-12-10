@@ -4,8 +4,23 @@
             @lang('Users')
         </x-alert>
 
-        <div class="mb-2 mt-4">
+        <div class="mb-2 mt-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <livewire:users.create @created="$refresh"/>
+
+            <div class="w-full sm:w-64">
+                <x-select.styled
+                    :label="__('Filter by Role')"
+                    wire:model.live="roleFilter"
+                    :options="[
+                        ['label' => 'All Roles', 'value' => 'all'],
+                        ['label' => 'Buyer', 'value' => 'buyer'],
+                        ['label' => 'Seller', 'value' => 'seller'],
+                        ['label' => 'Supplier', 'value' => 'supplier'],
+                        ['label' => 'Admin', 'value' => 'admin'],
+                    ]"
+                    select="label:label|value:value"
+                />
+            </div>
         </div>
 
         <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
@@ -26,21 +41,22 @@
             @interact('column_roles', $row)
             <div class="flex gap-1 flex-wrap">
                 @if($row->is_buyer)
-                    <x-badge color="blue" text="Buyer" sm />
+                    <x-badge color="blue" text="Buyer" icon="shopping-cart" position="left" sm />
                 @endif
                 @if($row->is_seller)
-                    <x-badge color="green" text="Seller" sm />
-                    @if($row->markets->isNotEmpty())
-                        <div class="text-xs text-gray-600 dark:text-gray-400 w-full mt-1">
-                            Markets: {{ $row->markets->pluck('name')->join(', ') }}
-                        </div>
-                    @endif
+                    <x-badge color="green" text="{{ $row->verified_seller ? 'Verified Seller' : 'Seller' }}" icon="building-storefront" position="left" sm />
                 @endif
                 @if($row->is_supplier)
                     @if($row->supplier_status === 'active')
-                        <x-badge color="purple" text="Supplier" sm />
+                        <x-badge color="purple" text="Active Supplier" icon="cube" position="left" sm />
+                    @elseif($row->supplier_status === 'pending')
+                        <x-badge color="yellow" text="Pending Supplier" icon="clock" position="left" sm />
+                    @elseif($row->supplier_status === 'blocked')
+                        <x-badge color="red" text="Blocked Supplier" icon="shield-exclamation" position="left" sm />
+                    @elseif($row->supplier_status === 'inactive')
+                        <x-badge color="slate" text="Inactive Supplier" icon="x-circle" position="left" sm />
                     @else
-                        <x-badge color="slate" text="Supplier ({{ $row->supplier_status }})" sm />
+                        <x-badge color="slate" text="Supplier ({{ $row->supplier_status }})" icon="cube" position="left" sm />
                     @endif
                 @endif
             </div>

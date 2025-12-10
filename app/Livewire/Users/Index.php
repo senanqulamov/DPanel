@@ -21,6 +21,8 @@ class Index extends Component
 
     public ?string $search = null;
 
+    public string $roleFilter = 'all';
+
     public array $sort = [
         'column' => 'created_at',
         'direction' => 'desc',
@@ -35,6 +37,11 @@ class Index extends Component
         ['index' => 'created_at', 'label' => 'Created'],
         ['index' => 'action', 'sortable' => false],
     ];
+
+    public function updatingRoleFilter(): void
+    {
+        $this->resetPage();
+    }
 
     public function render(): View
     {
@@ -52,6 +59,12 @@ class Index extends Component
             ->with('markets')
             ->whereNotIn('id', [Auth::id()])
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'email'], 'like', '%'.trim($this->search).'%'))
+            ->when($this->roleFilter === 'buyer', fn (Builder $query) => $query->where('is_buyer', true))
+            ->when($this->roleFilter === 'seller', fn (Builder $query) => $query->where('is_seller', true))
+            ->when($this->roleFilter === 'supplier', fn (Builder $query) => $query->where('is_supplier', true))
+            ->when($this->roleFilter === 'admin', fn (Builder $query) => $query->whereHas('roles', function ($q) {
+                $q->where('name', 'admin');
+            }))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)
             ->withQueryString();
