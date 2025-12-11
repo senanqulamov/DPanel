@@ -44,13 +44,23 @@
                             wire:key="buyer-rfq-item-{{ $index }}"
                         >
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                                <div class="md:col-span-5">
+                                <div class="md:col-span-3">
                                     <x-input
                                         label="{{ __('Product Name') }} *"
-                                        wire:model="items.{{ $index }}.product_name"
-                                        list="product-names-datalist"
-                                        placeholder="{{ __('Type or select product name') }}"
+                                        wire:model.live="items.{{ $index }}.product_name"
+                                        placeholder="{{ __('Enter product name') }}"
                                         required
+                                    />
+                                </div>
+
+                                <div class="md:col-span-3">
+                                    <x-select.styled
+                                        label="{{ __('Or Select Existing') }}"
+                                        wire:model.live="items.{{ $index }}.product_name"
+                                        :options="collect($productNames)->map(fn ($name) => ['label' => $name, 'value' => $name])->toArray()"
+                                        select="label:label|value:value"
+                                        searchable
+                                        placeholder="{{ __('Search products...') }}"
                                     />
                                 </div>
 
@@ -85,13 +95,6 @@
                         </div>
                     @endforeach
                 </div>
-
-                {{-- Datalist for product name autocomplete suggestions --}}
-                <datalist id="product-names-datalist">
-                    @foreach($productNames as $productName)
-                        <option value="{{ $productName }}">
-                    @endforeach
-                </datalist>
             </div>
 
             <div class="border-t pt-4">
