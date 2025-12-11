@@ -86,7 +86,7 @@
                          x-transition:leave-end="opacity-0 scale-95"
                          class="absolute right-30 mt-2 w-48 rounded-xl bg-slate-800 border border-slate-700 shadow-2xl overflow-hidden z-50"
                          style="display: none;">
-                        @foreach(['en' => 'English', 'de' => 'Deutsch', 'es' => 'Español', 'fr' => 'Français', 'tr' => 'Türkçe'] as $code => $name)
+                        @foreach(['en' => 'English', 'de' => 'Deutsch', 'es' => 'Español', 'fr' => 'Français', 'tr' => 'Türkçe', 'az' => 'Azərbaycanca'] as $code => $name)
                             <a href="{{ route('lang.switch', $code) }}"
                                class="flex items-center gap-3 px-4 py-3 hover:bg-slate-700/50 transition {{ app()->getLocale() === $code ? 'bg-slate-700/30 text-white' : 'text-slate-300' }}">
                                 <span class="text-sm font-medium">{{ $name }}</span>

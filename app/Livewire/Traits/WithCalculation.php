@@ -14,7 +14,7 @@ trait WithCalculation
     {
         $this->toast()
             ->timeout(1)
-            ->info('Calculating...', 'Updating totals')
+            ->info(__('Calculating...'), __('Updating totals'))
             ->send();
     }
 }

@@ -15,7 +15,7 @@
             <div class="flex flex-col md:flex-row items-end md:items-center gap-3">
                 <div class="flex flex-col items-end">
                     <x-badge
-                        :text="ucfirst($request->status)"
+                        :text="__(ucfirst($request->status))"
                         :color="match($request->status) {
                             'open' => 'green',
                             'closed' => 'red',
@@ -150,7 +150,7 @@
                                     </div>
                                 </div>
                                 <x-badge
-                                    :text="ucfirst(str_replace('_', ' ', $supplierQuote->status ?? 'submitted'))"
+                                    :text="ucfirst(__(str_replace('_', ' ', $supplierQuote->status ?? 'submitted')))"
                                     :color="match($supplierQuote->status) {
                                         'draft' => 'gray',
                                         'submitted' => 'blue',
@@ -296,7 +296,7 @@
                                             </div>
                                         </div>
                                         <x-badge
-                                            :text="ucfirst(str_replace('_', ' ', $quote->status ?? 'submitted'))"
+                                            :text="ucfirst(__(str_replace('_', ' ', $quote->status ?? 'submitted')))"
                                             :color="match($quote->status) {
                                                 'draft' => 'gray',
                                                 'submitted' => 'blue',

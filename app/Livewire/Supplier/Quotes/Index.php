@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Supplier\Quotes;
 
+use App\Enums\TableHeaders;
 use App\Models\Quote;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,8 +33,13 @@ class Index extends Component
         ['index' => 'status', 'label' => 'Status'],
         ['index' => 'valid_until', 'label' => 'Valid Until'],
         ['index' => 'submitted_at', 'label' => 'Submitted'],
-        ['index' => 'action', 'sortable' => false],
+        ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
     ];
+
+    public function mount(): void
+    {
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {

@@ -46,9 +46,9 @@
                         :label="__('Filter by Status')"
                         wire:model.live="statusFilter"
                         :options="[
-                            ['label' => 'All Statuses', 'value' => null],
-                            ['label' => 'Open', 'value' => 'open'],
-                            ['label' => 'Closed', 'value' => 'closed'],
+                            ['label' => __('All Statuses'), 'value' => null],
+                            ['label' => __('Open'), 'value' => 'open'],
+                            ['label' => __('Closed'), 'value' => 'closed'],
                         ]"
                         select="label:label|value:value"
                     />

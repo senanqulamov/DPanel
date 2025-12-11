@@ -16,7 +16,7 @@ enum RequestStatus: string
     public function label(): string
     {
         return match($this) {
-            self::DRAFT => 'Draft',
+            self::DRAFT => __('Draft'),
             self::OPEN => 'Open',
             self::CLOSED => 'Closed',
             self::AWARDED => 'Awarded',

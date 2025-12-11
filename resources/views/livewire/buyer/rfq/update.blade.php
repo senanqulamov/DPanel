@@ -44,18 +44,30 @@
                                 class="border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
                                 wire:key="buyer-rfq-update-item-{{ $index }}"
                             >
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                                    <div class="md:col-span-5">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-4">
+                                    <div class="md:col-span-6">
                                         <x-input
                                             label="{{ __('Product Name') }} *"
-                                            wire:model="items.{{ $index }}.product_name"
-                                            list="product-names-datalist-update"
-                                            placeholder="{{ __('Type or select product name') }}"
+                                            wire:model.live="items.{{ $index }}.product_name"
+                                            placeholder="{{ __('Enter product name') }}"
                                             required
                                         />
                                     </div>
 
-                                    <div class="md:col-span-3">
+                                    <div class="md:col-span-6">
+                                        <x-select.styled
+                                            label="{{ __('Or Select Existing') }}"
+                                            wire:model.live="items.{{ $index }}.product_name"
+                                            :options="collect($productNames)->map(fn ($name) => ['label' => $name, 'value' => $name])->toArray()"
+                                            select="label:label|value:value"
+                                            searchable
+                                            placeholder="{{ __('Search products...') }}"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-4">
+                                    <div class="md:col-span-6">
                                         <x-number
                                             label="{{ __('Quantity') }} *"
                                             wire:model="items.{{ $index }}.quantity"
@@ -64,24 +76,24 @@
                                         />
                                     </div>
 
-                                    <div class="md:col-span-3">
+                                    <div class="md:col-span-6">
                                         <x-input
                                             label="{{ __('Specifications / Notes') }}"
                                             wire:model="items.{{ $index }}.specifications"
                                         />
                                     </div>
+                                </div>
 
-                                    <div class="md:col-span-1 flex justify-end">
-                                        @if(count($items) > 1)
-                                            <x-button.circle
-                                                type="button"
-                                                wire:click="removeItem({{ $index }})"
-                                                icon="trash"
-                                                color="red"
-                                                xs
-                                            />
-                                        @endif
-                                    </div>
+                                <div class="md:col-span-1 flex justify-end">
+                                    @if(count($items) > 1)
+                                        <x-button.circle
+                                            type="button"
+                                            wire:click="removeItem({{ $index }})"
+                                            icon="trash"
+                                            color="red"
+                                            xs
+                                        />
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

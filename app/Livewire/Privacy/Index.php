@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Privacy;
 
+use App\Enums\TableHeaders;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -38,8 +39,13 @@ class Index extends Component
         ['index' => 'email', 'label' => 'Email'],
         ['index' => 'roles', 'label' => 'Roles', 'sortable' => false],
         ['index' => 'created_at', 'label' => 'Joined'],
-        ['index' => 'action', 'sortable' => false],
+        ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
     ];
+
+    public function mount(): void
+    {
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function updatingSearch(): void
     {

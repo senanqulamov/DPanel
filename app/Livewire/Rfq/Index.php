@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Rfq;
 
+use App\Enums\TableHeaders;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Request;
@@ -35,7 +36,7 @@ class Index extends Component
         ['index' => 'items_count', 'label' => 'Items'],
         ['index' => 'quotes_count', 'label' => 'Quotes'],
         ['index' => 'created_at', 'label' => 'Created'],
-        ['index' => 'action', 'sortable' => false],
+        ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
     ];
 
     protected $queryString = [
@@ -47,6 +48,7 @@ class Index extends Component
 
     public function mount(): void
     {
+        $this->headers = TableHeaders::make($this->headers);
         $this->logPageView('RFQ Index');
     }
 

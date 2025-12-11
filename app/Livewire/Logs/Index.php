@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Logs;
 
+use App\Enums\TableHeaders;
 use App\Models\Log;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,6 +36,11 @@ class Index extends Component
         ['index' => 'created_at', 'label' => 'Created'],
         ['index' => 'action_column', 'label' => 'Actions', 'sortable' => false],
     ];
+
+    public function mount(): void
+    {
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {

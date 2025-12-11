@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Supplier\Invitations;
 
+use App\Enums\TableHeaders;
 use App\Models\SupplierInvitation;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,8 +33,14 @@ class Index extends Component
         ['index' => 'status', 'label' => 'Status'],
         ['index' => 'deadline', 'label' => 'Deadline'],
         ['index' => 'invited_at', 'label' => 'Invited'],
-        ['index' => 'action', 'sortable' => false],
+        ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
     ];
+
+    public function mount(): void
+    {
+        // Translate headers based on current locale
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {
