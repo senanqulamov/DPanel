@@ -16,7 +16,7 @@ class Product extends Model
         'sku',
         'price',
         'stock',
-        'category',
+        'category_id',
         'market_id',
         'supplier_id', // User who supplies this product
     ];
@@ -45,5 +45,10 @@ class Product extends Model
         return $this->belongsToMany(Order::class, 'order_items')
             ->withPivot(['quantity', 'unit_price', 'subtotal', 'market_id'])
             ->withTimestamps();
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

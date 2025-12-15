@@ -40,7 +40,7 @@ class ProductsExportHandler extends BaseExportHandler
                 $product->sku,
                 $product->price,
                 $product->stock,
-                $product->category ?? '',
+                $product->category?->name ?? '',
                 $product->market?->name ?? '',
                 $product->created_at->format('Y-m-d H:i:s'),
             ];

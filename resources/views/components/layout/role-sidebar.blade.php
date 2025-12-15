@@ -94,21 +94,20 @@
 
         {{-- Logo & Toggle --}}
         <div class="flex items-center justify-between p-4 border-b border-slate-800/50">
-            <div class="flex items-center gap-3" x-bind:class="!expanded && 'justify-center w-full'">
-                <div class="flex-shrink-0">
-                    <img src="{{ asset('/assets/images/JVD.png') }}" class="w-10 h-10" alt="Logo"/>
-                </div>
-                <span x-show="expanded"
-                      x-transition
-                      class="text-lg font-bold text-white tracking-tight">
-                    {{ config('app.name') }}
-                </span>
+            <div class="flex items-center gap-3 w-full" x-bind:class="!expanded && 'justify-center w-full'">
+                <img src="{{ asset('/assets/images/scmai.png') }}" class="w-fit" alt="Logo"/>
+
+                {{--                <span x-show="expanded"--}}
+                {{--                      x-transition--}}
+                {{--                      class="text-lg font-bold text-white tracking-tight">--}}
+                {{--                    {{ config('app.name') }}--}}
+                {{--                </span>--}}
             </div>
             <button x-on:click="expanded = !expanded"
                     class="hidden lg:block p-2 rounded-lg hover:bg-slate-800/50 transition">
                 <x-icon name="chevron-left"
                         class="w-4 h-4 text-slate-400 transition-transform"
-                        x-bind:class="!expanded && 'rotate-180'" />
+                        x-bind:class="!expanded && 'rotate-180'"/>
             </button>
         </div>
 
@@ -126,7 +125,7 @@
 
                     <div class="relative flex-shrink-0">
                         <x-icon name="{{ $item['icon'] }}"
-                                class="w-5 h-5 transition-transform group-hover:scale-110" />
+                                class="w-5 h-5 transition-transform group-hover:scale-110"/>
                         @if(isset($item['badge']) && $item['badge'] > 0)
                             <span class="absolute -top-1 -right-1 w-4 h-4 bg-{{ $config['accent'] }}-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
                                 {{ $item['badge'] }}
@@ -153,10 +152,10 @@
 
         {{-- Bottom Section --}}
         <div class="p-3 border-t border-slate-800/50 space-y-1">
-            <a href="{{ route('settings.index') }}"
+            <a href="{{ auth()->user()->isAdmin() ? route('settings.index') : route('user.profile') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 {{ $config['hoverBg'] }} hover:text-white transition-all"
                x-bind:class="!expanded && 'justify-center'">
-                <x-icon name="cog-6-tooth" class="w-5 h-5" />
+                <x-icon name="cog-6-tooth" class="w-5 h-5"/>
                 <span x-show="expanded" x-transition class="text-sm font-medium">{{ __('Settings') }}</span>
             </a>
         </div>
@@ -172,13 +171,16 @@
     .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
     }
+
     .custom-scrollbar::-webkit-scrollbar-track {
         background: rgba(30, 41, 59, 0.3);
     }
+
     .custom-scrollbar::-webkit-scrollbar-thumb {
         background: rgba(71, 85, 105, 0.5);
         border-radius: 3px;
     }
+
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: rgba(71, 85, 105, 0.8);
     }

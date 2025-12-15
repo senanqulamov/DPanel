@@ -15,7 +15,7 @@
             </div>
 
             <div>
-                <x-input label="{{ __('Category') }}" wire:model="product.category" />
+                <x-select.styled label="{{ __('Category') }} *" wire:model="product.category_id" :options="$categories" select="label:name|value:id" searchable required />
             </div>
 
             <div>

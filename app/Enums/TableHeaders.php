@@ -30,9 +30,11 @@ enum TableHeaders: string
     case Rfq = 'RFQ';
     case Deadline = 'Deadline';
     case Invited = 'Invited';
+    case InvitedAt = 'Invited At';
     case Items = 'Items';
     case Quotes = 'Quotes';
     case Submitted = 'Submitted';
+    case SentAt = 'Sent At';
 
     // Quote related
     case TotalAmount = 'Total Amount';
@@ -59,6 +61,12 @@ enum TableHeaders: string
     case Message = 'Message';
     case IpAddress = 'IP Address';
 
+    // Supplier related
+    case Supplier = 'Supplier';
+    case RespondedAt = 'Responded At';
+
+    case Undefined = 'Undefined';
+
     /**
      * Get the translatable key for use with Laravel's translation system
      */
@@ -72,7 +80,12 @@ enum TableHeaders: string
      */
     public function label(): string
     {
-        return __($this->value);
+        $locale = app()->getLocale();
+
+        return match ($locale) {
+            'az' => $this->trans_to_az(),
+            default => $this->trans_to_en(),
+        };
     }
 
     /**
@@ -97,16 +110,17 @@ enum TableHeaders: string
             self::User => 'İstifadəçi',
             self::Buyer => 'Alıcı',
             self::Seller => 'Satıcı',
+            self::Supplier => 'Təchizatçı',
             self::Owner => 'Sahibi',
             self::Joined => 'Qoşuldu',
 
             self::RfqHash => 'RFQ #',
             self::Rfq => 'RFQ',
             self::Deadline => 'Son tarix',
-            self::Invited => 'Dəvət olundu',
-            self::Items => 'Məhsullar',
+            self::Invited, self::InvitedAt => 'Dəvət olundu',
+            self::Items, self::Products => 'Məhsullar',
             self::Quotes => 'Təkliflər',
-            self::Submitted => 'Göndərildi',
+            self::Submitted, self::SentAt => 'Göndərildi',
 
             self::TotalAmount => 'Ümumi Məbləğ',
             self::ValidUntil => 'Etibarlıdır',
@@ -119,7 +133,6 @@ enum TableHeaders: string
             self::Category => 'Kateqoriya',
             self::Price => 'Qiymət',
             self::Stock => 'Stok',
-            self::Products => 'Məhsullar',
 
             self::Market => 'Mağaza',
             self::Location => 'Məkan',
@@ -127,6 +140,8 @@ enum TableHeaders: string
             self::Type => 'Tip',
             self::Message => 'Mesaj',
             self::IpAddress => 'IP Ünvanı',
+
+            self::RespondedAt => 'Cavab verildi',
         };
     }
 
@@ -147,9 +162,13 @@ enum TableHeaders: string
             $sortable = $column['sortable'] ?? true;
             $label = $column['label'] ?? '';
 
+            $translatedLabel = $label instanceof self
+                ? $label->label()
+                : __($label);
+
             return [
                 'index' => $column['index'],
-                'label' => __($label),
+                'label' => $translatedLabel,
                 'sortable' => $sortable,
             ];
         }, $columns);

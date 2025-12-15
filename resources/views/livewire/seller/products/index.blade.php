@@ -38,8 +38,7 @@
         <div class="relative p-6">
             <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                 <x-button :text="__('Create New Product')" wire:click="$dispatch('products::create::open')" sm />
-
-                <div class="w-full sm:w-64">
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-2 w-[50vw]">
                     <x-select.styled
                         :label="__('Filter by Market')"
                         wire:model.live="marketFilter"
@@ -47,48 +46,55 @@
                         select="label:name|value:id"
                         searchable
                         :placeholder="__('All Markets')"
+                        class="w-full"
+                    />
+                    <x-select.styled
+                        :label="__('Filter by Category')"
+                        wire:model.live="categoryFilter"
+                        :options="$this->categories"
+                        select="label:name|value:id"
+                        searchable
+                        :placeholder="__('All Categories')"
+                        class="w-full"
                     />
                 </div>
             </div>
 
             <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
-            @interact('column_name', $row)
-                <a href="{{ route('seller.products.show', $row) }}" class="text-blue-600 hover:underline">
-                    <x-badge text="{{ $row->name }}" icon="eye" position="left" />
-                </a>
-            @endinteract
-
-            @interact('column_price', $row)
-                ${{ number_format($row->price, 2) }}
-            @endinteract
-
-            @interact('column_stock', $row)
-                <x-badge :text="$row->stock" :color="$row->stock > 0 ? 'green' : 'red'" />
-            @endinteract
-
-            @interact('column_market', $row)
-                @if($row->market)
-                    <x-badge text="{{ $row->market->name }}" icon="building-storefront" position="left" />
-                @else
-                    -
-                @endif
-            @endinteract
-
-            @interact('column_created_at', $row)
-                {{ $row->created_at->diffForHumans() }}
-            @endinteract
-
-            @interact('column_action', $row)
-                <div class="flex gap-1">
-                    @can('edit_products')
-                        <x-button.circle icon="pencil" wire:click="$dispatch('load::product', { 'product' : '{{ $row->id }}'})" />
-                    @endcan
-                    @can('delete_products')
-                        <livewire:products.delete :product="$row" :key="uniqid('', true)" @deleted="$refresh" />
-                    @endcan
-                </div>
-            @endinteract
-        </x-table>
+                @interact('column_id', $row)
+                    {{ $row->id }}
+                @endinteract
+                @interact('column_name', $row)
+                    <x-badge text="{{ $row->name }}" icon="cube" position="left" />
+                @endinteract
+                @interact('column_sku', $row)
+                    <span class="text-xs font-mono text-gray-600 dark:text-gray-400">{{ $row->sku ?? '-' }}</span>
+                @endinteract
+                @interact('column_category', $row)
+                    {{ $row->category?->name ?? '-' }}
+                @endinteract
+                @interact('column_price', $row)
+                    <span class="font-semibold">${{ number_format($row->price, 2) }}</span>
+                @endinteract
+                @interact('column_stock', $row)
+                    <x-badge :text="$row->stock" :color="$row->stock > 10 ? 'green' : ($row->stock > 0 ? 'yellow' : 'red')" />
+                @endinteract
+                @interact('column_market', $row)
+                    @if($row->market)
+                        <x-badge text="{{ $row->market->name }}" icon="building-storefront" position="left" />
+                    @else
+                        <span class="text-gray-400">-</span>
+                    @endif
+                @endinteract
+                @interact('column_action', $row)
+                    <x-button.circle
+                        icon="eye"
+                        color="purple"
+                        href="{{ route('seller.products.show', $row) }}"
+                        title="{{ __('View Details') }}"
+                    />
+                @endinteract
+            </x-table>
         </div>
     </div>
 

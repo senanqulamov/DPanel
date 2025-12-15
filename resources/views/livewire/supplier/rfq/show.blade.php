@@ -324,9 +324,9 @@
                                                 <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
                                                     @lang('Unit Price')
                                                 </th>
-                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-                                                    @lang('Tax %')
-                                                </th>
+{{--                                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">--}}
+{{--                                                    @lang('Tax %')--}}
+{{--                                                </th>--}}
                                                 <th class="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
                                                     @lang('Total')
                                                 </th>
@@ -347,9 +347,9 @@
                                                     <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">
                                                         ${{ number_format($item->unit_price, 2) }}
                                                     </td>
-                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">
-                                                        {{ number_format($item->tax_rate, 1) }}%
-                                                    </td>
+{{--                                                    <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right">--}}
+{{--                                                        {{ number_format($item->tax_rate, 1) }}%--}}
+{{--                                                    </td>--}}
                                                     <td class="px-4 py-2 text-sm text-gray-900 dark:text-gray-100 text-right font-medium">
                                                         ${{ number_format($item->total, 2) }}
                                                     </td>

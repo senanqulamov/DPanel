@@ -29,7 +29,7 @@
                 <dl class="space-y-2 text-sm">
                     <div class="flex justify-between">
                         <dt class="text-gray-500 dark:text-gray-400">@lang('Category')</dt>
-                        <dd class="font-medium text-gray-900 dark:text-gray-100">{{ $product->category ?? __('N/A') }}</dd>
+                        <dd class="font-medium text-gray-900 dark:text-gray-100">{{ $product->category?->name ?? __('N/A') }}</dd>
                     </div>
                     <div class="flex justify-between">
                         <dt class="text-gray-500 dark:text-gray-400">@lang('Price')</dt>

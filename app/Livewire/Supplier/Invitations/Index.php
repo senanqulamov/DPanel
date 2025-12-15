@@ -32,7 +32,7 @@ class Index extends Component
         ['index' => 'title', 'label' => 'Title'],
         ['index' => 'status', 'label' => 'Status'],
         ['index' => 'deadline', 'label' => 'Deadline'],
-        ['index' => 'invited_at', 'label' => 'Invited'],
+        ['index' => 'invited_at', 'label' => TableHeaders::InvitedAt],
         ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
     ];
 

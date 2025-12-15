@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Buyer\Markets;
 
+use App\Enums\TableHeaders;
 use App\Models\Market;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +32,12 @@ class Index extends Component
         ['index' => 'created_at', 'label' => 'Created'],
         ['index' => 'products_count', 'label' => 'Products'],
     ];
+
+    public function mount(): void
+    {
+        // Translate headers based on current locale
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {

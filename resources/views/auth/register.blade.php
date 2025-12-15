@@ -1,6 +1,6 @@
 <x-guest-layout>
     <div class="my-6 flex items-center justify-center">
-        <img src="{{ asset('/assets/images/JVD.png') }}" />
+        <img src="{{ asset('/assets/images/scmai.png') }}" />
     </div>
 
     <form method="POST" action="{{ route('register') }}">

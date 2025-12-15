@@ -41,7 +41,7 @@
                     {{ __('View-only access. Browse products for RFQ responses.') }}
                 </div>
 
-                <div class="w-full sm:w-64">
+                <div class="grid grid-cols-2 gap-5 w-[30vw] sm:grid-flow-col sm:auto-cols-max">
                     <x-select.styled
                         :label="__('Filter by Market')"
                         wire:model.live="marketFilter"
@@ -49,6 +49,16 @@
                         select="label:name|value:id"
                         searchable
                         :placeholder="__('All Markets')"
+                        class="mb-2 w-full sm:w-64"
+                    />
+                    <x-select.styled
+                        :label="__('Filter by Category')"
+                        wire:model.live="categoryFilter"
+                        :options="$this->categories"
+                        select="label:name|value:id"
+                        searchable
+                        :placeholder="__('All Categories')"
+                        class="w-full sm:w-64"
                     />
                 </div>
             </div>
@@ -67,7 +77,7 @@
                 @endinteract
 
                 @interact('column_category', $row)
-                    {{ $row->category ?? '-' }}
+                    {{ $row->category?->name ?? '-' }}
                 @endinteract
 
                 @interact('column_price', $row)

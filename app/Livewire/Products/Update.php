@@ -6,6 +6,7 @@ use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Product;
 use App\Models\Market;
+use App\Models\Category;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -23,13 +24,11 @@ class Update extends Component
     public function render(): View
     {
         $user = Auth::user();
-
-        // If seller, only allow their own markets; otherwise, show all
         $markets = $user && $user->isSeller()
             ? Market::where('user_id', $user->id)->orderBy('name')->get()
             : Market::orderBy('name')->get();
-
-        return view('livewire.products.update', compact('markets'));
+        $categories = Category::orderBy('name')->get();
+        return view('livewire.products.update', compact('markets', 'categories'));
     }
 
     #[On('load::product')]
@@ -64,10 +63,9 @@ class Update extends Component
                 'integer',
                 'min:0',
             ],
-            'product.category' => [
-                'nullable',
-                'string',
-                'max:255',
+            'product.category_id' => [
+                'required',
+                'exists:categories,id',
             ],
             'product.market_id' => [
                 'required',
@@ -109,10 +107,8 @@ class Update extends Component
         }
 
         $this->validate();
-        $changes = $this->product->getDirty();
-
         $this->product->save();
-        $this->logUpdate(Product::class, $this->product->id, $changes);
+        $this->logUpdate(Product::class, $this->product->id, $this->product->getDirty());
 
 
         $this->dispatch('updated');

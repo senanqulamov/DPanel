@@ -4,6 +4,7 @@ namespace App\Services\ImportExport\Import;
 
 use App\Models\Product;
 use App\Models\Market;
+use App\Models\Category;
 use App\Services\ImportExport\BaseImportHandler;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -62,12 +63,19 @@ class ProductsImportHandler extends BaseImportHandler
             throw new \Exception("SKU '{$row['sku']}' already exists");
         }
 
+        // Find or create category by name
+        $categoryId = null;
+        if (!empty($row['category'])) {
+            $category = Category::firstOrCreate(['name' => $row['category']]);
+            $categoryId = $category->id;
+        }
+
         Product::create([
             'name' => $row['name'],
             'sku' => $row['sku'],
             'price' => (float) $row['price'],
             'stock' => (int) $row['stock'],
-            'category' => $row['category'] ?? null,
+            'category_id' => $categoryId,
             'market_id' => $market->id,
             'supplier_id' => Auth::id(),
         ]);

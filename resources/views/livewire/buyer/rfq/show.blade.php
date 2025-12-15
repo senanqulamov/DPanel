@@ -9,7 +9,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="flex items-center gap-4">
                     <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
-                        <x-icon name="document-text" class="w-7 h-7 text-white" />
+                        <x-icon name="document-text" class="w-7 h-7 text-white"/>
                     </div>
                     <div>
                         <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
@@ -23,7 +23,7 @@
 
                 <div class="flex flex-col items-end gap-2">
                     <x-badge
-                        :text="ucfirst($request->status)"
+                        :text="ucfirst(__($request->status))"
                         :color="match($request->status) {
                             'open' => 'green',
                             'closed' => 'red',
@@ -93,7 +93,7 @@
                             <x-select.styled
                                 label="{{ __('Change Status') }}"
                                 wire:model.live="statusValue"
-                                :options="collect($availableStatuses)->map(fn($label, $value) => ['label' => $label, 'value' => $value])->values()->toArray()"
+                                :options="collect($availableStatuses)->map(fn($label, $value) => ['label' => __($label), 'value' => $value])->values()->toArray()"
                                 select="label:label|value:value"
                             />
                         </div>
@@ -102,7 +102,7 @@
                                 <p class="mb-1">
                                     <strong>@lang('Current Status'):</strong>
                                     <x-badge
-                                        :text="ucfirst($request->status)"
+                                        :text="ucfirst(__($request->status))"
                                         :color="match($request->status) {
                                             'open' => 'green',
                                             'closed' => 'red',
@@ -150,7 +150,7 @@
                         @forelse($request->items as $item)
                             <tr>
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
-                                    {{ $item->product_name ?? __('Unknown product') }}
+                                    {{ $item->product_name ?? __('Unknown') }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right">
                                     {{ $item->quantity }}
@@ -196,51 +196,51 @@
                 @else
                     <x-table :headers="$headers" :sort="$sort" :rows="$this->invitationRows" paginate :paginator="null" :quantity="[10]">
                         @interact('column_supplier', $row)
-                            <div class="text-sm text-gray-900 dark:text-gray-100">
-                                <div class="font-medium">{{ $row->supplier?->name ?? __('Unknown Supplier') }}</div>
-                                @if($row->supplier?->company_name)
-                                    <div class="text-xs text-gray-500">{{ $row->supplier->company_name }}</div>
-                                @endif
-                            </div>
+                        <div class="text-sm text-gray-900 dark:text-gray-100">
+                            <div class="font-medium">{{ $row->supplier?->name ?? __('Unknown Supplier') }}</div>
+                            @if($row->supplier?->company_name)
+                                <div class="text-xs text-gray-500">{{ $row->supplier->company_name }}</div>
+                            @endif
+                        </div>
                         @endinteract
 
                         @interact('column_status', $row)
-                            <x-badge
-                                :text="ucfirst($row->status)"
-                                :color="match($row->status) {
+                        <x-badge
+                            :text="ucfirst(__($row->status))"
+                            :color="match($row->status) {
                                     'pending' => 'yellow',
                                     'accepted' => 'blue',
                                     'declined' => 'red',
                                     'quoted' => 'green',
                                     default => 'gray'
                                 }"
-                            />
+                        />
                         @endinteract
 
                         @interact('column_sent_at', $row)
-                            <span class="text-sm text-gray-900 dark:text-gray-100">
+                        <span class="text-sm text-gray-900 dark:text-gray-100">
                                 {{ $row->sent_at ? $row->sent_at->format('M d, Y H:i') : '—' }}
                             </span>
                         @endinteract
 
                         @interact('column_responded_at', $row)
-                            <span class="text-sm text-gray-900 dark:text-gray-100">
+                        <span class="text-sm text-gray-900 dark:text-gray-100">
                                 {{ $row->responded_at ? $row->responded_at->format('M d, Y H:i') : '—' }}
                             </span>
                         @endinteract
 
                         @interact('column_action', $row)
-                            <div class="flex justify-end">
-                                @if($row->status === 'pending')
-                                    <x-button.circle
-                                        type="button"
-                                        icon="trash"
-                                        color="red"
-                                        xs
-                                        wire:click="deleteInvitation({{ $row->id }})"
-                                    />
-                                @endif
-                            </div>
+                        <div class="flex justify-end">
+                            @if($row->status === 'pending')
+                                <x-button.circle
+                                    type="button"
+                                    icon="trash"
+                                    color="red"
+                                    sm
+                                    wire:click="deleteInvitation({{ $row->id }})"
+                                />
+                            @endif
+                        </div>
                         @endinteract
                     </x-table>
                 @endif
@@ -264,123 +264,138 @@
                     <div class="space-y-4">
                         @foreach($request->quotes as $quote)
                             <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                                {{-- Quote Header --}}
-                                <div class="bg-gray-100 dark:bg-gray-800 px-4 py-3 flex justify-between items-center">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                            {{ $quote->supplier?->name ?? __('Unknown Supplier') }}
-                                        </div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">
-                                            @lang('Submitted'): {{ $quote->submitted_at ? $quote->submitted_at->format('M d, Y H:i') : $quote->created_at->format('M d, Y H:i') }}
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <div class="text-right">
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Total Amount')</div>
-                                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                                ${{ number_format($quote->total_amount ?? $quote->total_price ?? 0, 2) }}
+                                <details class="group">
+                                    {{-- ACCORDION HEADER --}}
+                                    <summary
+                                        class="list-none cursor-pointer bg-gray-100 dark:bg-gray-800 px-4 py-3 flex items-center justify-between gap-4"
+                                    >
+                                        {{-- LEFT --}}
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {{ $quote->supplier?->name ?? __('Unknown Supplier') }}
+                                            </div>
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                @lang('Submitted'):
+                                                {{ $quote->submitted_at?->format('M d, Y H:i') ?? $quote->created_at->format('M d, Y H:i') }}
                                             </div>
                                         </div>
-                                        <x-badge
-                                            :text="ucfirst(str_replace('_', ' ', $quote->status ?? 'submitted'))"
-                                            :color="match($quote->status) {
-                                                'draft' => 'gray',
-                                                'submitted' => 'blue',
-                                                'under_review' => 'yellow',
-                                                'accepted', 'won' => 'green',
-                                                'rejected', 'lost' => 'red',
-                                                default => 'gray'
-                                            }"
-                                        />
-                                    </div>
-                                </div>
 
-                                {{-- Quote Actions --}}
-                                @if(!in_array($quote->status, ['accepted', 'rejected']))
-                                    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700">
-                                        <x-button
-                                            color="green"
-                                            sm
-                                            icon="check-circle"
-                                            wire:click="confirmAcceptQuote({{ $quote->id }})"
-                                        >
-                                            @lang('Accept Quote')
-                                        </x-button>
-                                        <x-button
-                                            color="red"
-                                            sm
-                                            icon="x-circle"
-                                            wire:click="confirmRejectQuote({{ $quote->id }})"
-                                        >
-                                            @lang('Reject Quote')
-                                        </x-button>
-                                    </div>
-                                @endif
-
-                                {{-- Quote Items (Optional - can be expanded) --}}
-                                @if($quote->items && $quote->items->count() > 0)
-                                    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-                                        <details class="group">
-                                            <summary class="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 list-none flex items-center justify-between">
-                                                <span>@lang('View Quote Items') ({{ $quote->items->count() }})</span>
-                                                <x-icon name="chevron-down" class="w-4 h-4 transition-transform group-open:rotate-180" />
-                                            </summary>
-                                            <div class="mt-3 overflow-x-auto">
-                                                <table class="min-w-full text-sm">
-                                                    <thead class="bg-gray-50 dark:bg-gray-800">
-                                                        <tr>
-                                                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Product')</th>
-                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Quantity')</th>
-                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Unit Price')</th>
-                                                            <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 dark:text-gray-400">@lang('Total')</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                                        @foreach($quote->items as $item)
-                                                            <tr>
-                                                                <td class="px-3 py-2 text-gray-900 dark:text-gray-100">
-                                                                    {{ $item->requestItem?->product?->name ?? __('Unknown') }}
-                                                                </td>
-                                                                <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100">
-                                                                    {{ $item->quantity }}
-                                                                </td>
-                                                                <td class="px-3 py-2 text-right text-gray-900 dark:text-gray-100">
-                                                                    ${{ number_format($item->unit_price ?? 0, 2) }}
-                                                                </td>
-                                                                <td class="px-3 py-2 text-right font-medium text-gray-900 dark:text-gray-100">
-                                                                    ${{ number_format($item->total_price ?? 0, 2) }}
-                                                                </td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
+                                        {{-- RIGHT --}}
+                                        <div class="flex items-center gap-4 shrink-0">
+                                            {{-- TOTAL --}}
+                                            <div class="text-right">
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                    @lang('Total Amount')
+                                                </div>
+                                                <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                    ${{ number_format($quote->total_amount ?? 0, 2) }}
+                                                </div>
                                             </div>
-                                        </details>
-                                    </div>
-                                @endif
 
-                                {{-- Quote Notes/Terms --}}
-                                @if($quote->notes || $quote->terms_conditions)
-                                    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                        @if($quote->notes)
-                                            <div class="mb-2">
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">@lang('Notes'):</p>
-                                                <p class="text-sm text-gray-700 dark:text-gray-300">{{ $quote->notes }}</p>
+                                            {{-- STATUS --}}
+                                            <x-badge
+                                                :text="ucfirst(str_replace('_', ' ', __($quote->status) ?? 'submitted'))"
+                                                :color="match($quote->status) {
+                                                    'submitted' => 'blue',
+                                                    'accepted', 'won' => 'green',
+                                                    'rejected', 'lost' => 'red',
+                                                    default => 'gray'
+                                                }"
+                                            />
+
+                                            {{-- ACTIONS --}}
+                                            @if(!in_array($quote->status, ['accepted', 'rejected']))
+                                                <div class="flex gap-2" @click.stop>
+                                                    <x-button
+                                                        color="green"
+                                                        sm
+                                                        icon="check-circle"
+                                                        wire:click="confirmAcceptQuote({{ $quote->id }})"
+                                                    >
+                                                        @lang('Accept')
+                                                    </x-button>
+
+                                                    <x-button
+                                                        color="red"
+                                                        sm
+                                                        icon="x-circle"
+                                                        wire:click="confirmRejectQuote({{ $quote->id }})"
+                                                    >
+                                                        @lang('Reject')
+                                                    </x-button>
+                                                </div>
+                                            @endif
+
+                                            {{-- CHEVRON --}}
+                                            <x-icon name="chevron-down" class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" />
+                                        </div>
+                                    </summary>
+
+                                    {{-- ACCORDION CONTENT --}}
+                                    <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 space-y-6">
+                                        {{-- ITEMS --}}
+                                        <div class="overflow-x-auto">
+                                            <table class="min-w-full text-sm">
+                                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                                <tr>
+                                                    <th class="px-3 py-2 text-left">@lang('Product')</th>
+                                                    <th class="px-3 py-2 text-right">@lang('Qty')</th>
+                                                    <th class="px-3 py-2 text-right">@lang('Unit Price')</th>
+                                                    <th class="px-3 py-2 text-right">@lang('Total')</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                                @foreach($quote->items as $item)
+                                                    <tr>
+                                                        <td class="px-3 py-2">
+                                                            <div class="font-medium text-gray-900 dark:text-gray-100">
+                                                                {{ $item->requestItem?->product_name ?? 'Unknown' }}
+                                                            </div>
+                                                            <div class="text-xs text-gray-500">
+                                                                {{ $item->notes }}
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ $item->quantity }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            ${{ number_format($item->unit_price ?? 0, 2) }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right font-medium">
+                                                            ${{ number_format($item->total ?? 0, 2) }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {{-- NOTES / TERMS --}}
+                                        @if($quote->notes || $quote->terms_conditions)
+                                            <div class="text-sm space-y-3">
+                                                @if($quote->notes)
+                                                    <p>
+                                                        <span class="font-medium">@lang('Notes'):</span>
+                                                        {{ $quote->notes }}
+                                                    </p>
+                                                @endif
+
+                                                @if($quote->terms_conditions)
+                                                    <p>
+                                                        <span class="font-medium">@lang('Terms & Conditions'):</span>
+                                                        {{ $quote->terms_conditions }}
+                                                    </p>
+                                                @endif
                                             </div>
                                         @endif
-                                        @if($quote->terms_conditions)
-                                            <div>
-                                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">@lang('Terms & Conditions'):</p>
-                                                <p class="text-sm text-gray-700 dark:text-gray-300">{{ $quote->terms_conditions }}</p>
-                                            </div>
-                                        @endif
                                     </div>
-                                @endif
+                                </details>
                             </div>
                         @endforeach
                     </div>
                 @endif
             </div>
+
         </div>
     </div>
 
@@ -394,7 +409,7 @@
             @if($this->availableSuppliers->isEmpty())
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                     <div class="flex items-center gap-2">
-                        <x-icon name="exclamation-triangle" class="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
+                        <x-icon name="exclamation-triangle" class="w-5 h-5 text-yellow-600 dark:text-yellow-500"/>
                         <p class="text-sm text-yellow-800 dark:text-yellow-300">
                             @lang('All available suppliers have already been invited to this RFQ.')
                         </p>
@@ -436,5 +451,5 @@
         </x-slot:footer>
     </x-modal>
 
-    <livewire:buyer.rfq.update @updated="$refresh" />
+    <livewire:buyer.rfq.update @updated="$refresh"/>
 </div>

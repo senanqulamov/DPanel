@@ -4,6 +4,7 @@ namespace App\Livewire\Buyer\Rfq;
 
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Request;
 use App\Models\RequestItem;
@@ -25,16 +26,106 @@ class Update extends Component
      */
     public array $items = [];
 
+    /** @var array<int, array<int, array<string, mixed>>> */
+    public array $productsByCategory = [];
+
+    /** Preloaded categories with product counts */
+    public $categoryOptions;
+
+    protected function loadCategoryOptions(): void
+    {
+        $this->categoryOptions = Category::query()
+            ->withCount('products')
+            ->whereHas('products')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($category) => [
+                'id' => $category->id,
+                'name' => sprintf('%s (%d products)', $category->name, $category->products_count),
+                'products_count' => $category->products_count,
+            ]);
+    }
+
+    public function getCategoriesProperty()
+    {
+        if (empty($this->categoryOptions)) {
+            $this->loadCategoryOptions();
+        }
+        return $this->categoryOptions;
+    }
+
+    public function updatedItems($value, $key): void
+    {
+        // $key format: "0.category_id" or "1.product_id" etc.
+        if (str_ends_with($key, '.category_id')) {
+            $parts = explode('.', $key);
+            $index = (int) $parts[0];
+            $categoryId = (int) $value;
+
+            if ($categoryId) {
+                $this->cacheProductsForCategory($categoryId);
+            }
+
+            // Reset product selection when category changes
+            $this->items[$index]['product_id'] = null;
+            $this->items[$index]['product_name'] = '';
+
+            return;
+        }
+
+        if (str_ends_with($key, '.product_id')) {
+            $parts = explode('.', $key);
+            $index = (int) $parts[0];
+            $productName = $value; // Now it's the product name (string), not ID
+
+            if ($productName) {
+                // Set the product name directly
+                $this->items[$index]['product_name'] = $productName;
+            }
+
+            return;
+        }
+    }
+
+    public function getProductsForCategory($categoryId): array
+    {
+        $categoryId = (int) $categoryId;
+
+        if (! $categoryId) {
+            return [];
+        }
+
+        return $this->cacheProductsForCategory($categoryId);
+    }
+
+    protected function cacheProductsForCategory(int $categoryId): array
+    {
+        if ($categoryId <= 0) {
+            return [];
+        }
+
+        if (! isset($this->productsByCategory[$categoryId])) {
+            // Get unique product names from the category
+            $this->productsByCategory[$categoryId] = Product::query()
+                ->select('name')
+                ->where('category_id', $categoryId)
+                ->distinct()
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Product $product) => [
+                    'id' => $product->name, // Use name as ID for grouped products
+                    'name' => $product->name,
+                ])
+                ->all();
+        }
+
+        return $this->productsByCategory[$categoryId];
+    }
+
     public function render(): View
     {
         return view('livewire.buyer.rfq.update', [
-            'productNames' => Product::query()
-                ->select('name')
-                ->distinct()
-                ->orderBy('name')
-                ->limit(100)
-                ->pluck('name')
-                ->toArray(),
+            'categories' => $this->categories,
         ]);
     }
 
@@ -61,23 +152,36 @@ class Update extends Component
 
         $this->items = [];
         foreach ($this->request->items as $item) {
+            // Try to find the category for this product
+            $product = Product::where('name', $item->product_name)->first();
+
             $this->items[] = [
                 'id' => $item->id,
+                'category_id' => $product?->category_id ?? null,
+                'product_id' => null,
                 'product_name' => $item->product_name,
                 'quantity' => $item->quantity,
                 'specifications' => $item->specifications,
             ];
+
+            // Cache products for the category if found
+            if ($product && $product->category_id) {
+                $this->cacheProductsForCategory($product->category_id);
+            }
         }
 
         if (empty($this->items)) {
             $this->items[] = [
                 'id' => null,
+                'category_id' => null,
+                'product_id' => null,
                 'product_name' => '',
                 'quantity' => 1,
                 'specifications' => null,
             ];
         }
 
+        $this->loadCategoryOptions();
         $this->modal = true;
     }
 
@@ -98,6 +202,8 @@ class Update extends Component
     {
         $this->items[] = [
             'id' => null,
+            'category_id' => null,
+            'product_id' => null,
             'product_name' => '',
             'quantity' => 1,
             'specifications' => null,

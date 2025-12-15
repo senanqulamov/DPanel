@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Buyer\Rfq;
 
+use App\Enums\TableHeaders;
 use App\Events\SupplierInvited;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
@@ -47,11 +48,11 @@ class Show extends Component
     ];
 
     public array $headers = [
-        ['index' => 'supplier', 'label' => 'Supplier'],
-        ['index' => 'status', 'label' => 'Status'],
-        ['index' => 'sent_at', 'label' => 'Sent At'],
-        ['index' => 'responded_at', 'label' => 'Responded At'],
-        ['index' => 'action', 'sortable' => false],
+        ['index' => 'supplier', 'label' => TableHeaders::Supplier],
+        ['index' => 'status', 'label' => TableHeaders::Status],
+        ['index' => 'sent_at', 'label' => TableHeaders::SentAt],
+        ['index' => 'responded_at', 'label' => TableHeaders::RespondedAt],
+        ['index' => 'action', 'label' => TableHeaders::Action, 'sortable' => false],
     ];
 
     #[Computed]
@@ -71,9 +72,11 @@ class Show extends Component
 
     public function mount(Request $request): void
     {
+        $this->headers = TableHeaders::make($this->headers);
+
         $this->request = $request->load([
             'buyer',
-            'items',
+            'items.product',
             'quotes.supplier',
             'quotes.items.requestItem',
             'supplierInvitations.supplier',
@@ -285,8 +288,9 @@ class Show extends Component
             ->send();
     }
 
-    public function acceptQuote(int $quoteId): void
+    public function acceptQuote($params): void
     {
+        $quoteId = is_array($params) && isset($params['quoteId']) ? (int)$params['quoteId'] : (int)$params;
         $quote = Quote::where('id', $quoteId)
             ->where('request_id', $this->request->id)
             ->first();
@@ -344,6 +348,7 @@ class Show extends Component
 
         // Refresh the request
         $this->request->refresh()->load([
+            'items.product',
             'quotes.supplier',
             'quotes.items.requestItem.product',
         ]);
@@ -372,8 +377,9 @@ class Show extends Component
             ->send();
     }
 
-    public function rejectQuote(int $quoteId): void
+    public function rejectQuote($params): void
     {
+        $quoteId = is_array($params) && isset($params['quoteId']) ? (int)$params['quoteId'] : (int)$params;
         $quote = Quote::where('id', $quoteId)
             ->where('request_id', $this->request->id)
             ->first();
@@ -408,6 +414,7 @@ class Show extends Component
 
         // Refresh the request
         $this->request->refresh()->load([
+            'items.product',
             'quotes.supplier',
             'quotes.items.requestItem.product',
         ]);

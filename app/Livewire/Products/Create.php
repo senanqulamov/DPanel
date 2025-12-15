@@ -6,6 +6,7 @@ use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\Market;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -27,13 +28,11 @@ class Create extends Component
     public function render(): View
     {
         $user = Auth::user();
-
-        // If seller, only allow their own markets; otherwise, show all
         $markets = $user && $user->isSeller()
             ? Market::where('user_id', $user->id)->orderBy('name')->get()
             : Market::orderBy('name')->get();
-
-        return view('livewire.products.create', compact('markets'));
+        $categories = Category::orderBy('name')->get();
+        return view('livewire.products.create', compact('markets', 'categories'));
     }
 
     public function rules(): array
@@ -60,10 +59,9 @@ class Create extends Component
                 'integer',
                 'min:0',
             ],
-            'product.category' => [
-                'nullable',
-                'string',
-                'max:255',
+            'product.category_id' => [
+                'required',
+                'exists:categories,id',
             ],
             'product.market_id' => [
                 'required',
@@ -100,7 +98,6 @@ class Create extends Component
         }
 
         $this->validate();
-
         $this->product->save();
         $this->logCreate(Product::class, $this->product->id, [
             'name' => $this->product->name,

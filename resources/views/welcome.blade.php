@@ -61,7 +61,7 @@
                     <div class="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
                     <div class="relative px-6 py-3 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10 rounded-xl">
                         <img
-                            src="{{ asset('/assets/images/JVD.png') }}"
+                            src="{{ asset('/assets/images/scmai.png') }}"
                             class="h-8 w-auto"
                             alt="dPanel"
                             width="120"

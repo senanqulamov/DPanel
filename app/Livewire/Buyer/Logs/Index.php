@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Buyer\Logs;
 
+use App\Enums\TableHeaders;
 use App\Models\Log;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +33,12 @@ class Index extends Component
         ['index' => 'message', 'label' => 'Message'],
         ['index' => 'created_at', 'label' => 'Created'],
     ];
+
+    public function mount(): void
+    {
+        // Translate headers based on current locale
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {

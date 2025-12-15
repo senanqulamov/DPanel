@@ -120,7 +120,7 @@
                 <dl class="space-y-3 text-sm">
                     <div class="flex justify-between items-center p-3 rounded-xl bg-gray-50/50 dark:bg-slate-800/50">
                         <dt class="text-gray-600 dark:text-gray-400 font-medium">@lang('Category')</dt>
-                        <dd class="font-semibold text-gray-900 dark:text-gray-100">{{ $product->category ?? __('N/A') }}</dd>
+                        <dd class="font-semibold text-gray-900 dark:text-gray-100">{{ $product->category?->name ?? __('N/A') }}</dd>
                     </div>
                     <div class="flex justify-between items-center p-3 rounded-xl bg-gray-50/50 dark:bg-slate-800/50">
                         <dt class="text-gray-600 dark:text-gray-400 font-medium">@lang('Price')</dt>

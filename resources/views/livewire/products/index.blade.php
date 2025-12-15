@@ -4,8 +4,17 @@
             @lang('Products')
         </x-alert>
 
-        <div class="mb-2 mt-4">
+        <div class="mb-2 mt-4 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
             <livewire:products.create @created="$refresh"/>
+            <x-select.styled
+                :label="__('Filter by Category')"
+                wire:model.live="categoryFilter"
+                :options="$this->categories"
+                select="label:name|value:id"
+                searchable
+                :placeholder="__('All Categories')"
+                class="w-full sm:w-64"
+            />
         </div>
 
         <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
@@ -24,7 +33,7 @@
             @endinteract
 
             @interact('column_category', $row)
-            {{ $row->category ?? '-' }}
+            {{ $row->category?->name ?? '-' }}
             @endinteract
 
             @interact('column_market', $row)

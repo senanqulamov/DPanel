@@ -153,7 +153,7 @@
                                 <div class="space-y-2 mb-3">
                                     <div class="flex items-center justify-between text-sm">
                                         <span class="text-gray-600 dark:text-gray-400">{{ __('Category') }}:</span>
-                                        <x-badge :text="$product->category" color="gray" sm />
+                                        <x-badge :text="$product->category->name" color="gray" sm />
                                     </div>
                                     <div class="flex items-center justify-between text-sm">
                                         <span class="text-gray-600 dark:text-gray-400">{{ __('Stock') }}:</span>

@@ -45,14 +45,11 @@
                     <x-select.styled
                         :label="__('Filter by Status')"
                         wire:model.live="statusFilter"
-                        :options="collect($this->statuses)->map(fn($status) => ['label' => ucfirst($status), 'value' => $status])->toArray()"
+                        :options="collect($this->statuses)->map(fn($status) => ['label' => ucfirst(__($status)), 'value' => $status])->toArray()"
                         select="label:label|value:value"
                         :placeholder="__('All Statuses')"
                     />
                 </div>
-                @if($statusFilter)
-                    <x-button color="red" :text="__('Clear Filter')" wire:click="clearStatusFilter" sm />
-                @endif
             </div>
 
             <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">

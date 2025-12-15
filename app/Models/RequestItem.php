@@ -29,4 +29,23 @@ class RequestItem extends Model
     {
         return $this->belongsTo(Request::class);
     }
+
+    /**
+     * Get the product related to this request item (if product_id is set).
+     */
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    /**
+     * Get the total price for this request item (product price * quantity).
+     */
+    public function getTotalPriceAttribute(): float
+    {
+        if ($this->product && $this->product->price !== null) {
+            return $this->product->price * $this->quantity;
+        }
+        return 0;
+    }
 }

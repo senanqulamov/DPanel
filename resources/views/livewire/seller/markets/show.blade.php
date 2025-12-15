@@ -106,7 +106,7 @@
             </div>
 
             @if($this->products->count())
-                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach($this->products as $product)
                         <div class="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-50/80 to-white dark:from-slate-800/80 dark:to-slate-900 border border-gray-200/50 dark:border-slate-700/50 hover:border-purple-400/50 dark:hover:border-purple-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10">
                             <div class="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-fuchsia-500/0 group-hover:from-purple-500/5 group-hover:to-fuchsia-500/5 transition-all duration-500"></div>
@@ -121,6 +121,10 @@
                                 </div>
 
                                 <dl class="text-sm space-y-2">
+                                    <div class="flex justify-between items-center p-2 rounded-lg bg-gray-100/50 dark:bg-slate-800/50">
+                                        <dt class="text-gray-600 dark:text-gray-400 font-medium">@lang('Category')</dt>
+                                        <dd class="font-bold text-gray-900 dark:text-gray-100">{{ $product->category?->name ?? __('N/A') }}</dd>
+                                    </div>
                                     <div class="flex justify-between items-center p-2 rounded-lg bg-gray-100/50 dark:bg-slate-800/50">
                                         <dt class="text-gray-600 dark:text-gray-400 font-medium">@lang('Price')</dt>
                                         <dd class="font-bold text-gray-900 dark:text-gray-100">${{ number_format($product->price, 2) }}</dd>

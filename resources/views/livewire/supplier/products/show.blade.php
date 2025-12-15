@@ -34,7 +34,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="text-sm text-gray-600 dark:text-gray-400">{{ __('Category') }}</label>
-                        <p class="font-medium">{{ $product->category ?? '—' }}</p>
+                        <p class="font-medium">{{ $product->category?->name ?? '—' }}</p>
                     </div>
                     <div>
                         <label class="text-sm text-gray-600 dark:text-gray-400">{{ __('Price') }}</label>

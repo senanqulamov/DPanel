@@ -89,7 +89,7 @@
                     @endif
 
                     {{-- Loading State in Results Area --}}
-                    <div wire:loading wire:target="searchQuery" class="mt-4 animate-fade-in">
+                    <div wire:loading wire:target="searchQuery" class="mt-4 animate-fade-in w-full">
                         <div class="flex items-center justify-center py-12 bg-white/80 dark:bg-slate-800/80 rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-700 backdrop-blur-sm">
                             <div class="text-center">
                                 <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -162,6 +162,10 @@
                                                         <x-icon name="user" class="w-4 h-4 inline mr-1" />
                                                         {{ __('Seller') }}
                                                     </th>
+                                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                                                        <x-icon name="tag" class="w-4 h-4 inline mr-1" />
+                                                        {{ __('Category') }}
+                                                    </th>
                                                     <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                                                         <x-icon name="cube" class="w-4 h-4 inline mr-1" />
                                                         {{ __('Stock') }}
@@ -183,6 +187,9 @@
                                                         </td>
                                                         <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
                                                             {{ $product['seller_name'] }}
+                                                        </td>
+                                                        <td class="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                                            {{ $product['category'] }}
                                                         </td>
                                                         <td class="px-4 py-4 text-center">
                                                             <x-badge

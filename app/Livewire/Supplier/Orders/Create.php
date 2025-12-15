@@ -266,15 +266,16 @@ class Create extends Component
 
             // Search for similar products across all markets with stock
             $products = Product::query()
-                ->select(['id', 'name', 'sku', 'price', 'stock', 'market_id', 'category'])
+                ->select(['products.id', 'products.name', 'products.sku', 'products.price', 'products.stock', 'products.market_id', 'products.category_id', 'categories.name as category_name'])
+                ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->with(['market.seller'])
                 ->where('stock', '>', 0)
                 ->where(function ($q) use ($query) {
-                    $q->where('name', 'like', "%{$query}%")
-                      ->orWhere('sku', 'like', "%{$query}%")
-                      ->orWhere('category', 'like', "%{$query}%");
+                    $q->where('products.name', 'like', "%{$query}%")
+                      ->orWhere('products.sku', 'like', "%{$query}%")
+                      ->orWhere('categories.name', 'like', "%{$query}%");
                 })
-                ->orderBy('name')
+                ->orderBy('products.name')
                 ->limit(50)
                 ->get();
 
@@ -289,6 +290,7 @@ class Create extends Component
             $this->searchResults = $grouped->map(function ($group) {
                 return [
                     'name' => $group->first()->name,
+                    'category' => $group->first()->category_name,
                     'products' => $group->map(function ($product) {
                         return [
                             'id' => $product->id,
@@ -299,7 +301,7 @@ class Create extends Component
                             'market_id' => $product->market_id,
                             'market_name' => $product->market?->name ?? 'Unknown',
                             'seller_name' => $product->market?->seller?->name ?? 'Unknown',
-                            'category' => $product->category,
+                            'category' => $product->category_name,
                         ];
                     })->sortBy('price')->values()->all(),
                     'min_price' => (float) $group->min('price'),

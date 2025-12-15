@@ -4,6 +4,7 @@ namespace App\Livewire\Products;
 
 use App\Enums\TableHeaders;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -18,6 +19,8 @@ class Index extends Component
     public $quantity = 10;
 
     public ?string $search = null;
+
+    public ?int $categoryFilter = null;
 
     public array $sort = [
         'column' => 'created_at',
@@ -47,15 +50,27 @@ class Index extends Component
     }
 
     #[Computed]
+    public function categories()
+    {
+        return Category::orderBy('name')->get();
+    }
+
+    #[Computed]
     public function rows(): LengthAwarePaginator
     {
         if ($this->quantity == 'all') {
             $this->quantity = Product::count();
         }
-
         return Product::query()
-            ->with('market')
-            ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'sku', 'category'], 'like', '%'.trim($this->search).'%'))
+            ->with(['market', 'category'])
+            ->when($this->search !== null, fn (Builder $query) => $query->where(function($q) {
+                $q->where('name', 'like', '%'.trim($this->search).'%')
+                  ->orWhere('sku', 'like', '%'.trim($this->search).'%')
+                  ->orWhereHas('category', function($catQ) {
+                      $catQ->where('name', 'like', '%'.trim($this->search).'%');
+                  });
+            }))
+            ->when($this->categoryFilter !== null, fn (Builder $query) => $query->where('category_id', $this->categoryFilter))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)
             ->withQueryString();

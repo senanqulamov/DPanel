@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Buyer\Rfq;
 
+use App\Enums\TableHeaders;
 use App\Models\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,6 +36,12 @@ class Index extends Component
         ['index' => 'created_at', 'label' => 'Created'],
         ['index' => 'action', 'sortable' => false],
     ];
+
+    public function mount(): void
+    {
+        // Translate headers based on current locale
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {

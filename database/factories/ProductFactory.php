@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Product;
 use App\Models\Market;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductFactory extends Factory
@@ -36,6 +37,7 @@ class ProductFactory extends Factory
         ];
 
         $category = $this->faker->randomElement($categories);
+        $categoryId = Category::firstOrCreate(['name' => $category])->id;
 
         $baseName = match ($category) {
             'Office Supplies' => $this->faker->randomElement([
@@ -606,7 +608,7 @@ class ProductFactory extends Factory
             'sku' => strtoupper($this->faker->unique()->bothify('PRD-####-????')),
             'price' => $price,
             'stock' => $stock,
-            'category' => $category,
+            'category_id' => $categoryId,
             'market_id' => Market::factory(),
         ];
     }

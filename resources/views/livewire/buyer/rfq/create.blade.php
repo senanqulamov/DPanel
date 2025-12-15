@@ -41,29 +41,51 @@
                     @foreach($items as $index => $item)
                         <div
                             class="border border-gray-300 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
-                            wire:key="buyer-rfq-item-{{ $index }}">
+                            wire:key="buyer-rfq-item-{{ $index }}-{{ $item['category_id'] ?? 'new' }}">
+
+                            {{-- Category and Product Selection --}}
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-4">
                                 <div class="md:col-span-6">
-                                    <x-input
-                                        label="{{ __('Product Name') }} *"
-                                        wire:model.live="items.{{ $index }}.product_name"
-                                        placeholder="{{ __('Enter product name') }}"
+                                    <x-select.styled
+                                        label="{{ __('Category') }} *"
+                                        wire:model.live="items.{{ $index }}.category_id"
+                                        :options="$categories"
+                                        select="label:name|value:id"
+                                        searchable
                                         required
+                                        placeholder="{{ __('Select category...') }}"
                                     />
                                 </div>
 
                                 <div class="md:col-span-6">
                                     <x-select.styled
-                                        label="{{ __('Or Select Existing') }}"
-                                        wire:model.live="items.{{ $index }}.product_name"
-                                        :options="collect($productNames)->map(fn ($name) => ['label' => $name, 'value' => $name])->toArray()"
-                                        select="label:label|value:value"
+                                        wire:key="product-select-{{ $index }}-{{ $item['category_id'] ?? 'none' }}"
+                                        label="{{ __('Select Product') }}"
+                                        wire:model.live="items.{{ $index }}.product_id"
+                                        :options="$this->getProductsForCategory($item['category_id'] ?? null)"
+                                        select="label:name|value:id"
                                         searchable
-                                        placeholder="{{ __('Search products...') }}"
+                                        placeholder="{{ __('Select from category...') }}"
                                     />
                                 </div>
                             </div>
 
+                            {{-- Manual Product Name Entry --}}
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-4">
+                                <div class="md:col-span-12">
+                                    <x-input
+                                        label="{{ __('Product Name') }} *"
+                                        wire:model.live="items.{{ $index }}.product_name"
+                                        placeholder="{{ __('Enter product name or select from dropdown above') }}"
+                                        required
+                                    />
+                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                        {{ __('Select from category dropdown or type custom product name') }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {{-- Quantity and Specifications --}}
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end mb-4">
                                 <div class="md:col-span-6">
                                     <x-number
@@ -82,7 +104,8 @@
                                 </div>
                             </div>
 
-                            <div class="md:col-span-1 flex justify-end">
+                            {{-- Remove Button --}}
+                            <div class="flex justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
                                 @if(count($items) > 1)
                                     <x-button.circle
                                         type="button"

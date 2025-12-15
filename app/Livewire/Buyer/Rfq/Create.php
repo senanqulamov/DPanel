@@ -5,6 +5,7 @@ namespace App\Livewire\Buyer\Rfq;
 use App\Events\SupplierInvited;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\Request;
 use App\Models\RequestItem;
@@ -33,6 +34,12 @@ class Create extends Component
      */
     public array $selectedSuppliers = [];
 
+    /** @var array<int, array<int, array<string, mixed>>> */
+    public array $productsByCategory = [];
+
+    /** Preloaded categories with product counts */
+    public $categoryOptions;
+
     public function mount(): void
     {
         $this->request = new Request;
@@ -41,11 +48,29 @@ class Create extends Component
         $this->items = [
             $this->makeEmptyItem(),
         ];
+
+        $this->loadCategoryOptions();
+    }
+
+    protected function loadCategoryOptions(): void
+    {
+        $this->categoryOptions = Category::query()
+            ->withCount('products')
+            ->whereHas('products')
+            ->orderBy('name')
+            ->get()
+            ->map(fn ($category) => [
+                'id' => $category->id,
+                'name' => sprintf('%s (%d products)', $category->name, $category->products_count),
+                'products_count' => $category->products_count,
+            ]);
     }
 
     protected function makeEmptyItem(): array
     {
         return [
+            'category_id' => null,
+            'product_id' => null,
             'product_name' => '',
             'quantity' => 1,
             'specifications' => null,
@@ -71,6 +96,77 @@ class Create extends Component
         if (empty($this->items)) {
             $this->items[] = $this->makeEmptyItem();
         }
+    }
+
+    public function updatedItems($value, $key): void
+    {
+        // $key format: "0.category_id" or "1.product_id" etc.
+        if (str_ends_with($key, '.category_id')) {
+            $parts = explode('.', $key);
+            $index = (int) $parts[0];
+            $categoryId = (int) $value;
+
+            if ($categoryId) {
+                $this->cacheProductsForCategory($categoryId);
+            }
+
+            $this->items[$index]['product_id'] = null;
+            $this->items[$index]['product_name'] = '';
+
+            return;
+        }
+
+        if (str_ends_with($key, '.product_id')) {
+            $parts = explode('.', $key);
+            $index = (int) $parts[0];
+            $productName = $value;
+
+            if ($productName) {
+                $this->items[$index]['product_name'] = $productName;
+            }
+
+            return;
+        }
+    }
+
+    public function getProductsForCategory($categoryId): array
+    {
+        $categoryId = (int) $categoryId;
+
+        if (! $categoryId) {
+            return [];
+        }
+
+        return $this->cacheProductsForCategory($categoryId);
+    }
+
+    protected function cacheProductsForCategory(int $categoryId): array
+    {
+        if ($categoryId <= 0) {
+            return [];
+        }
+
+        if (! isset($this->productsByCategory[$categoryId])) {
+            // Get unique product names from the category
+            $this->productsByCategory[$categoryId] = Product::query()
+                ->select('name')
+                ->where('category_id', $categoryId)
+                ->distinct()
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Product $product) => [
+                    'id' => $product->name,
+                    'name' => $product->name,
+                ])
+                ->all();
+        }
+
+        return $this->productsByCategory[$categoryId];
+    }
+
+    protected function resolveProductFromCache(int $productId, ?int $categoryId = null): ?array
+    {
+        return null;
     }
 
     public function rules(): array
@@ -148,28 +244,25 @@ class Create extends Component
         $this->request->status = 'draft';
         $this->items = [$this->makeEmptyItem()];
         $this->selectedSuppliers = [];
+        $this->productsByCategory = [];
+        $this->categoryOptions = null;
+        $this->loadCategoryOptions();
 
         $this->success(__('RFQ created successfully.'));
     }
 
-    /**
-     * Get unique product names for autocomplete suggestions
-     */
-    public function getProductNamesProperty(): array
+    public function getCategoriesProperty()
     {
-        return Product::query()
-            ->select('name')
-            ->distinct()
-            ->orderBy('name')
-            ->limit(100)
-            ->pluck('name')
-            ->toArray();
+        if (empty($this->categoryOptions)) {
+            $this->loadCategoryOptions();
+        }
+        return $this->categoryOptions;
     }
 
     public function render(): View
     {
         return view('livewire.buyer.rfq.create', [
-            'productNames' => $this->productNames,
+            'categories' => $this->categories,
             'suppliers' => User::activeSuppliers()->orderBy('name')->get(),
         ]);
     }
