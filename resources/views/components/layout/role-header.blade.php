@@ -72,6 +72,20 @@
                     @endif
                 </a>
 
+                {{-- Theme Switcher --}}
+                <div class="relative" x-data="{ theme: (localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) }">
+                    <button x-on:click="(theme = theme === 'light' ? 'dark' : 'light'); window.setAppTheme(theme)"
+                            class="p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition flex items-center justify-center">
+                        <template x-if="theme === 'light'">
+                            <x-icon name="moon" class="w-5 h-5 text-slate-300" />
+                        </template>
+                        <template x-if="theme === 'dark'">
+                            <x-icon name="sun" class="w-5 h-5 text-slate-300" />
+                        </template>
+                    </button>
+                    <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 text-xs rounded-md bg-slate-800/50 px-2 py-1 text-slate-200 hidden" x-ref="tooltip" x-show="false">Toggle theme</div>
+                </div>
+
                 {{-- Language Switcher --}}
                 <div class="hidden sm:block" x-data="{ open: false }" x-on:click.away="open = false">
                     <button x-on:click="open = !open"

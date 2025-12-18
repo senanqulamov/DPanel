@@ -184,6 +184,8 @@
                     </p>
                 </div>
             </x-alert>
+
+            <livewire:settings.feature-flags/>
         </div>
     </x-card>
 </div>

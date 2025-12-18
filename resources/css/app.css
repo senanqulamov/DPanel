@@ -351,3 +351,130 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
 }
+
+/* Light theme overrides (applied when `html` has the `light` class) */
+html.light {
+    /* Tell the browser to render native controls for light theme */
+    color-scheme: light;
+
+    /* Core surface/token overrides (fallback hex first, then modern OKLCH where desired) */
+    --color-bg: #ffffff;
+    --color-bg-alt: #f8fafc;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f1f5f9;
+    --color-surface-raised: #ffffff;
+    --color-border: #e6edf3;
+    --color-border-subtle: #f0f6fb;
+
+    /* Text */
+    --color-text: #0f172a; /* slate-900 */
+    --color-text-high: #020617;
+    --color-text-muted: #475569; /* slate-600 */
+
+    /* Brand (example OKLCH, fallback hex not always possible; include hex fallback if needed) */
+    --brand-primary-500: oklch(0.35 0.18 220);
+    --brand-primary-400: oklch(0.45 0.16 220);
+    --brand-primary-300: oklch(0.60 0.12 220);
+
+    /* Accent / links */
+    --color-link: var(--brand-primary-400);
+    --color-link-hover: var(--brand-primary-300);
+
+    /* Focus & selection (tuned for light) */
+    --color-focus-ring: oklch(0.2 0.12 200);
+    --color-selection-bg: oklch(0.85 0.12 210);
+    --color-selection-text: #ffffff;
+
+    /* Scrollbar for light */
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
+
+    /* State backgrounds tuned for light surfaces */
+    --state-danger-bg: color-mix(in oklch, var(--color-danger-500) 10%, #ffffff);
+    --state-success-bg: color-mix(in oklch, var(--color-success-500) 10%, #ffffff);
+    --state-warning-bg: color-mix(in oklch, var(--color-warning-500) 10%, #ffffff);
+    --state-info-bg: color-mix(in oklch, var(--color-info-500) 10%, #ffffff);
+
+    /* Buttons / inputs */
+    --btn-bg: var(--color-surface);
+    --btn-border: var(--color-border);
+    --btn-text: var(--color-text);
+    --btn-primary-bg: var(--brand-primary-500);
+    --btn-primary-text: #ffffff;
+
+    --input-bg: var(--color-surface-alt);
+    --input-border: var(--color-border);
+    --input-placeholder: var(--color-text-muted);
+    --input-text: var(--color-text-high);
+
+    /* Toast */
+    --toast-bg: var(--color-surface-raised);
+    --toast-border: var(--color-border);
+    --toast-shadow: 0 4px 12px -3px rgba(2,6,23,0.06);
+
+    /* Misc adjustments */
+    --color-backdrop: rgba(255,255,255,0.7);
+
+    /* --- Slate scale overrides (so bg-slate-*, text-slate-*, border-slate-* map to light-friendly colors) --- */
+    /* Map the darker Tailwind slate utilities to the light-mode surface tokens so components
+       that use bg-slate-950, bg-slate-950/90, border-slate-800, etc. appear light.
+       We intentionally map the -950/-900/-800 entries to light surface colors. */
+    --color-slate-950: var(--color-surface);    /* used by bg-slate-950 -> should be light surface */
+    --color-slate-900: var(--color-bg-alt);
+    --color-slate-800: var(--color-surface-alt); /* used by border-slate-800 -> light border */
+    --color-slate-700: #e2e8f0;
+    --color-slate-600: #cbd5e1;
+    --color-slate-500: #94a3b8;
+    --color-slate-400: #64748b;
+    --color-slate-300: #475569;
+    --color-slate-200: #334155;
+    --color-slate-100: #1e293b;
+    --color-slate-50: #0f172a;
+
+    /* Secondary / neutral scale used in some components */
+    --color-secondary-50: var(--color-slate-50);
+    --color-secondary-100: var(--color-slate-100);
+    --color-secondary-200: var(--color-slate-200);
+    --color-secondary-300: var(--color-slate-300);
+    --color-secondary-400: var(--color-slate-400);
+    --color-secondary-500: var(--color-slate-500);
+    --color-secondary-600: var(--color-slate-600);
+    --color-secondary-700: var(--color-slate-700);
+    --color-secondary-800: var(--color-slate-800);
+    --color-secondary-900: var(--color-slate-900);
+    --color-secondary-950: var(--color-slate-950);
+
+    /* Map the project's dark-* tokens to light-friendly values while in light mode
+       (some components reference --dark-* directly) */
+    --dark-0: #ffffff;
+    --dark-1: #f8fafc;
+    --dark-2: #f1f5f9;
+    --dark-3: #e2e8f0; /* surface */
+    --dark-4: #cbd5e1;
+    --dark-5: #94a3b8; /* raised */
+    --dark-6: #64748b;
+    --dark-7: #475569;
+    --dark-8: #334155; /* muted text */
+    --dark-9: #1e293b;
+    --dark-10: #0f172a; /* primary text */
+    --dark-11: #0b1220; /* high emphasis */
+    --dark-12: #020617; /* inverse surfaces */
+
+    /* Ensure components that use these aliases pick up light tokens */
+    --color-dark-50: var(--dark-12);
+    --color-dark-100: var(--dark-11);
+    --color-dark-200: var(--dark-10);
+    --color-dark-300: var(--dark-9);
+    --color-dark-400: var(--dark-8);
+    --color-dark-500: var(--dark-7);
+    --color-dark-600: var(--dark-6);
+    --color-dark-700: var(--dark-5);
+    --color-dark-800: var(--dark-4);
+    --color-dark-900: var(--dark-3);
+    --color-dark-950: var(--dark-0);
+
+    /* Provide a lighter surface overlay for components that mix against --dark-0 in light mode */
+    --color-surface-overlay: color-mix(in oklch, var(--color-bg) 90%, transparent);
+
+}
