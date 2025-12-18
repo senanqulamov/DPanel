@@ -127,6 +127,11 @@
     </div>
 </div>
 
+{{-- Global Search --}}
+@auth
+    @livewire('search.global-search')
+@endauth
+
 @livewireScripts
 @stack('scripts')
 </body>

@@ -1,16 +1,16 @@
 <div>
     <x-card>
         <x-slot name="header">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-5">
                 <h3 class="text-lg font-semibold">{{ __('Notifications') }}</h3>
                 <div class="flex items-center gap-2">
-                    <select wire:model.live="type" class="px-3 py-2 rounded bg-slate-800 border border-slate-700 text-sm">
+                    <select wire:model.live="type" class="px-3 py-2 rounded w-full bg-slate-800 border border-slate-700 text-sm">
                         <option value="">{{ __('All') }}</option>
                         @foreach($this->types as $t)
                             <option value="{{ $t }}">{{ $t }}</option>
                         @endforeach
                     </select>
-                    <x-button wire:click="markAllRead" sm>{{ __('Mark all as read') }}</x-button>
+                    <x-button wire:click="markAllRead" sm class="w-full">{{ __('Mark all as read') }}</x-button>
                 </div>
             </div>
         </x-slot>

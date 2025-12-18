@@ -53,12 +53,18 @@
 
             {{-- Center Section - Search --}}
             <div class="hidden lg:flex flex-1 max-w-xl mx-8">
-                <div class="relative w-full">
-                    <x-icon name="magnifying-glass" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <input type="search"
-                           placeholder="Search... (Ctrl/Cmd+K)"
-                           class="w-full pl-12 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-{{ $config['accent'] }}-500/50 focus:border-{{ $config['accent'] }}-500 transition">
-                </div>
+                <button x-data x-on:click="$dispatch('openSearch')"
+                        class="relative w-full group">
+                    <x-icon name="magnifying-glass" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-hover:text-slate-300 transition" />
+                    <div class="w-full pl-12 pr-24 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-slate-400 text-left group-hover:bg-slate-700/50 group-hover:border-slate-600/50 transition">
+                        Search...
+                    </div>
+                    <div class="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs text-slate-500 group-hover:text-slate-400 transition">
+                        <kbd class="px-2 py-1 rounded bg-slate-700/50 text-slate-400 font-mono">Ctrl</kbd>
+                        <span>+</span>
+                        <kbd class="px-2 py-1 rounded bg-slate-700/50 text-slate-400 font-mono">K</kbd>
+                    </div>
+                </button>
             </div>
 
             {{-- Right Section --}}
