@@ -23,10 +23,12 @@ class Update extends Component
 
     public bool $modal = false;
 
-    public function mount(): void
+    public function mount(User $user = null): void
     {
-        // Initialize with empty user to prevent Livewire entangle errors
-        $this->user = new User;
+        // If a user is passed from route/context, use it; otherwise, initialize
+        $this->user = $user ?: new User([
+            'is_active' => true,
+        ]);
     }
 
     public function render(): View

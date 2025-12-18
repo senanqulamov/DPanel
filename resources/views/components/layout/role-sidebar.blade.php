@@ -61,6 +61,10 @@
                 ['route' => 'markets.index', 'pattern' => 'markets.*', 'label' => __('Markets'), 'icon' => 'building-storefront'],
                 ['route' => 'privacy.index', 'pattern' => 'privacy.*', 'label' => __('Privacy & Roles'), 'icon' => 'shield-check'],
                 ['route' => 'logs.index', 'pattern' => 'logs.*', 'label' => __('Logs'), 'icon' => 'clipboard-document-list'],
+                ['route' => 'notifications.index', 'pattern' => 'notifications.*', 'label' => __('Notifications'), 'icon' => 'bell'],
+                ['route' => 'health.index', 'pattern' => 'health.*', 'label' => __('System Health'), 'icon' => 'heart'],
+                ['route' => 'monitoring.rfq.index', 'pattern' => 'monitoring.rfq.*', 'label' => __('RFQ Monitoring'), 'icon' => 'rectangle-group'],
+                ['route' => 'sla.index', 'pattern' => 'sla.*', 'label' => __('SLA Tracker'), 'icon' => 'clock'],
             ],
         ],
     ];
@@ -69,13 +73,13 @@
 @endphp
 
 <aside
-    x-data="{
+        x-data="{
         expanded: $persist(true).as('sidebar-expanded'),
         mobile: false
     }"
-    x-on:sidebar-toggle.window="mobile = !mobile"
-    class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300"
-    x-bind:class="expanded ? 'w-64' : 'w-20'">
+        x-on:sidebar-toggle.window="mobile = !mobile"
+        class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300"
+        x-bind:class="expanded ? 'w-64' : 'w-20'">
 
     {{-- Mobile Overlay --}}
     <div x-show="mobile"

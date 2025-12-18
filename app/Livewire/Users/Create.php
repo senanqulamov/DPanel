@@ -98,7 +98,6 @@ class Create extends Component
         try {
             $this->validate();
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Show first validation error
             $firstError = collect($e->errors())->flatten()->first();
             $this->error($firstError);
             throw $e;
@@ -106,6 +105,10 @@ class Create extends Component
 
         // Hash the password
         $this->user->password = bcrypt($this->password);
+        $this->user->email_verified_at = now();
+        if (empty($this->user->currency)) {
+            $this->user->currency = 'USD';
+        }
 
         // Auto-generate supplier code if supplier
         if ($this->user->is_supplier && empty($this->user->supplier_code)) {
@@ -115,6 +118,9 @@ class Create extends Component
         // Set initial supplier status
         if ($this->user->is_supplier && empty($this->user->supplier_status)) {
             $this->user->supplier_status = 'pending';
+        }
+        if (!$this->user->is_supplier && empty($this->user->supplier_status)) {
+            $this->user->supplier_status = 'inactive';
         }
 
         // Save the user

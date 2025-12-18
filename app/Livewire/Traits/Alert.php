@@ -44,8 +44,14 @@ trait Alert
             ->send();
     }
 
-    public function question(string $description = 'Are you sure?', string $title = 'Warning!'): Dialog
-    {
-        return $this->dialog()->question(__($title), __($description));
+    public function question(
+        ?string $description = null,
+        ?string $title = null
+    ): Dialog {
+        return $this->dialog()->question(
+            __($title ?? 'Warning!'),
+            __($description ?? 'Are you sure?')
+        );
     }
+
 }

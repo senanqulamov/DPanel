@@ -27,7 +27,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $this->command->info('✅ Assigned permissions to roles');
 
         // Create Admin User
-        $this->createAdminUser($roles);
+            $this->createAdminUser($roles);
     }
 
     private function createPermissions(): array
@@ -83,6 +83,15 @@ class RolesAndPermissionsSeeder extends Seeder
             // Privacy/Roles
             ['name' => 'manage_roles', 'display_name' => 'Manage Roles', 'group' => 'Privacy'],
             ['name' => 'manage_permissions', 'display_name' => 'Manage Permissions', 'group' => 'Privacy'],
+
+            // Admin Panel Enhancements
+            ['name' => 'view_health', 'display_name' => 'View System Health', 'group' => 'Admin'],
+            ['name' => 'view_notifications', 'display_name' => 'View Notifications', 'group' => 'Admin'],
+            ['name' => 'use_search', 'display_name' => 'Use Global Search', 'group' => 'Admin'],
+            ['name' => 'view_monitoring', 'display_name' => 'View RFQ Monitoring', 'group' => 'Admin'],
+            ['name' => 'manage_sla', 'display_name' => 'Manage SLA', 'group' => 'Admin'],
+            ['name' => 'view_feature_flags', 'display_name' => 'View Feature Flags', 'group' => 'Admin'],
+            ['name' => 'manage_feature_flags', 'display_name' => 'Manage Feature Flags', 'group' => 'Admin'],
         ];
 
         $permissions = [];

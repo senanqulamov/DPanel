@@ -56,7 +56,7 @@
                 <div class="relative w-full">
                     <x-icon name="magnifying-glass" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input type="search"
-                           placeholder="{{ __('Search...') }}"
+                           placeholder="Search... (Ctrl/Cmd+K)"
                            class="w-full pl-12 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-xl text-sm text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-{{ $config['accent'] }}-500/50 focus:border-{{ $config['accent'] }}-500 transition">
                 </div>
             </div>
@@ -64,10 +64,13 @@
             {{-- Right Section --}}
             <div class="flex items-center gap-3">
                 {{-- Notifications --}}
-                <button class="relative p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition group">
+                @php $unread = auth()->user()->unreadNotifications()->count(); @endphp
+                <a href="{{ route('notifications.index') }}" class="relative p-2.5 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition group">
                     <x-icon name="bell" class="w-5 h-5 text-slate-300 group-hover:text-white transition" />
-                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-{{ $config['accent'] }}-500 rounded-full text-xs font-bold text-white flex items-center justify-center shadow-lg">3</span>
-                </button>
+                    @if($unread > 0)
+                        <span class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-{{ $config['accent'] }}-500 rounded-full text-xs font-bold text-white flex items-center justify-center shadow-lg">{{ $unread }}</span>
+                    @endif
+                </a>
 
                 {{-- Language Switcher --}}
                 <div class="hidden sm:block" x-data="{ open: false }" x-on:click.away="open = false">

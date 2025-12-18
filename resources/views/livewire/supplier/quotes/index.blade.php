@@ -46,20 +46,20 @@
                         :label="__('Filter by Status')"
                         wire:model.live="statusFilter"
                         :options="[
-                            ['label' => 'All Statuses', 'value' => null],
-                            ['label' => 'Draft', 'value' => 'draft'],
-                            ['label' => 'Submitted', 'value' => 'submitted'],
-                            ['label' => 'Under Review', 'value' => 'under_review'],
-                            ['label' => 'Won', 'value' => 'won'],
-                            ['label' => 'Lost', 'value' => 'lost'],
-                            ['label' => 'Withdrawn', 'value' => 'withdrawn']
+                            ['label' => __('All Statuses'), 'value' => null],
+                            ['label' => __('Draft'), 'value' => 'draft'],
+                            ['label' => __('Submitted'), 'value' => 'submitted'],
+                            ['label' => __('Under Review'), 'value' => 'under_review'],
+                            ['label' => __('Won'), 'value' => 'won'],
+                            ['label' => __('Lost'), 'value' => 'lost'],
+                            ['label' => __('Withdrawn'), 'value' => 'withdrawn']
                         ]"
                         select="label:label|value:value"
                     />
                 </div>
             </div>
 
-            <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, 'all']">
+            <x-table :$headers :$sort :rows="$this->rows" paginate :paginator="null" filter loading :quantity="[5, 10, 20, __('all')]">
                 @interact('column_id', $row)
                     <x-badge text="#{{ $row->id }}" color="gray"/>
                 @endinteract
@@ -79,7 +79,7 @@
 
                 @interact('column_status', $row)
                     <x-badge
-                        :text="ucfirst(str_replace('_', ' ', $row->status))"
+                        :text="ucfirst(__(str_replace('_', ' ', $row->status)))"
                         :color="match($row->status) {
                             'draft' => 'gray',
                             'submitted' => 'blue',
@@ -113,7 +113,7 @@
                             {{ $row->submitted_at->diffForHumans() }}
                         </div>
                     @else
-                        <x-badge text="Draft" color="gray"/>
+                        <x-badge text="{{__('Draft')}}" color="gray"/>
                     @endif
                 @endinteract
 

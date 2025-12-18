@@ -30,13 +30,11 @@ class Index extends Component
     ];
 
     public array $headers = [
-        ['index' => 'id', 'label' => '#'],
-        ['index' => 'name', 'label' => 'Name'],
-        ['index' => 'email', 'label' => 'E-mail'],
-        ['index' => 'company_name', 'label' => 'Company'],
-        ['index' => 'roles', 'label' => 'Roles', 'sortable' => false],
-        ['index' => 'created_at', 'label' => 'Created'],
-        ['index' => 'action', 'label' => 'Actions', 'sortable' => false],
+        ['index' => 'id', 'label' => '#', 'sortable' => true],
+        ['index' => 'name', 'label' => 'Name', 'sortable' => true],
+        ['index' => 'email', 'label' => 'E-mail', 'sortable' => true],
+        ['index' => 'created_at', 'label' => 'Created', 'sortable' => true],
+        ['index' => 'action', 'label' => '', 'sortable' => false],
     ];
 
     public function mount(): void

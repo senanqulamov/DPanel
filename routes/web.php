@@ -37,6 +37,12 @@ use App\Livewire\Privacy\Roles\Show as PrivacyRoleShow;
 use App\Livewire\Shared\ImportExport;
 use App\Http\Controllers\DownloadController;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Health\Index as HealthIndex;
+use App\Livewire\Notifications\Index as NotificationsIndex;
+use App\Livewire\Monitoring\Rfq\Index as MonitoringRfqIndex;
+use App\Livewire\Monitoring\Rfq\Create as MonitoringRfqCreate;
+use App\Livewire\Monitoring\Rfq\Show as MonitoringRfqShow;
+use App\Livewire\Sla\Index as SlaIndex;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -87,6 +93,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Settings
     Route::get('/settings', SettingsIndex::class)->name('settings.index')->middleware('can:view_settings');
+    Route::get('/settings/flags', \App\Livewire\Settings\FeatureFlags::class)->name('settings.flags')->middleware('can:manage_feature_flags');
 
     // Privacy & Roles Management
     Route::get('/privacy', PrivacyIndex::class)->name('privacy.index')->middleware('can:manage_roles');
@@ -98,6 +105,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rfq/create', RfqCreate::class)->name('rfq.create')->middleware('can:create_rfqs');
     Route::get('/rfq/{request}', RfqShow::class)->name('rfq.show')->middleware('can:view_rfqs');
     Route::get('/rfq/{request}/quote', RfqQuoteForm::class)->name('rfq.quote')->middleware('can:submit_quotes');
+
+    // Admin enhancements
+    Route::get('/health', HealthIndex::class)->name('health.index')->middleware('can:view_health');
+    Route::get('/notifications', NotificationsIndex::class)->name('notifications.index')->middleware('can:view_notifications');
+    Route::get('/monitoring/rfq', MonitoringRfqIndex::class)->name('monitoring.rfq.index')->middleware('can:view_monitoring');
+    Route::get('/monitoring/rfq/create', MonitoringRfqCreate::class)->name('monitoring.rfq.create')->middleware('can:create_rfqs');
+    Route::get('/monitoring/rfq/{request}', MonitoringRfqShow::class)->name('monitoring.rfq.show')->middleware('can:view_rfqs');
+    Route::get('/sla', SlaIndex::class)->name('sla.index')->middleware('can:manage_sla');
 
     // Download routes for import/export
     Route::get('/download/template', [DownloadController::class, 'downloadTemplate'])->name('download.template');

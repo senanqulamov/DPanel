@@ -68,7 +68,7 @@
                             {{ __('Status') }}
                         </label>
                         <x-badge
-                            :text="ucfirst($order->status)"
+                            :text="__(ucfirst($order->status))"
                             :color="match($order->status) {
                                 'pending' => 'yellow',
                                 'accepted' => 'blue',

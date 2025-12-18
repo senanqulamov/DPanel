@@ -5,6 +5,7 @@ namespace App\Livewire\Users;
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
 
@@ -27,7 +28,7 @@ class Delete extends Component
     public function confirm(): void
     {
         // Check permission
-        if (!Auth::user()->hasPermission('delete_users')) {
+        if (!Auth::check() || !Auth::user()->hasPermission('delete_users')) {
             $this->error('You do not have permission to delete users.');
             return;
         }
@@ -41,7 +42,7 @@ class Delete extends Component
     public function delete(): void
     {
         // Check permission
-        if (!Auth::user()->hasPermission('delete_users')) {
+        if (!Auth::check() || !Auth::user()->hasPermission('delete_users')) {
             $this->error('You do not have permission to delete users.');
             return;
         }
