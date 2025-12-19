@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="black" icon="map-pin">
-            {{ $market->name }}
-        </x-alert>
+        <x-heading-title title="{{__('Market')}}: " text="{{ $market->name }}" icon="building-storefront" padding="p-5" hover="-"/>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <x-stat label="{{__('Orders')}}" :value="$this->metrics['orders_count']" icon="shopping-bag"/>

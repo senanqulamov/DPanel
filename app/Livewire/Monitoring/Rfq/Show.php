@@ -10,6 +10,7 @@ use App\Models\Quote;
 use App\Models\Request;
 use App\Models\SupplierInvitation;
 use App\Models\User;
+use App\Models\WorkflowEvent;
 use App\Notifications\QuoteStatusChanged;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -124,6 +125,30 @@ class Show extends Component
             ]
         );
 
+        // Record workflow event for admin action
+        $admin = Auth::user();
+        try {
+            WorkflowEvent::create([
+                'eventable_type' => get_class($this->request),
+                'eventable_id' => $this->request->id,
+                'user_id' => $admin?->id,
+                'event_type' => 'status_changed',
+                'from_state' => $oldStatus,
+                'to_state' => $value,
+                'description' => 'Admin ' . ($admin?->name ?? 'system') . ' changed status from ' . ($oldStatus ?? 'none') . ' to ' . $value,
+                'occurred_at' => now(),
+                'metadata' => [
+                    'admin_id' => $admin?->id,
+                    'admin_name' => $admin?->name,
+                    'old' => $oldStatus,
+                    'new' => $value,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            // Don't interrupt user flow if DB write fails; log via existing logging trait
+            $this->logException($e);
+        }
+
         $this->success(__('RFQ status updated successfully.'));
 
         // Refresh the request
@@ -195,6 +220,29 @@ class Show extends Component
                     'selected_supplier_ids' => $this->selectedSuppliers,
                 ]
             );
+
+            // Record workflow event for admin inviting suppliers
+            $admin = Auth::user();
+            try {
+                WorkflowEvent::create([
+                    'eventable_type' => get_class($this->request),
+                    'eventable_id' => $this->request->id,
+                    'user_id' => $admin?->id,
+                    'event_type' => 'suppliers_invited',
+                    'from_state' => null,
+                    'to_state' => null,
+                    'description' => 'Admin ' . ($admin?->name ?? 'system') . ' invited ' . $invitedCount . ' supplier(s)',
+                    'occurred_at' => now(),
+                    'metadata' => [
+                        'admin_id' => $admin?->id,
+                        'admin_name' => $admin?->name,
+                        'invitation_ids' => $invitationIds,
+                        'selected_supplier_ids' => $this->selectedSuppliers,
+                    ],
+                ]);
+            } catch (\Throwable $e) {
+                $this->logException($e);
+            }
         }
 
         // Refresh the request with invitations
@@ -240,6 +288,29 @@ class Show extends Component
         $supplierName = $invitation->supplier?->name;
 
         $invitation->delete();
+
+        // Record workflow event for admin deleting invitation
+        $admin = Auth::user();
+        try {
+            WorkflowEvent::create([
+                'eventable_type' => get_class($this->request),
+                'eventable_id' => $this->request->id,
+                'user_id' => $admin?->id,
+                'event_type' => 'invitation_deleted',
+                'from_state' => null,
+                'to_state' => null,
+                'description' => 'Admin ' . ($admin?->name ?? 'system') . ' deleted invitation for supplier ' . ($supplierName ?? 'unknown'),
+                'occurred_at' => now(),
+                'metadata' => [
+                    'admin_id' => $admin?->id,
+                    'admin_name' => $admin?->name,
+                    'invitation_id' => $invitationId,
+                    'supplier_name' => $supplierName,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            $this->logException($e);
+        }
 
         $this->logDelete(
             SupplierInvitation::class,
@@ -346,6 +417,50 @@ class Show extends Component
             ]
         );
 
+        // Record workflow event for admin accepting quote
+        $admin = Auth::user();
+        try {
+            WorkflowEvent::create([
+                'eventable_type' => get_class($this->request),
+                'eventable_id' => $this->request->id,
+                'user_id' => $admin?->id,
+                'event_type' => 'quote_accepted',
+                'from_state' => null,
+                'to_state' => null,
+                'description' => 'Admin ' . ($admin?->name ?? 'system') . ' accepted quote #' . $quote->id . ' from supplier ' . ($quote->supplier?->name ?? 'unknown'),
+                'occurred_at' => now(),
+                'metadata' => [
+                    'admin_id' => $admin?->id,
+                    'admin_name' => $admin?->name,
+                    'quote_id' => $quote->id,
+                    'quote_total' => $quote->total_price ?? null,
+                    'supplier_id' => $quote->supplier?->id ?? null,
+                ],
+            ]);
+
+            // Also record workflow events for each rejected quote
+            foreach ($otherQuotes as $otherQuote) {
+                WorkflowEvent::create([
+                    'eventable_type' => get_class($this->request),
+                    'eventable_id' => $this->request->id,
+                    'user_id' => $admin?->id,
+                    'event_type' => 'quote_rejected',
+                    'from_state' => null,
+                    'to_state' => null,
+                    'description' => 'Admin ' . ($admin?->name ?? 'system') . ' rejected quote #' . $otherQuote->id . ' from supplier ' . ($otherQuote->supplier?->name ?? 'unknown'),
+                    'occurred_at' => now(),
+                    'metadata' => [
+                        'admin_id' => $admin?->id,
+                        'admin_name' => $admin?->name,
+                        'quote_id' => $otherQuote->id,
+                        'supplier_id' => $otherQuote->supplier?->id ?? null,
+                    ],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            $this->logException($e);
+        }
+
         // Refresh the request
         $this->request->refresh()->load([
             'items.product',
@@ -411,6 +526,29 @@ class Show extends Component
                 'action' => 'Quote rejected by buyer',
             ]
         );
+
+        // Record workflow event for admin rejecting quote
+        $admin = Auth::user();
+        try {
+            WorkflowEvent::create([
+                'eventable_type' => get_class($this->request),
+                'eventable_id' => $this->request->id,
+                'user_id' => $admin?->id,
+                'event_type' => 'quote_rejected',
+                'from_state' => null,
+                'to_state' => null,
+                'description' => 'Admin ' . ($admin?->name ?? 'system') . ' rejected quote #' . $quote->id . ' from supplier ' . ($quote->supplier?->name ?? 'unknown'),
+                'occurred_at' => now(),
+                'metadata' => [
+                    'admin_id' => $admin?->id,
+                    'admin_name' => $admin?->name,
+                    'quote_id' => $quote->id,
+                    'supplier_id' => $quote->supplier?->id ?? null,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            $this->logException($e);
+        }
 
         // Refresh the request
         $this->request->refresh()->load([

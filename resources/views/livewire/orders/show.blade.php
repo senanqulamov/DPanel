@@ -89,12 +89,7 @@
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
                                         <a href="{{ route('markets.show', $market) }}">
-                                            <x-icon name="building-storefront" class="h-6 bg-accent pl-2 pr-1 rounded-l-2xl text-gray-600" />
-                                        </a>
-                                        <a href="{{ route('markets.show', $market) }}">
-                                            <span class="font-semibold bg-accent pl-1 pr-2 rounded-r-2xl text-gray-600 text-lg">
-                                                {{ $market ? $market->name : 'Unknown Market' }}
-                                            </span>
+                                            <x-heading-title title="{{__('Market')}}: " text="{{ $market->name }}" icon="building-storefront" padding="pl-3 pr-3 pt-1 pb-1"/>
                                         </a>
                                         @if($market && $market->location)
                                             <span class="text-sm text-gray-500 dark:text-gray-400">

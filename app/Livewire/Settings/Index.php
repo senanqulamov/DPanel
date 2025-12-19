@@ -102,6 +102,10 @@ class Index extends Component
     public string $allowed_extensions = 'pdf,doc,docx,xls,xlsx,jpg,png';
     public bool $scan_uploads = true;
 
+    // SAP runtime/status (UI helpers)
+    public ?bool $sap_test_status = null;
+    public ?string $last_sap_sync = null;
+
     public function mount(): void
     {
         // Check admin permission
@@ -346,9 +350,48 @@ class Index extends Component
 
         try {
             // Simulate SAP connection test
+            $this->sap_test_status = true;
             $this->success('SAP connection test successful! (Demo Mode)');
         } catch (\Exception $e) {
+            $this->sap_test_status = false;
             $this->error('SAP connection failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Clear stored SAP credentials (UI action)
+     */
+    public function clearSapCredentials(): void
+    {
+        $this->checkPermission('edit_settings');
+
+        $this->sap_username = '';
+        $this->sap_password = '';
+
+        // Persist changes
+        $this->saveToCache('sap');
+
+        $this->success('SAP credentials cleared');
+    }
+
+    /**
+     * Trigger an immediate SAP sync (demo)
+     */
+    public function runSapSyncNow(): void
+    {
+        $this->checkPermission('edit_settings');
+
+        if (!$this->sap_enabled) {
+            $this->error('SAP integration is not enabled');
+            return;
+        }
+
+        try {
+            // In a real app you'd dispatch a job here; for demo just set last sync
+            $this->last_sap_sync = now()->toDateTimeString();
+            $this->success('SAP sync started (demo)');
+        } catch (\Exception $e) {
+            $this->error('SAP sync failed: ' . $e->getMessage());
         }
     }
 

@@ -73,13 +73,13 @@
 @endphp
 
 <aside
-        x-data="{
+    x-data="{
         expanded: $persist(true).as('sidebar-expanded'),
         mobile: false
     }"
-        x-on:sidebar-toggle.window="mobile = !mobile"
-        class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300"
-        x-bind:class="expanded ? 'w-64' : 'w-20'">
+    x-on:sidebar-toggle.window="mobile = !mobile"
+    class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300"
+    x-bind:class="expanded ? 'w-64' : 'w-20'">
 
     {{-- Mobile Overlay --}}
     <div x-show="mobile"
@@ -99,7 +99,9 @@
         {{-- Logo & Toggle --}}
         <div class="flex items-center justify-between p-4 border-b border-slate-800/50">
             <div class="flex items-center gap-3 w-full" x-bind:class="!expanded && 'justify-center w-full'">
-                <img src="{{ asset('/assets/images/scmai.png') }}" class="w-fit" alt="Logo"/>
+                {{-- Logo: light/dark variants --}}
+                <img src="{{ asset('/assets/images/scmai.png') }}" class="w-fit block dark:hidden" alt="Logo light"/>
+                <img src="{{ asset('/assets/images/scmai_light.png') }}" class="w-fit hidden dark:block" alt="Logo dark"/>
 
                 {{--                <span x-show="expanded"--}}
                 {{--                      x-transition--}}
@@ -124,7 +126,7 @@
                    class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
                           {{ $active
                               ? $config['activeBg'] . ' text-white shadow-lg shadow-' . $config['accent'] . '-500/50'
-                              : 'text-slate-400 ' . $config['hoverBg'] . ' hover:text-white' }}"
+                              : 'text-slate-400 ' . $config['hoverBg'] . ' hover:text-black hover:dark:text-white' }}"
                    x-bind:class="!expanded && 'justify-center'">
 
                     <div class="relative flex-shrink-0">
@@ -157,7 +159,7 @@
         {{-- Bottom Section --}}
         <div class="p-3 border-t border-slate-800/50 space-y-1">
             <a href="{{ auth()->user()->isAdmin() ? route('settings.index') : route('user.profile') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 {{ $config['hoverBg'] }} hover:text-white transition-all"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 {{ $config['hoverBg'] }} hover:text-black transition-all"
                x-bind:class="!expanded && 'justify-center'">
                 <x-icon name="cog-6-tooth" class="w-5 h-5"/>
                 <span x-show="expanded" x-transition class="text-sm font-medium">{{ __('Settings') }}</span>

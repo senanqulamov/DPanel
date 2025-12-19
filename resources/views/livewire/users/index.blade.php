@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="black" icon="light-bulb">
-            @lang('Users')
-        </x-alert>
+        <x-heading-title title="{{__('Users')}}" icon="user-group" padding="p-5" hover="-"/>
 
         <div class="mb-2 mt-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             <livewire:users.create @created="$refresh"/>

@@ -4,13 +4,14 @@
         <form id="market-update-{{ $market?->id }}" wire:submit="save" class="space-y-6">
 
             <div class="grid grid-cols-1 gap-4">
-                <x-select.native
+                <x-select.styled
                     label="{{ __('Owner (Seller)') }}"
                     wire:model.blur="market.user_id"
                     :options="$sellers"
                     select="label:name|value:id"
                     required
                     hint="{{ __('Seller who owns this market') }}"
+                    searchable
                 />
             </div>
 

@@ -51,12 +51,20 @@ class Index extends Component
             $this->quantity = Market::count();
         }
 
-        return Market::query()
+        $query = Market::query()
             ->with('seller')
             ->withCount('products')
-            ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'location'], 'like', '%'.trim($this->search).'%'))
-            ->orderBy(...array_values($this->sort))
-            ->paginate($this->quantity)
+            ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'location'], 'like', '%'.trim($this->search).'%'));
+
+        if ($this->sort['column'] === 'seller') {
+            $query->join('users', 'markets.user_id', '=', 'users.id')
+                ->select('markets.*')
+                ->orderBy('users.name', $this->sort['direction']);
+        } else {
+            $query->orderBy($this->sort['column'], $this->sort['direction']);
+        }
+
+        return $query->paginate($this->quantity)
             ->withQueryString();
     }
 }

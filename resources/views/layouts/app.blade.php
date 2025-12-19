@@ -72,7 +72,7 @@
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="text-sm font-semibold text-white truncate" x-text="name"></div>
+                                <div class="text-sm font-semibold text-slate-300 truncate" x-text="name"></div>
                                 <div class="text-xs text-slate-400">{{ auth()->user()->email }}</div>
                             </div>
                         </div>
@@ -81,23 +81,23 @@
                     {{-- Menu Items --}}
                     <div class="py-1">
                         <a href="{{ route('user.profile') }}"
-                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                           class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-200 hover:text-slate-800 transition text-slate-300">
                             <x-icon name="user" class="w-4 h-4"/>
                             <span class="text-sm font-medium">{{ __('Profile') }}</span>
                         </a>
                         @if(auth()->user()->isAdmin() )
                             <a href="{{ route('settings.index') }}"
-                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-200 hover:text-slate-800 transition text-slate-300">
                                 <x-icon name="cog-6-tooth" class="w-4 h-4"/>
                                 <span class="text-sm font-medium">{{ __('Settings') }}</span>
                             </a>
                             <a href="{{ route('privacy.index') }}"
-                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-200 hover:text-slate-800 transition text-slate-300">
                                 <x-icon name="finger-print" class="w-4 h-4"/>
                                 <span class="text-sm font-medium">{{ __('Privacy & Roles') }}</span>
                             </a>
                             <a href="{{ route('logs.index') }}"
-                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-700/50 transition text-slate-300 hover:text-white">
+                               class="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-200 hover:text-slate-800 transition text-slate-300">
                                 <x-icon name="clipboard-document-list" class="w-4 h-4"/>
                                 <span class="text-sm font-medium">{{ __('Activity Log') }}</span>
                             </a>

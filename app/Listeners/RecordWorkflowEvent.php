@@ -34,11 +34,11 @@ class RecordWorkflowEvent implements ShouldQueue
             'event_type' => 'status_changed',
             'from_state' => $event->oldStatus?->value,
             'to_state' => $event->newStatus->value,
-            'description' => "Status changed from " . ($event->oldStatus?->label() ?? 'None') . " to {$event->newStatus->label()}",
+            'description' => 'Status changed from ' . ($event->oldStatus?->label() ?? 'None') . ' to ' . $event->newStatus->label(),
             'occurred_at' => now(),
-            'metadata' => json_encode([
+            'metadata' => [
                 'user_name' => $event->user?->name,
-            ]),
+            ],
         ]);
     }
 
@@ -56,12 +56,12 @@ class RecordWorkflowEvent implements ShouldQueue
             'to_state' => null,
             'description' => "Supplier {$event->supplier->name} invited to RFQ",
             'occurred_at' => now(),
-            'metadata' => json_encode([
+            'metadata' => [
                 'supplier_id' => $event->supplier->id,
                 'supplier_name' => $event->supplier->name,
                 'invitation_id' => $event->invitation->id,
                 'sender_name' => $event->sender?->name,
-            ]),
+            ],
         ]);
     }
 
@@ -79,12 +79,12 @@ class RecordWorkflowEvent implements ShouldQueue
             'to_state' => null,
             'description' => "Quote submitted by supplier {$event->supplier->name}",
             'occurred_at' => now(),
-            'metadata' => json_encode([
+            'metadata' => [
                 'supplier_id' => $event->supplier->id,
                 'supplier_name' => $event->supplier->name,
                 'quote_id' => $event->quote->id,
                 'quote_total' => $event->quote->total_price,
-            ]),
+            ],
         ]);
     }
 
@@ -102,11 +102,11 @@ class RecordWorkflowEvent implements ShouldQueue
             'to_state' => null,
             'description' => "SLA reminder: {$event->daysRemaining} days remaining until deadline",
             'occurred_at' => now(),
-            'metadata' => json_encode([
+            'metadata' => [
                 'days_remaining' => $event->daysRemaining,
                 'priority' => $event->priority,
                 'deadline' => $event->request->deadline,
-            ]),
+            ],
         ]);
     }
 }

@@ -19,8 +19,8 @@
             </div>
 
             <x-slot:footer>
-                <x-button text="Cancel" wire:click="$set('approveModal', false)" />
-                <x-button text="Approve Supplier" wire:click="approveSupplier" color="green" />
+                <x-button text="Cancel" wire:click="$set('approveModal', false)"/>
+                <x-button text="Approve Supplier" wire:click="approveSupplier" color="green"/>
             </x-slot:footer>
         @endif
     </x-modal>
@@ -43,8 +43,8 @@
             </div>
 
             <x-slot:footer>
-                <x-button text="Cancel" wire:click="$set('rejectModal', false)" />
-                <x-button text="Reject Application" wire:click="rejectSupplier" color="red" />
+                <x-button text="Cancel" wire:click="$set('rejectModal', false)"/>
+                <x-button text="Reject Application" wire:click="rejectSupplier" color="red"/>
             </x-slot:footer>
         @endif
     </x-modal>
@@ -54,24 +54,24 @@
         @if($supplier?->id)
             <div class="space-y-4">
                 <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-                    <p class="text-red-800 dark:text-red-200 font-medium">⚠️ Warning</p>
+                    <p class="text-red-800 dark:text-red-200 font-medium">⚠️ {{ __('Warning')}}</p>
                     <p class="text-sm text-red-700 dark:text-red-300 mt-1">
-                        Blocking <strong>{{ $supplier->name }}</strong> will immediately suspend their account and prevent all activities.
+                        {!! __('Blocking :name will immediately suspend their account and prevent all activities.', ['name' => '<strong>' . e($supplier->name) . '</strong>']) !!}
                     </p>
                 </div>
 
                 <x-textarea
-                    label="Blocking Reason *"
+                    label="{{ __('Blocking Reason')}} *"
                     wire:model="blockReason"
-                    hint="Provide a reason for blocking this supplier"
+                    hint="{{ __('Provide a reason for blocking this supplier')}}"
                     rows="4"
                     required
                 />
             </div>
 
             <x-slot:footer>
-                <x-button text="Cancel" wire:click="$set('blockModal', false)" />
-                <x-button text="Block Supplier" wire:click="blockSupplier" color="red" />
+                <x-button text="Cancel" wire:click="$set('blockModal', false)"/>
+                <x-button text="Block Supplier" wire:click="blockSupplier" color="red"/>
             </x-slot:footer>
         @endif
     </x-modal>

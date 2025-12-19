@@ -420,7 +420,11 @@ class User extends Authenticatable
 
     public function getDashboardRouteName(): string
     {
-        // Priority: supplier > seller > buyer > admin/generic
+        // Priority: admin > supplier > seller > buyer > generic
+        if ($this->isAdmin()) {
+            return 'dashboard';
+        }
+
         if ($this->isSupplier()) {
             return 'supplier.dashboard';
         }

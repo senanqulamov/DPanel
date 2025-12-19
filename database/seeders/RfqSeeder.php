@@ -368,13 +368,13 @@ class RfqSeeder extends Seeder
                 'to_state' => RequestStatus::AWARDED->value,
                 'description' => "RFQ awarded to supplier #{$winningSupplier->id}",
                 'occurred_at' => $rfq->created_at->addDays(rand(12, 20)),
-                'metadata' => json_encode([
+                'metadata' => [
                     'winning_supplier_id' => $winningSupplier->id,
                     'winning_quote_id' => Quote::where('request_id', $rfq->id)
                         ->where('supplier_id', $winningSupplier->id)
                         ->first()
                         ->id,
-                ]),
+                ],
             ]);
         }
     }
@@ -447,9 +447,9 @@ class RfqSeeder extends Seeder
                     'to_state' => RequestStatus::CANCELLED->value,
                     'description' => 'RFQ cancelled',
                     'occurred_at' => $rfq->created_at->addDays(rand(1, 5)),
-                    'metadata' => json_encode([
+                    'metadata' => [
                         'reason' => $this->getCancellationReason(),
-                    ]),
+                    ],
                 ]);
             } else {
                 WorkflowEvent::factory()->create([
@@ -461,9 +461,9 @@ class RfqSeeder extends Seeder
                     'to_state' => RequestStatus::CANCELLED->value,
                     'description' => 'RFQ cancelled',
                     'occurred_at' => $rfq->created_at->addHours(rand(1, 72)),
-                    'metadata' => json_encode([
+                    'metadata' => [
                         'reason' => $this->getCancellationReason(),
-                    ]),
+                    ],
                 ]);
             }
         }

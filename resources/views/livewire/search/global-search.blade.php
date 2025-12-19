@@ -64,14 +64,14 @@
 
                 <!-- Search Input -->
                 <div class="relative border-b border-slate-700">
-                    <x-icon name="magnifying-glass" class="absolute left-5 top-5 w-6 h-6 text-slate-400" />
+                    <x-icon name="magnifying-glass" class="absolute left-5 top-5 w-6 h-6 text-slate-400"/>
                     <input
-                        x-ref="searchInput"
-                        wire:model.live.debounce.300ms="query"
-                        type="text"
-                        placeholder="Search for RFQs, products, orders, users..."
-                        class="w-full bg-transparent pl-14 pr-5 py-5 text-lg text-slate-100 placeholder-slate-400 focus:outline-none border-0"
-                        autofocus
+                            x-ref="searchInput"
+                            wire:model.live.debounce.300ms="query"
+                            type="text"
+                            placeholder="{{ __('Search for RFQs, products, orders, users...')}}"
+                            class="w-full bg-transparent pl-14 pr-5 py-5 text-lg text-slate-100 placeholder-slate-400 focus:outline-none border-0"
+                            autofocus
                     />
                     <div class="absolute right-5 top-5">
                         <button x-on:click="open = false" class="flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-800 text-xs text-slate-400 hover:text-slate-300">
@@ -84,22 +84,22 @@
                 <div class="max-h-[60vh] overflow-y-auto">
                     @if(strlen($query) < 2)
                         <div class="px-6 py-12 text-center">
-                            <x-icon name="magnifying-glass" class="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                            <p class="text-slate-400 text-sm">Type at least 2 characters to search</p>
+                            <x-icon name="magnifying-glass" class="w-12 h-12 text-slate-600 mx-auto mb-3"/>
+                            <p class="text-slate-400 text-sm">{{__('Type at least 2 characters to search')}}</p>
                             <div class="mt-6 text-xs text-slate-500">
                                 <p class="mb-2">Quick tips:</p>
                                 <ul class="space-y-1">
-                                    <li>• Search by reference number, name, or description</li>
-                                    <li>• Use ↑↓ arrows to navigate results</li>
-                                    <li>• Press Enter to open selected item</li>
+                                    <li>• {{__('Search by reference number, name, or description')}}</li>
+                                    <li>• {{__('Use ↑↓ arrows to navigate results')}}</li>
+                                    <li>• {{__('Press Enter to open selected item')}}</li>
                                 </ul>
                             </div>
                         </div>
                     @elseif(empty($results))
                         <div class="px-6 py-12 text-center">
-                            <x-icon name="magnifying-glass-circle" class="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                            <p class="text-slate-400 text-sm">No results found for "{{ $query }}"</p>
-                            <p class="text-slate-500 text-xs mt-2">Try a different search term</p>
+                            <x-icon name="magnifying-glass-circle" class="w-12 h-12 text-slate-600 mx-auto mb-3"/>
+                            <p class="text-slate-400 text-sm">{{ __('No results: ')}} "{{ $query }}"</p>
+                            <p class="text-slate-500 text-xs mt-2">{{__('Try a different search term')}}</p>
                         </div>
                     @else
                         @php $itemIndex = 0; @endphp
@@ -126,7 +126,7 @@
                                            class="flex items-center gap-4 px-3 py-3 rounded-lg transition-colors {{ $isSelected ? 'bg-slate-800 ring-2 ring-blue-500/50' : 'hover:bg-slate-800/50' }}"
                                            wire:click="close">
                                             <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center {{ $color }}">
-                                                <x-icon name="{{ $item['icon'] }}" class="w-5 h-5" />
+                                                <x-icon name="{{ $item['icon'] }}" class="w-5 h-5"/>
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <div class="text-sm font-medium text-slate-200 truncate">
@@ -155,18 +155,18 @@
                     <div class="flex items-center justify-between text-xs text-slate-500">
                         <div class="flex items-center gap-4">
                             <span class="flex items-center gap-1.5">
-                                <kbd class="px-2 py-1 rounded bg-slate-800 text-slate-400">↑↓</kbd> Navigate
+                                <kbd class="px-2 py-1 rounded bg-slate-800 text-slate-400">↑↓</kbd> {{ __('Navigate')}}
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <kbd class="px-2 py-1 rounded bg-slate-800 text-slate-400">Enter</kbd> Select
+                                <kbd class="px-2 py-1 rounded bg-slate-800 text-slate-400">Enter</kbd> {{__('Select')}}
                             </span>
                             <span class="flex items-center gap-1.5">
-                                <kbd class="px-2 py-1 rounded bg-slate-800 text-slate-400">ESC</kbd> Close
+                                <kbd class="px-2 py-1 rounded bg-slate-800 text-slate-400">ESC</kbd> {{__('Close')}}
                             </span>
                         </div>
                         <span>
                             @if(!empty($results))
-                                {{ collect($results)->flatten(1)->count() }} results
+                                {{ collect($results)->flatten(1)->count() }} {{__('results')}}
                             @endif
                         </span>
                     </div>
