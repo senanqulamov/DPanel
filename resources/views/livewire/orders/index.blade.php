@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="black" icon="shopping-cart">
-            @lang('Orders')
-        </x-alert>
+        <x-heading-title title="{{ __('Orders') }}" text="" icon="shopping-cart" padding="p-5" hover="-"/>
 
         <div class="mb-2 mt-4">
             <livewire:orders.create @created="$refresh"/>

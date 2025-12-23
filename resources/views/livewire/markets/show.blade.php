@@ -17,7 +17,7 @@
         <div class="mt-8">
             <h2 class="text-sm font-semibold mb-2">@lang('Recent Orders')</h2>
             <x-table
-                :headers="[['index'=>'order_number','label'=>__('Or   der Number')],['index'=>'total','label'=>__('Total')],['index'=>'status','label'=>__('Status')],['index'=>'created_at','label'=>__('Created')]]"
+                :headers="[['index'=>'order_number','label'=>__('Order Number')],['index'=>'total','label'=>__('Total')],['index'=>'status','label'=>__('Status')],['index'=>'created_at','label'=>__('Created')]]"
                 :rows="$this->orders" :sort="['column'=>'created_at','direction'=>'desc']" paginate :paginator="null" loading>
                 @interact('column_order_number', $row)
                 <a href="{{ route('orders.show', $row) }}">

@@ -3,9 +3,9 @@
         <x-slot name="title">{{ __('Update User: :name (#:id)', ['name' => $user?->name, 'id' => $user?->id]) }}</x-slot>
 
         <form id="user-update-{{ $user?->id }}" wire:submit="save">
-            <x-tab selected="Basic Information" :border="true">
+            <x-tab selected="{{__('Basic Information')}}" :border="true">
                 <!-- Basic Information Tab -->
-                <x-tab.items tab="Basic Information">
+                <x-tab.items tab="{{__('Basic Information')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <x-input
@@ -91,7 +91,7 @@
                 </x-tab.items>
 
                 <!-- Business Information Tab -->
-                <x-tab.items tab="Business Information">
+                <x-tab.items tab="{{__('Business Information')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <x-input
@@ -140,7 +140,7 @@
                 </x-tab.items>
 
                 <!-- Contact Information Tab -->
-                <x-tab.items tab="Contact Information">
+                <x-tab.items tab="{{__('Contact Information')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <x-input
@@ -195,7 +195,7 @@
                 </x-tab.items>
 
                 <!-- Supplier Details Tab -->
-                <x-tab.items tab="Supplier Details">
+                <x-tab.items tab="{{__('Supplier Details')}}">
                     <div class="space-y-4">
                         @if($user?->is_supplier)
                             <x-alert color="success" class="mb-4">
@@ -276,7 +276,7 @@
                 </x-tab.items>
 
                 <!-- Seller Details Tab -->
-                <x-tab.items tab="Seller Details">
+                <x-tab.items tab="{{__('Seller Details')}}">
                     <div class="space-y-4">
                         @if($user?->is_seller)
                             <x-alert color="success" class="mb-4">
@@ -322,7 +322,7 @@
                 </x-tab.items>
 
                 <!-- Performance & Notes Tab -->
-                <x-tab.items tab="Performance & Notes">
+                <x-tab.items tab="{{__('Performance & Notes')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <x-stat

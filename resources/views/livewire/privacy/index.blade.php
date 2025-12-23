@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="purple" icon="shield-check">
-            @lang('Privacy & Role Management')
-        </x-alert>
+        <x-heading-title title="{{ __('Privacy & Role Management') }}" text="" icon="shield-check" padding="p-5" hover="-"/>
 
         {{-- Tabs --}}
         <div class="mt-6 border-b border-gray-200 dark:border-gray-700">

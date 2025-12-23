@@ -11,7 +11,7 @@
                     hint="{{ __('Unique order number') }}"
                 />
 
-                <x-select.native
+                <x-select.styled
                     label="{{ __('Status') }}"
                     wire:model="order.status"
                     :options="[
@@ -25,12 +25,13 @@
             </div>
 
             <div>
-                <x-select.native
+                <x-select.styled
                     label="{{ __('User (Supplier)') }}"
                     wire:model="order.user_id"
                     :options="$users"
                     select="label:name|value:id"
                     required
+                    searchable
                 />
             </div>
 

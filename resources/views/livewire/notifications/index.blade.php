@@ -2,9 +2,9 @@
     <x-card>
         <x-slot name="header">
             <div class="flex items-center justify-between gap-5">
-                <h3 class="text-lg font-semibold">{{ __('Notifications') }}</h3>
+                <h3 class="text-lg font-semibold text-slate-200">{{ __('Notifications') }}</h3>
                 <div class="flex items-center gap-2">
-                    <select wire:model.live="type" class="px-3 py-2 rounded w-full bg-slate-800 border border-slate-700 text-sm">
+                    <select wire:model.live="type" class="px-3 py-2 rounded w-full bg-slate-200 border border-slate-200 text-sm">
                         <option value="">{{ __('All') }}</option>
                         @foreach($this->types as $t)
                             <option value="{{ $t }}">{{ $t }}</option>

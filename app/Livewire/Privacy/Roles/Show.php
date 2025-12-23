@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Privacy\Roles;
 
+use App\Enums\TableHeaders;
 use App\Models\Role;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -31,6 +32,11 @@ class Show extends Component
         ['index' => 'email', 'label' => 'Email'],
         ['index' => 'created_at', 'label' => 'Joined'],
     ];
+
+    public function mount(): void
+    {
+        $this->headers = TableHeaders::make($this->headers);
+    }
 
     public function render(): View
     {

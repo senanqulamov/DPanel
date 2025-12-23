@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="black" icon="map-pin">
-            @lang('Markets')
-        </x-alert>
+        <x-heading-title title="{{ __('Markets') }}" text="" icon="map-pin" padding="p-5" hover="-"/>
 
         <div class="mb-2 mt-4">
             @can('create_markets')

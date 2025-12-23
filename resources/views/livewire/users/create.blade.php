@@ -30,9 +30,9 @@
                 </div>
             @endif
 
-            <x-tab selected="Basic Information" :border="true">
+            <x-tab selected="{{__('Basic Information')}}" :border="true">
                 <!-- Basic Information Tab -->
-                <x-tab.items tab="Basic Information">
+                <x-tab.items tab="{{__('Basic Information')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <x-input
@@ -122,7 +122,7 @@
                 </x-tab.items>
 
                 <!-- Business Information Tab -->
-                <x-tab.items tab="Business Information">
+                <x-tab.items tab="{{__('Business Information')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <x-input
@@ -171,7 +171,7 @@
                 </x-tab.items>
 
                 <!-- Contact Information Tab -->
-                <x-tab.items tab="Contact Information">
+                <x-tab.items tab="{{__('Contact Information')}}">
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <x-input
@@ -226,7 +226,7 @@
                 </x-tab.items>
 
                 <!-- Supplier Details Tab -->
-                <x-tab.items tab="Supplier Details">
+                <x-tab.items tab="{{__('Supplier Details')}}">
                     <div class="space-y-4">
                         <x-alert color="info" class="mb-4">
                             {{ __('Fill in these fields if the user will be a supplier. Supplier will be auto-approved when created.') }}
@@ -295,7 +295,7 @@
                 </x-tab.items>
 
                 <!-- Seller Details Tab -->
-                <x-tab.items tab="Seller Details">
+                <x-tab.items tab="{{__('Seller Details')}}">
                     <div class="space-y-4">
                         <x-alert color="info" class="mb-4">
                             {{ __('Configure seller-specific settings. Seller will be auto-verified when created.') }}

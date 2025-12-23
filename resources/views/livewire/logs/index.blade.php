@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="black" icon="clipboard-document-list">
-            @lang('Logs')
-        </x-alert>
+        <x-heading-title title="{{ __('Logs') }}" text="" icon="clipboard-document-list" padding="p-5" hover="-"/>
 
         {{-- Filter Section --}}
         <div class="mb-4 mt-4 flex flex-wrap items-end gap-3">

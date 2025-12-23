@@ -1,8 +1,6 @@
 <div>
     <x-card>
-        <x-alert color="black" icon="shopping-cart">
-            @lang('Products')
-        </x-alert>
+        <x-heading-title title="{{ __('Products') }}" text="" icon="shopping-cart" padding="p-5" hover="-"/>
 
         <div class="mb-2 mt-4 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
             <livewire:products.create @created="$refresh"/>
@@ -13,7 +11,7 @@
                 select="label:name|value:id"
                 searchable
                 :placeholder="__('All Categories')"
-                class="w-full sm:w-64"
+                class="w-full"
             />
         </div>
 
