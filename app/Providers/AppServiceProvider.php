@@ -20,122 +20,24 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Register model observers for automatic workflow event tracking
-        \App\Models\Request::observe(\App\Observers\RequestObserver::class);
-        \App\Models\RequestItem::observe(\App\Observers\RequestItemObserver::class);
-        \App\Models\Quote::observe(\App\Observers\QuoteObserver::class);
-        \App\Models\QuoteItem::observe(\App\Observers\QuoteItemObserver::class);
-
-        // Register RFQ workflow event listeners
+        // Register authentication event listeners
         Event::listen(Login::class, [LogAuthenticationEvents::class, 'handleLogin']);
         Event::listen(Logout::class, [LogAuthenticationEvents::class, 'handleLogout']);
         Event::listen(Registered::class, [LogAuthenticationEvents::class, 'handleRegistered']);
         Event::listen(Failed::class, [LogAuthenticationEvents::class, 'handleFailed']);
 
-        // Register RFQ workflow event listeners
-        // RecordWorkflowEvent should be invoked synchronously to ensure audit records are created
-        // even when queue workers are not running. Notification listeners can remain queued.
+        // Register model observers for automatic workflow event tracking
+        // Observers automatically fire events and record to workflow_events table
+        \App\Models\Request::observe(\App\Observers\RequestObserver::class);
+        \App\Models\RequestItem::observe(\App\Observers\RequestItemObserver::class);
+        \App\Models\Quote::observe(\App\Observers\QuoteObserver::class);
+        \App\Models\QuoteItem::observe(\App\Observers\QuoteItemObserver::class);
 
-        // RequestStatusChanged -> record workflow event (sync)
-        Event::listen(
-            \App\Events\RequestStatusChanged::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleRequestStatusChanged($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleRequestStatusChanged failed: ' . $e->getMessage());
-                }
-            }
-        );
-        // Keep notifications queued
-        Event::listen(
-            \App\Events\RequestStatusChanged::class,
-            \App\Listeners\SendRequestStatusNotification::class
-        );
-
-        // SupplierInvited -> record workflow event (sync)
-        Event::listen(
-            \App\Events\SupplierInvited::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleSupplierInvited($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleSupplierInvited failed: ' . $e->getMessage());
-                }
-            }
-        );
-        Event::listen(
-            \App\Events\SupplierInvited::class,
-            \App\Listeners\SendSupplierInvitationNotification::class
-        );
-
-        // QuoteSubmitted -> record workflow event (sync)
-        Event::listen(
-            \App\Events\QuoteSubmitted::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleQuoteSubmitted($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleQuoteSubmitted failed: ' . $e->getMessage());
-                }
-            }
-        );
-        Event::listen(
-            \App\Events\QuoteSubmitted::class,
-            \App\Listeners\NotifyBuyerOfQuoteSubmission::class
-        );
-
-        // SlaReminderDue -> record workflow event (sync)
-        Event::listen(
-            \App\Events\SlaReminderDue::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleSlaReminderDue($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleSlaReminderDue failed: ' . $e->getMessage());
-                }
-            }
-        );
-        Event::listen(
-            \App\Events\SlaReminderDue::class,
-            \App\Listeners\SendSlaReminderNotification::class
-        );
-
-        // QuoteStatusChanged -> record workflow event (sync)
-        Event::listen(
-            \App\Events\QuoteStatusChanged::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleQuoteStatusChanged($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleQuoteStatusChanged failed: ' . $e->getMessage());
-                }
-            }
-        );
-
-        // QuoteUpdated -> record workflow event (sync)
-        Event::listen(
-            \App\Events\QuoteUpdated::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleQuoteUpdated($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleQuoteUpdated failed: ' . $e->getMessage());
-                }
-            }
-        );
-
-        // RfqUpdated -> record workflow event (sync)
-        Event::listen(
-            \App\Events\RfqUpdated::class,
-            function ($event) {
-                try {
-                    app(\App\Listeners\RecordWorkflowEvent::class)->handleRfqUpdated($event);
-                } catch (\Throwable $e) {
-                    \Log::error('RecordWorkflowEvent::handleRfqUpdated failed: ' . $e->getMessage());
-                }
-            }
-        );
+        // Notification listeners (keep these - they don't create duplicates)
+        Event::listen(\App\Events\RequestStatusChanged::class, \App\Listeners\SendRequestStatusNotification::class);
+        Event::listen(\App\Events\SupplierInvited::class, \App\Listeners\SendSupplierInvitationNotification::class);
+        Event::listen(\App\Events\QuoteSubmitted::class, \App\Listeners\NotifyBuyerOfQuoteSubmission::class);
+        Event::listen(\App\Events\SlaReminderDue::class, \App\Listeners\SendSlaReminderNotification::class);
 
         TallStackUi::personalize()
             // ==================== SLIDE ====================

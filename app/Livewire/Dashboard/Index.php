@@ -46,6 +46,14 @@ class Index extends Component
 
     public $workflowActivity = [];
 
+    // Livewire listeners for frontend events (chart clicks and quick actions)
+    protected $listeners = [
+        'chartSegmentClicked',
+        'inviteSupplier',
+        'createRfq',
+        'exportDashboardCsv',
+    ];
+
     public function mount()
     {
         $this->logPageView('Dashboard');
@@ -54,6 +62,36 @@ class Index extends Component
         $this->loadChartData();
         $this->loadRecentActivity();
         $this->loadSystemHealth();
+    }
+
+    /**
+     * Handle chart segment clicks from the frontend.
+     * Logs the selection and dispatches a browser event that can be used to apply filters.
+     */
+    public function chartSegmentClicked($chartId, $label = null, $index = null)
+    {
+        $this->logAction('ui', "Chart segment clicked: {$chartId} - {$label}", action: 'chart.click', metadata: ['chart' => $chartId, 'label' => $label, 'index' => $index]);
+        // Notify browser (so JS can respond if desired)
+        $this->dispatchBrowserEvent('dpanel:chartSegmentSelected', ['chartId' => $chartId, 'label' => $label, 'index' => $index]);
+    }
+
+    public function inviteSupplier()
+    {
+        $this->logAction('ui', 'Invite Supplier clicked', action: 'invite.supplier');
+        $this->dispatchBrowserEvent('dpanel:open-invite-supplier');
+    }
+
+    public function createRfq()
+    {
+        $this->logAction('ui', 'Create RFQ clicked', action: 'rfq.create');
+        $this->dispatchBrowserEvent('dpanel:open-create-rfq');
+    }
+
+    public function exportDashboardCsv()
+    {
+        $this->logAction('ui', 'Export dashboard CSV requested', action: 'export.dashboard');
+        // For now, just dispatch a browser event - implement server-side export in a follow-up if desired
+        $this->dispatchBrowserEvent('dpanel:export-started');
     }
 
     protected function loadStats()
@@ -153,6 +191,21 @@ class Index extends Component
         $rfqsChange = $previousRfqs > 0 ? (($totalRfqs - $previousRfqs) / $previousRfqs) * 100 : 0;
         $quotesChange = $previousQuotes > 0 ? (($totalQuotes - $previousQuotes) / $previousQuotes) * 100 : 0;
 
+        // Additional counts for new dashboard cards
+        // Pending approvals: try common RFQ statuses, fallback to approval-like workflow events
+        $pendingApprovals = Request::whereIn('status', ['pending_approval', 'awaiting_approval', 'approval_pending'])->count();
+        if ($pendingApprovals <= 0) {
+            $pendingApprovals = WorkflowEvent::where('event_type', 'like', '%approval%')->count();
+        }
+
+        // Purchase orders: total orders
+        $purchaseOrders = Order::count();
+
+        // SLA reminders: workflow events mentioning SLA (fallback to 0 if none)
+        $slaReminders = WorkflowEvent::where('event_type', 'like', '%sla%')
+            ->orWhere('event_type', 'like', '%reminder%')
+            ->count();
+
         $this->rfqStats = [
             'totalRfqs' => $totalRfqs,
             'openRfqs' => $openRfqs,
@@ -168,6 +221,10 @@ class Index extends Component
             'eventsToday' => $eventsToday,
             'rfqsChange' => round($rfqsChange, 1),
             'quotesChange' => round($quotesChange, 1),
+            // new keys
+            'pendingApprovals' => $pendingApprovals,
+            'purchaseOrders' => $purchaseOrders,
+            'slaReminders' => $slaReminders,
         ];
 
         // RFQs by status for chart
