@@ -114,6 +114,8 @@ class Show extends Component
         $this->request->status = $value;
         $this->request->save();
 
+        // Observer will fire RequestStatusChanged event automatically
+
         $this->logUpdate(
             Request::class,
             $this->request->id,
@@ -125,29 +127,6 @@ class Show extends Component
             ]
         );
 
-        // Record workflow event for admin action
-        $admin = Auth::user();
-        try {
-            WorkflowEvent::create([
-                'eventable_type' => get_class($this->request),
-                'eventable_id' => $this->request->id,
-                'user_id' => $admin?->id,
-                'event_type' => 'status_changed',
-                'from_state' => $oldStatus,
-                'to_state' => $value,
-                'description' => 'Admin ' . ($admin?->name ?? 'system') . ' changed status from ' . ($oldStatus ?? 'none') . ' to ' . $value,
-                'occurred_at' => now(),
-                'metadata' => [
-                    'admin_id' => $admin?->id,
-                    'admin_name' => $admin?->name,
-                    'old' => $oldStatus,
-                    'new' => $value,
-                ],
-            ]);
-        } catch (\Throwable $e) {
-            // Don't interrupt user flow if DB write fails; log via existing logging trait
-            $this->logException($e);
-        }
 
         $this->success(__('RFQ status updated successfully.'));
 

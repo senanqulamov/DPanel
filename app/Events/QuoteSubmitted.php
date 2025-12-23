@@ -30,7 +30,7 @@ class QuoteSubmitted
     /**
      * The supplier user instance.
      *
-     * @var \App\Models\User
+     * @var \App\Models\User|null
      */
     public $supplier;
 
@@ -38,12 +38,13 @@ class QuoteSubmitted
      * Create a new event instance.
      *
      * @param  \App\Models\Quote  $quote
+     * @param  \App\Models\User|null  $supplier
      * @return void
      */
-    public function __construct(Quote $quote)
+    public function __construct(Quote $quote, ?User $supplier = null)
     {
         $this->quote = $quote;
         $this->request = $quote->request;
-        $this->supplier = $quote->supplier;
+        $this->supplier = $supplier ?? $quote->supplier;
     }
 }

@@ -71,7 +71,7 @@ class RfqSeeder extends Seeder
                 ]);
             }
 
-            // Add workflow events
+            //TODO check workflow events logic
             WorkflowEvent::factory()->create([
                 'eventable_type' => Request::class,
                 'eventable_id' => $rfq->id,

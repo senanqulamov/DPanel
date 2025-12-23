@@ -113,6 +113,8 @@ class Show extends Component
         $this->request->status = $value;
         $this->request->save();
 
+        // Observer will fire RequestStatusChanged event automatically
+
         $this->logUpdate(
             Request::class,
             $this->request->id,

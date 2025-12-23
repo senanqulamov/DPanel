@@ -7,7 +7,11 @@ use App\Models\Log;
 use App\Models\Market;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Quote;
+use App\Models\Request;
+use App\Models\SupplierInvitation;
 use App\Models\User;
+use App\Models\WorkflowEvent;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -30,10 +34,23 @@ class Index extends Component
 
     public $systemHealth = [];
 
+    public $rfqStats = [];
+
+    public $rfqsByStatus = [];
+
+    public $quotesByStatus = [];
+
+    public $recentRfqs = [];
+
+    public $recentQuotes = [];
+
+    public $workflowActivity = [];
+
     public function mount()
     {
         $this->logPageView('Dashboard');
         $this->loadStats();
+        $this->loadRfqStats();
         $this->loadChartData();
         $this->loadRecentActivity();
         $this->loadSystemHealth();
@@ -101,6 +118,127 @@ class Index extends Component
                 'color' => 'red',
             ],
         ];
+    }
+
+    protected function loadRfqStats()
+    {
+        // Get RFQ counts
+        $totalRfqs = Request::count();
+        $openRfqs = Request::where('status', 'open')->count();
+        $draftRfqs = Request::where('status', 'draft')->count();
+        $closedRfqs = Request::where('status', 'closed')->count();
+        $awardedRfqs = Request::where('status', 'awarded')->count();
+
+        // Get Quote counts
+        $totalQuotes = Quote::count();
+        $pendingQuotes = Quote::where('status', 'pending')->count();
+        $acceptedQuotes = Quote::where('status', 'accepted')->count();
+
+        // Get Supplier counts
+        $totalSuppliers = User::whereHas('roles', function($q) {
+            $q->where('name', 'supplier');
+        })->count();
+        $activeSuppliers = SupplierInvitation::where('status', 'accepted')
+            ->distinct('supplier_id')
+            ->count('supplier_id');
+
+        // Get Workflow Events
+        $totalWorkflowEvents = WorkflowEvent::count();
+        $eventsToday = WorkflowEvent::whereDate('occurred_at', today())->count();
+
+        // Calculate previous period
+        $previousRfqs = Request::where('created_at', '<', now()->subDays(30))->count();
+        $previousQuotes = Quote::where('created_at', '<', now()->subDays(30))->count();
+
+        $rfqsChange = $previousRfqs > 0 ? (($totalRfqs - $previousRfqs) / $previousRfqs) * 100 : 0;
+        $quotesChange = $previousQuotes > 0 ? (($totalQuotes - $previousQuotes) / $previousQuotes) * 100 : 0;
+
+        $this->rfqStats = [
+            'totalRfqs' => $totalRfqs,
+            'openRfqs' => $openRfqs,
+            'draftRfqs' => $draftRfqs,
+            'closedRfqs' => $closedRfqs,
+            'awardedRfqs' => $awardedRfqs,
+            'totalQuotes' => $totalQuotes,
+            'pendingQuotes' => $pendingQuotes,
+            'acceptedQuotes' => $acceptedQuotes,
+            'totalSuppliers' => $totalSuppliers,
+            'activeSuppliers' => $activeSuppliers,
+            'totalWorkflowEvents' => $totalWorkflowEvents,
+            'eventsToday' => $eventsToday,
+            'rfqsChange' => round($rfqsChange, 1),
+            'quotesChange' => round($quotesChange, 1),
+        ];
+
+        // RFQs by status for chart
+        $this->rfqsByStatus = Request::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => ucfirst($item->status),
+                'value' => $item->count,
+            ])
+            ->toArray();
+
+        // Quotes by status for chart
+        $this->quotesByStatus = Quote::select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get()
+            ->map(fn ($item) => [
+                'label' => ucfirst($item->status),
+                'value' => $item->count,
+            ])
+            ->toArray();
+
+        // Recent RFQs
+        $this->recentRfqs = Request::with(['buyer', 'items'])
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(function ($rfq) {
+                return [
+                    'id' => $rfq->id,
+                    'title' => $rfq->title,
+                    'buyer' => $rfq->buyer?->name ?? 'Unknown',
+                    'status' => $rfq->status,
+                    'items_count' => $rfq->items->count(),
+                    'deadline' => $rfq->deadline?->format('M d, Y'),
+                    'created_at' => $rfq->created_at->diffForHumans(),
+                ];
+            })
+            ->toArray();
+
+        // Recent Quotes
+        $this->recentQuotes = Quote::with(['supplier', 'request'])
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(function ($quote) {
+                return [
+                    'id' => $quote->id,
+                    'request_title' => $quote->request?->title ?? 'N/A',
+                    'supplier' => $quote->supplier?->name ?? 'Unknown',
+                    'status' => $quote->status,
+                    'total_price' => $quote->total_price,
+                    'submitted_at' => $quote->submitted_at?->diffForHumans() ?? $quote->created_at->diffForHumans(),
+                ];
+            })
+            ->toArray();
+
+        // Recent Workflow Events
+        $this->workflowActivity = WorkflowEvent::with(['user', 'eventable'])
+            ->latest('occurred_at')
+            ->limit(10)
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'user' => $event->user?->name ?? 'System',
+                    'event_type' => $event->event_type,
+                    'description' => $event->description,
+                    'occurred_at' => $event->occurred_at->diffForHumans(),
+                ];
+            })
+            ->toArray();
     }
 
     protected function loadChartData()

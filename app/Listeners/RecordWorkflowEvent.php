@@ -2,17 +2,17 @@
 
 namespace App\Listeners;
 
+use App\Events\QuoteStatusChanged;
 use App\Events\QuoteSubmitted;
+use App\Events\QuoteUpdated;
 use App\Events\RequestStatusChanged;
+use App\Events\RfqUpdated;
 use App\Events\SlaReminderDue;
 use App\Events\SupplierInvited;
 use App\Models\WorkflowEvent;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
-class RecordWorkflowEvent implements ShouldQueue
+class RecordWorkflowEvent
 {
-    use InteractsWithQueue;
 
     /**
      * Create the event listener.
@@ -34,10 +34,12 @@ class RecordWorkflowEvent implements ShouldQueue
             'event_type' => 'status_changed',
             'from_state' => $event->oldStatus?->value,
             'to_state' => $event->newStatus->value,
-            'description' => 'Status changed from ' . ($event->oldStatus?->label() ?? 'None') . ' to ' . $event->newStatus->label(),
+            'description' => 'RFQ status changed from ' . ($event->oldStatus?->label() ?? 'None') . ' to ' . $event->newStatus->label(),
             'occurred_at' => now(),
             'metadata' => [
                 'user_name' => $event->user?->name,
+                'old_status' => $event->oldStatus?->value,
+                'new_status' => $event->newStatus->value,
             ],
         ]);
     }
@@ -84,6 +86,84 @@ class RecordWorkflowEvent implements ShouldQueue
                 'supplier_name' => $event->supplier->name,
                 'quote_id' => $event->quote->id,
                 'quote_total' => $event->quote->total_price,
+            ],
+        ]);
+    }
+
+    /**
+     * Handle the QuoteStatusChanged event.
+     */
+    public function handleQuoteStatusChanged(QuoteStatusChanged $event): void
+    {
+        WorkflowEvent::create([
+            'eventable_type' => get_class($event->quote->request),
+            'eventable_id' => $event->quote->request_id,
+            'user_id' => $event->user?->id,
+            'event_type' => 'quote_status_changed',
+            'from_state' => $event->oldStatus,
+            'to_state' => $event->newStatus,
+            'description' => "Quote #{$event->quote->id} status changed from " . ($event->oldStatus ?? 'None') . " to {$event->newStatus}",
+            'occurred_at' => now(),
+            'metadata' => [
+                'quote_id' => $event->quote->id,
+                'supplier_name' => $event->quote->supplier?->name,
+                'user_name' => $event->user?->name,
+                'old_status' => $event->oldStatus,
+                'new_status' => $event->newStatus,
+            ],
+        ]);
+    }
+
+    /**
+     * Handle the QuoteUpdated event.
+     */
+    public function handleQuoteUpdated(QuoteUpdated $event): void
+    {
+        $changeDescription = [];
+        foreach ($event->changes as $field => $values) {
+            $changeDescription[] = "{$field}: {$values['old']} → {$values['new']}";
+        }
+
+        WorkflowEvent::create([
+            'eventable_type' => get_class($event->quote->request),
+            'eventable_id' => $event->quote->request_id,
+            'user_id' => $event->user?->id,
+            'event_type' => 'quote_updated',
+            'from_state' => null,
+            'to_state' => null,
+            'description' => "Quote #{$event->quote->id} updated: " . implode(', ', $changeDescription),
+            'occurred_at' => now(),
+            'metadata' => [
+                'quote_id' => $event->quote->id,
+                'supplier_name' => $event->quote->supplier?->name,
+                'user_name' => $event->user?->name,
+                'changes' => $event->changes,
+            ],
+        ]);
+    }
+
+    /**
+     * Handle the RfqUpdated event.
+     */
+    public function handleRfqUpdated(RfqUpdated $event): void
+    {
+        $changeDescription = [];
+        foreach ($event->changes as $field => $values) {
+            $changeDescription[] = "{$field}: {$values['old']} → {$values['new']}";
+        }
+
+        WorkflowEvent::create([
+            'eventable_type' => get_class($event->request),
+            'eventable_id' => $event->request->id,
+            'user_id' => $event->user?->id,
+            'event_type' => 'rfq_updated',
+            'from_state' => null,
+            'to_state' => null,
+            'description' => "RFQ updated: " . implode(', ', $changeDescription),
+            'occurred_at' => now(),
+            'metadata' => [
+                'user_name' => $event->user?->name,
+                'changes' => $event->changes,
             ],
         ]);
     }

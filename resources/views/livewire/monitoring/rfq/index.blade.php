@@ -96,6 +96,67 @@
             </div>
         </div>
 
+        {{-- Workflow Events Quick Stats --}}
+        <div class="mb-6">
+            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10 rounded-xl p-5 border border-purple-200 dark:border-purple-800">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-purple-600 dark:bg-purple-500 rounded-lg p-2">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                            {{ __('Workflow Activity') }}
+                        </h3>
+                    </div>
+                    <x-badge color="purple" text="{{ __('Real-time Tracking') }}" icon="bolt" position="left" />
+                </div>
+
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {{ __('Track all RFQ activities, status changes, supplier interactions, and system events in real-time. Click the timeline icon in any RFQ row to view detailed workflow events.') }}
+                </p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('Status Changes') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('Supplier Invites') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('Quote Submissions') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-3 border border-purple-100 dark:border-purple-900">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ __('SLA Reminders') }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Actions / RFQ controls: reuse existing rfq components for create/edit/delete --}}
         <div class="mb-6">
             <div class="flex items-center justify-end gap-3">
@@ -148,6 +209,12 @@
 
             @interact('column_action', $row)
             <div class="flex gap-1">
+                <x-button.circle
+                    icon="clock"
+                    color="purple"
+                    wire:click="$dispatch('monitoring::load::workflow_events', { rfq: '{{ $row->id }}' })"
+                    title="{{ __('View Workflow Events') }}"
+                />
                 @can('edit_rfqs')
                     <x-button.circle icon="pencil" wire:click="$dispatch('monitoring::load::rfq', { rfq: '{{ $row->id }}' })"/>
                 @endcan
@@ -162,4 +229,5 @@
     <livewire:monitoring.rfq.create @created="$refresh"/>
     <livewire:monitoring.rfq.update @updated="$refresh"/>
     <livewire:monitoring.rfq.items/>
+    <livewire:monitoring.rfq.workflow-events/>
 </div>

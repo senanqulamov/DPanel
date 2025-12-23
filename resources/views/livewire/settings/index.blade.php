@@ -376,6 +376,10 @@
                                         <x-input label="{{ __('Number of Workers') }}" wire:model="queue_workers" type="number"/>
                                     </div>
                                 </div>
+                                <div class="flex gap-2 mt-4">
+                                    <x-button wire:click="saveCache" color="primary" icon="check">{{ __('Save Cache Settings') }}</x-button>
+                                    <x-button wire:click="saveQueue" color="secondary" icon="check">{{ __('Save Queue Settings') }}</x-button>
+                                </div>
                             </div>
                         </div>
                     @endif

@@ -158,7 +158,7 @@ class Index extends Component
 
     public function saveGeneral(): void
     {
-        $this->authorize('edit_settings');
+        $this->checkPermission('edit_settings');
 
         $this->validate([
             'app_name' => 'required|string|max:255',
@@ -169,12 +169,23 @@ class Index extends Component
         ]);
 
         $this->saveToCache('general');
-        $this->success('General settings saved successfully');
+
+        // Update .env file
+        $this->updateEnvFile([
+            'APP_NAME' => $this->app_name,
+            'APP_URL' => $this->app_url,
+            'APP_TIMEZONE' => $this->app_timezone,
+            'APP_LOCALE' => $this->app_locale,
+            'APP_ENV' => $this->app_env,
+            'APP_DEBUG' => $this->app_debug ? 'true' : 'false',
+        ]);
+
+        $this->success(__('General settings saved successfully'));
     }
 
     public function saveMail(): void
     {
-        $this->authorize('edit_settings');
+        $this->checkPermission('edit_settings');
 
         $this->validate([
             'mail_driver' => 'required|string',
@@ -186,7 +197,20 @@ class Index extends Component
         ]);
 
         $this->saveToCache('mail');
-        $this->success('Mail settings saved successfully');
+
+        // Update .env file
+        $this->updateEnvFile([
+            'MAIL_MAILER' => $this->mail_driver,
+            'MAIL_HOST' => $this->mail_host,
+            'MAIL_PORT' => $this->mail_port,
+            'MAIL_USERNAME' => $this->mail_username,
+            'MAIL_PASSWORD' => $this->mail_password,
+            'MAIL_ENCRYPTION' => $this->mail_encryption,
+            'MAIL_FROM_ADDRESS' => $this->mail_from_address,
+            'MAIL_FROM_NAME' => '"' . $this->mail_from_name . '"',
+        ]);
+
+        $this->success(__('Mail settings saved successfully'));
     }
 
     public function saveSap(): void
@@ -332,10 +356,26 @@ class Index extends Component
         $this->checkPermission('edit_settings');
 
         try {
-            // Simulate mail test
-            $this->success('Mail connection test successful! (Demo Mode)');
+            // Temporarily configure mail settings for testing
+            config([
+                'mail.mailers.smtp.host' => $this->mail_host,
+                'mail.mailers.smtp.port' => $this->mail_port,
+                'mail.mailers.smtp.username' => $this->mail_username,
+                'mail.mailers.smtp.password' => $this->mail_password,
+                'mail.mailers.smtp.encryption' => $this->mail_encryption,
+            ]);
+
+            // Try to send a test email (or just verify connection)
+            $transport = \Mail::mailer('smtp')->getSymfonyTransport();
+
+            // For now, just validate the configuration
+            if (empty($this->mail_host) || empty($this->mail_port)) {
+                throw new \Exception(__('Mail host and port are required'));
+            }
+
+            $this->success(__('Mail configuration validated successfully!'));
         } catch (\Exception $e) {
-            $this->error('Mail connection failed: ' . $e->getMessage());
+            $this->error(__('Mail connection failed: ') . $e->getMessage());
         }
     }
 

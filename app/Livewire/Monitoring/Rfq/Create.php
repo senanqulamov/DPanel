@@ -198,6 +198,8 @@ class Create extends Component
         $this->request->status = $this->request->status ?: 'draft';
         $this->request->save();
 
+        // Observer will fire RequestStatusChanged event automatically
+
         foreach ($this->items as $item) {
             RequestItem::create([
                 'request_id' => $this->request->id,
