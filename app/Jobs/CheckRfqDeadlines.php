@@ -4,12 +4,14 @@ namespace App\Jobs;
 
 use App\Events\SlaReminderDue;
 use App\Models\Request;
+use App\Models\WorkflowEvent;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class CheckRfqDeadlines implements ShouldQueue
 {
@@ -28,20 +30,43 @@ class CheckRfqDeadlines implements ShouldQueue
      */
     public function handle(): void
     {
-        // Get all active RFQs (draft, open)
-        $activeRfqs = Request::whereIn('status', ['draft', 'open'])
-            ->where('deadline', '>', now())
-            ->get();
+        // Use explicit day thresholds and database-side date filtering to avoid timezone/partial-day issues
+        $thresholds = [7, 3, 1];
 
-        foreach ($activeRfqs as $rfq) {
-            $daysRemaining = Carbon::now()->diffInDays($rfq->deadline, false);
+        foreach ($thresholds as $days) {
+            $date = now()->addDays($days)->toDateString();
 
-            // Determine priority based on days remaining
-            $priority = $this->determinePriority($daysRemaining);
+            $rfqs = Request::with(['buyer', 'supplierInvitations.supplier'])
+                ->whereIn('status', ['draft', 'open'])
+                ->whereDate('deadline', $date)
+                ->get();
 
-            // Only send reminders for specific thresholds
-            if ($this->shouldSendReminder($daysRemaining)) {
-                event(new SlaReminderDue($rfq, $daysRemaining, $priority));
+            foreach ($rfqs as $rfq) {
+                try {
+                    // Deduplicate: skip if a workflow event for this rfq with same days_remaining exists today
+                    $already = WorkflowEvent::where('eventable_type', get_class($rfq))
+                        ->where('eventable_id', $rfq->id)
+                        ->where('event_type', 'sla_reminder')
+                        ->where('metadata->days_remaining', $days)
+                        ->whereDate('occurred_at', now()->toDateString())
+                        ->exists();
+
+                    if ($already) {
+                        continue;
+                    }
+
+                    // Determine priority and fire event
+                    $priority = $this->determinePriority($days);
+
+                    event(new SlaReminderDue($rfq, $days, $priority));
+                } catch (\Throwable $e) {
+                    // Log and continue with other RFQs
+                    Log::error('Error checking RFQ deadline for reminder', [
+                        'rfq_id' => $rfq->id,
+                        'days' => $days,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         }
     }

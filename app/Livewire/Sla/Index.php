@@ -3,13 +3,20 @@
 namespace App\Livewire\Sla;
 
 use App\Jobs\CheckRfqDeadlines;
+use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Bus;
 use Livewire\Component;
 
+/**
+ * @method void dispatchBrowserEvent(string $event, array $data = [])
+ */
 class Index extends Component
 {
+    use Alert, WithLogging;
+
     public array $overview = [];
 
     public function mount(): void
@@ -31,7 +38,7 @@ class Index extends Component
     public function dispatchReminders(): void
     {
         Bus::dispatch(new CheckRfqDeadlines());
-        $this->dispatchBrowserEvent('toast', ['type' => 'success', 'message' => 'SLA reminders dispatched']);
+        $this->success(__('SLA reminders job dispatched.'));
     }
 
     public function render(): View

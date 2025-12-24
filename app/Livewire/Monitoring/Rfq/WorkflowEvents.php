@@ -23,18 +23,18 @@ class WorkflowEvents extends Component
     public ?string $filterDateTo = null;
 
     public array $availableEventTypes = [
-        'status_changed' => 'RFQ Status Changed',
-        'supplier_invited' => 'Supplier Invited',
-        'quote_submitted' => 'Quote Submitted',
-        'quote_status_changed' => 'Quote Status Changed',
-        'quote_updated' => 'Quote Updated',
-        'rfq_updated' => 'RFQ Updated',
-        'sla_reminder' => 'SLA Reminder',
-        'assigned' => 'Assigned',
-        'comment_added' => 'Comment Added',
-        'document_uploaded' => 'Document Uploaded',
-        'quote_accepted' => 'Quote Accepted',
-        'quote_rejected' => 'Quote Rejected',
+        'status_changed'        => 'RFQ Status Changed',
+        'supplier_invited'      => 'Supplier Invited',
+        'quote_submitted'       => 'Quote Submitted',
+        'quote_status_changed'  => 'Quote Status Changed',
+        'quote_updated'         => 'Quote Updated',
+        'rfq_updated'           => 'RFQ Updated',
+        'sla_reminder'          => 'SLA Reminder',
+        'assigned'              => 'Assigned',
+        'comment_added'         => 'Comment Added',
+        'document_uploaded'     => 'Document Uploaded',
+        'quote_accepted'        => 'Quote Accepted',
+        'quote_rejected'        => 'Quote Rejected',
     ];
 
     #[On('monitoring::load::workflow_events')]

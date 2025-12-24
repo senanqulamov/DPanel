@@ -10,6 +10,7 @@
         'indigo' => 'from-indigo-500 to-indigo-700',
         'rose' => 'from-rose-500 to-rose-700',
         'purple' => 'from-purple-500 to-purple-700',
+        'lime' => 'from-lime-500 to-lime-700',
     ];
     $gradient = $map[$color] ?? $map['blue'];
 @endphp
