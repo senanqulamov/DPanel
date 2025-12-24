@@ -67,16 +67,14 @@
                                     </svg>
                                     {{ __('Event Type') }}
                                 </label>
-                                <select
+
+                                {{--TODO change this to tallstackui's x-select.styled --}}
+                                <x-select.styled
                                     wire:model.live="filterEventTypes"
+                                    :options="$availableEventTypes"
+                                    select="label:name|value:name"
                                     multiple
-                                    class="w-full text-sm rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                                    size="4"
-                                >
-                                    @foreach($availableEventTypes as $key => $label)
-                                        <option value="{{ $key }}" class="py-2">{{ __($label) }}</option>
-                                    @endforeach
-                                </select>
+                                />
                                 <p class="text-xs text-gray-500 dark:text-gray-400">{{ __('Hold Ctrl/Cmd to select multiple') }}</p>
                             </div>
 
