@@ -90,7 +90,6 @@ class Index extends Component
     public function exportDashboardCsv()
     {
         $this->logAction('ui', 'Export dashboard CSV requested', action: 'export.dashboard');
-        // For now, just dispatch a browser event - implement server-side export in a follow-up if desired
         $this->dispatchBrowserEvent('dpanel:export-started');
     }
 
@@ -221,7 +220,6 @@ class Index extends Component
             'eventsToday' => $eventsToday,
             'rfqsChange' => round($rfqsChange, 1),
             'quotesChange' => round($quotesChange, 1),
-            // new keys
             'pendingApprovals' => $pendingApprovals,
             'purchaseOrders' => $purchaseOrders,
             'slaReminders' => $slaReminders,
@@ -357,6 +355,8 @@ class Index extends Component
             'count' => $item->count,
         ])
             ->toArray();
+
+//        dd($this->userActivity);
     }
 
     protected function loadRecentActivity()

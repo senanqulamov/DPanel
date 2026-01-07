@@ -46,4 +46,13 @@ class Market extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    /**
+     * Worker users assigned to this market.
+     */
+    public function workers()
+    {
+        return $this->belongsToMany(User::class, 'market_users')
+            ->withTimestamps();
+    }
 }

@@ -26,6 +26,7 @@
                 ['route' => 'seller.products.index', 'pattern' => 'seller.products.*', 'label' => __('Products'), 'icon' => 'cube'],
                 ['route' => 'seller.orders.index', 'pattern' => 'seller.orders.*', 'label' => __('Orders'), 'icon' => 'shopping-cart', 'badge' => 12],
                 ['route' => 'seller.markets.index', 'pattern' => 'seller.markets.*', 'label' => __('Markets'), 'icon' => 'building-storefront'],
+                ['route' => 'seller.workers.index',  'pattern' => 'seller.workers.*', 'label' => __('Workers'), 'icon' => 'users'],
                 ['route' => 'seller.import-export', 'pattern' => 'seller.import-export', 'label' => __('Import/Export'), 'icon' => 'arrow-down-tray'],
                 ['route' => 'seller.logs.index', 'pattern' => 'seller.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
             ],
@@ -73,13 +74,13 @@
 @endphp
 
 <aside
-    x-data="{
+        x-data="{
         expanded: $persist(true).as('sidebar-expanded'),
         mobile: false
     }"
-    x-on:sidebar-toggle.window="mobile = !mobile"
-    class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300"
-    x-bind:class="expanded ? 'w-64' : 'w-20'">
+        x-on:sidebar-toggle.window="mobile = !mobile"
+        class="fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-300"
+        x-bind:class="expanded ? 'w-64' : 'w-20'">
 
     {{-- Mobile Overlay --}}
     <div x-show="mobile"
@@ -168,10 +169,6 @@
     </div>
 </aside>
 
-{{-- Main content spacer --}}
-<div class="transition-all duration-300"
-     x-data="{ expanded: $persist(true).as('sidebar-expanded') }"
-     x-bind:class="expanded ? 'lg:ml-64' : 'lg:ml-20'"></div>
 
 <style>
     .custom-scrollbar::-webkit-scrollbar {

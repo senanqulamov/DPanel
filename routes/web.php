@@ -43,6 +43,7 @@ use App\Livewire\Monitoring\Rfq\Index as MonitoringRfqIndex;
 use App\Livewire\Monitoring\Rfq\Create as MonitoringRfqCreate;
 use App\Livewire\Monitoring\Rfq\Show as MonitoringRfqShow;
 use App\Livewire\Sla\Index as SlaIndex;
+use App\Livewire\Seller\Workers\Index as SellerWorkersIndex;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -70,6 +71,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/seller/orders', SellerOrdersIndex::class)->name('seller.orders.index')->middleware(['seller', 'can:view_orders']);
     Route::get('/seller/orders/{order}', SellerOrderShow::class)->name('seller.orders.show')->middleware(['seller', 'can:view_orders']);
     Route::get('/seller/logs', SellerLogsIndex::class)->name('seller.logs.index')->middleware(['seller', 'can:view_logs']);
+
+    // Seller Workers
+    Route::get('/seller/workers', SellerWorkersIndex::class)->name('seller.workers.index')->middleware(['seller', 'can:view_dashboard']);
+
     Route::get('/seller/import-export', ImportExport::class)->name('seller.import-export')->middleware(['seller', 'can:view_dashboard']);
 
     Route::get('/users', Index::class)->name('users.index')->middleware('can:view_users');

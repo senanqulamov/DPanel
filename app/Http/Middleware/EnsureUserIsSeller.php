@@ -10,7 +10,7 @@ class EnsureUserIsSeller
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->isSeller()) {
+        if (! $request->user() || ! $request->user()->hasRole('seller')) {
             abort(403, 'Access denied. This area is for sellers only.');
         }
 

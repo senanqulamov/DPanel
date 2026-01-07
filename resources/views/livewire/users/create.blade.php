@@ -1,342 +1,86 @@
 <div>
     <x-button :text="__('Create New User')" wire:click="$toggle('modal')" icon="plus" sm />
 
-    <x-modal :title="__('Create New User')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="4xl" blur="xl">
-        <form id="user-create" wire:submit="save">
+    <x-modal :title="__('Create New User')" wire x-on:open="setTimeout(() => $refs.name.focus(), 250)" size="2xl" blur="xl">
+        <form id="user-create" wire:submit="save" class="space-y-4">
 
-            {{-- Validation Errors Summary --}}
             @if ($errors->any())
-                <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r" x-data="{ show: true }" x-show="show" x-transition>
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <x-icon name="exclamation-triangle" class="w-5 h-5 text-red-600 dark:text-red-400" />
-                        </div>
-                        <div class="ml-3 flex-1">
-                            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
-                                {{ __('Please fix the following errors:') }}
-                            </h3>
-                            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
-                                <ul class="list-disc list-inside space-y-1">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                        <button type="button" @click="show = false" class="ml-3 flex-shrink-0">
-                            <x-icon name="x-mark" class="w-5 h-5 text-red-600 dark:text-red-400 hover:text-red-800" />
-                        </button>
+                <div class="mb-2 p-3 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r">
+                    <div class="text-sm text-red-700 dark:text-red-300">
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
             @endif
 
-            <x-tab selected="{{__('Basic Information')}}" :border="true">
-                <!-- Basic Information Tab -->
-                <x-tab.items tab="{{__('Basic Information')}}">
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-input
-                                label="{{ __('Full Name') }} *"
-                                x-ref="name"
-                                wire:model="user.name"
-                                icon="user"
-                                hint="{{ __('User\'s full name') }}"
-                                required
-                            />
-                            <x-input
-                                label="{{ __('Email Address') }} *"
-                                wire:model="user.email"
-                                icon="envelope"
-                                hint="{{ __('Unique email address') }}"
-                                required
-                            />
-                        </div>
+            <div class="grid grid-cols-1 gap-4">
+                <x-input
+                    label="{{ __('Full Name') }} *"
+                    x-ref="name"
+                    wire:model="name"
+                    icon="user"
+                    required
+                />
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-password
-                                label="{{ __('Password') }} *"
-                                wire:model="password"
-                                rules
-                                generator
-                                x-on:generate="$wire.set('password_confirmation', $event.detail.password)"
-                                hint="{{ __('Minimum 8 characters') }}"
-                                required
-                            />
-                            <x-password
-                                label="{{ __('Confirm Password') }} *"
-                                wire:model="password_confirmation"
-                                rules
-                                hint="{{ __('Must match password') }}"
-                                required
-                            />
-                        </div>
+                <x-input
+                    label="{{ __('Email Address') }} *"
+                    wire:model="email"
+                    icon="envelope"
+                    required
+                />
 
-                        <!-- Roles Section -->
-                        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                                <x-icon name="shield-check" class="w-4 h-4 inline" /> {{ __('User Roles') }}
-                            </label>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition">
-                                    <input
-                                        type="checkbox"
-                                        wire:model="user.is_buyer"
-                                        id="is_buyer"
-                                        class="rounded border-gray-300 dark:border-gray-700 text-blue-600 shadow-sm focus:ring-blue-500 w-5 h-5"
-                                        checked
-                                    >
-                                    <label for="is_buyer" class="ml-3 flex-1 cursor-pointer">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Buyer') }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ __('Can purchase products') }}</div>
-                                    </label>
-                                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <x-password
+                        label="{{ __('Password') }} *"
+                        wire:model="password"
+                        rules
+                        generator
+                        x-on:generate="$wire.set('password_confirmation', $event.detail.password)"
+                        required
+                    />
+                    <x-password
+                        label="{{ __('Confirm Password') }} *"
+                        wire:model="password_confirmation"
+                        rules
+                        required
+                    />
+                </div>
 
-                                <div class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition">
-                                    <input
-                                        type="checkbox"
-                                        wire:model="user.is_seller"
-                                        id="is_seller"
-                                        class="rounded border-gray-300 dark:border-gray-700 text-green-600 shadow-sm focus:ring-green-500 w-5 h-5"
-                                    >
-                                    <label for="is_seller" class="ml-3 flex-1 cursor-pointer">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Seller') }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ __('Can sell on platform') }}</div>
-                                    </label>
-                                </div>
+                <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <x-icon name="shield-check" class="w-4 h-4 inline" /> {{ __('User Roles') }}
+                    </label>
 
-                                <div class="flex items-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition">
-                                    <input
-                                        type="checkbox"
-                                        wire:model="user.is_supplier"
-                                        id="is_supplier"
-                                        class="rounded border-gray-300 dark:border-gray-700 text-purple-600 shadow-sm focus:ring-purple-500 w-5 h-5"
-                                    >
-                                    <label for="is_supplier" class="ml-3 flex-1 cursor-pointer">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Supplier') }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ __('Can supply products') }}</div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </x-tab.items>
-
-                <!-- Business Information Tab -->
-                <x-tab.items tab="{{__('Business Information')}}">
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-input
-                                label="{{ __('Company Name') }}"
-                                wire:model="user.company_name"
-                                icon="building-office"
-                                hint="{{ __('Legal business name') }}"
-                            />
-                            <x-input
-                                label="{{ __('Tax ID / VAT') }}"
-                                wire:model="user.tax_id"
-                                icon="document-text"
-                                hint="{{ __('Tax identification number') }}"
-                            />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-select.styled
-                                label="{{ __('Business Type') }}"
-                                wire:model="user.business_type"
-                                :options="[
-                                    ['label' => 'Individual', 'value' => 'Individual'],
-                                    ['label' => 'Company', 'value' => 'Company'],
-                                    ['label' => 'Corporation', 'value' => 'Corporation'],
-                                    ['label' => 'Partnership', 'value' => 'Partnership'],
-                                    ['label' => 'LLC', 'value' => 'LLC']
-                                ]"
-                                select="label:label|value:value"
-                            />
-                            <x-input
-                                label="{{ __('Website') }}"
-                                wire:model="user.website"
-                                icon="globe-alt"
-                                hint="{{ __('Company website URL') }}"
-                                placeholder="https://example.com"
-                            />
-                        </div>
-
-                        <x-textarea
-                            label="{{ __('Business Description') }}"
-                            wire:model="user.business_description"
-                            hint="{{ __('Brief description of business activities') }}"
-                            rows="3"
-                        />
-                    </div>
-                </x-tab.items>
-
-                <!-- Contact Information Tab -->
-                <x-tab.items tab="{{__('Contact Information')}}">
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-input
-                                label="{{ __('Phone Number') }}"
-                                wire:model="user.phone"
-                                icon="phone"
-                                hint="{{ __('Primary phone number') }}"
-                            />
-                            <x-input
-                                label="{{ __('Mobile Number') }}"
-                                wire:model="user.mobile"
-                                icon="device-phone-mobile"
-                                hint="{{ __('Mobile phone number') }}"
-                            />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-input
-                                label="{{ __('Address Line 1') }}"
-                                wire:model="user.address_line1"
-                                icon="map-pin"
-                                hint="{{ __('Street address') }}"
-                            />
-                            <x-input
-                                label="{{ __('Address Line 2') }}"
-                                wire:model="user.address_line2"
-                                hint="{{ __('Apartment, suite, etc.') }}"
-                            />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <x-input
-                                label="{{ __('City') }}"
-                                wire:model="user.city"
-                            />
-                            <x-input
-                                label="{{ __('State / Province') }}"
-                                wire:model="user.state"
-                            />
-                            <x-input
-                                label="{{ __('Postal Code') }}"
-                                wire:model="user.postal_code"
-                            />
-                        </div>
-
-                        <x-input
-                            label="{{ __('Country') }}"
-                            wire:model="user.country"
-                            icon="globe-americas"
-                        />
-                    </div>
-                </x-tab.items>
-
-                <!-- Supplier Details Tab -->
-                <x-tab.items tab="{{__('Supplier Details')}}">
-                    <div class="space-y-4">
-                        <x-alert color="info" class="mb-4">
-                            {{ __('Fill in these fields if the user will be a supplier. Supplier will be auto-approved when created.') }}
-                        </x-alert>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-input
-                                label="{{ __('Supplier Code') }}"
-                                wire:model="user.supplier_code"
-                                icon="qr-code"
-                                hint="{{ __('Unique supplier identifier') }}"
-                                placeholder="SUP-"
-                            />
-                            <x-input
-                                label="{{ __('D-U-N-S Number') }}"
-                                wire:model="user.duns_number"
-                                icon="identification"
-                                hint="{{ __('Dun & Bradstreet number') }}"
-                            />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-input
-                                label="{{ __('Ariba Network ID (ANID)') }}"
-                                wire:model="user.ariba_network_id"
-                                icon="link"
-                                hint="{{ __('SAP Ariba Network ID') }}"
-                                placeholder="AN"
-                            />
-                            <x-select.styled
-                                label="{{ __('Currency') }}"
-                                wire:model="user.currency"
-                                :options="[
-                                    ['label' => 'USD - US Dollar', 'value' => 'USD'],
-                                    ['label' => 'EUR - Euro', 'value' => 'EUR'],
-                                    ['label' => 'GBP - British Pound', 'value' => 'GBP'],
-                                    ['label' => 'JPY - Japanese Yen', 'value' => 'JPY'],
-                                    ['label' => 'CNY - Chinese Yuan', 'value' => 'CNY']
-                                ]"
-                                select="label:label|value:value"
-                            />
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-number
-                                label="{{ __('Credit Limit') }}"
-                                wire:model="user.credit_limit"
-                                icon="currency-dollar"
-                                hint="{{ __('Maximum credit allowed') }}"
-                                min="0"
-                                step="0.01"
-                            />
-                            <x-select.styled
-                                label="{{ __('Supplier Status') }}"
-                                wire:model="user.supplier_status"
-                                :options="[
-                                    ['label' => 'Active', 'value' => 'active'],
-                                    ['label' => 'Pending', 'value' => 'pending'],
-                                    ['label' => 'Inactive', 'value' => 'inactive'],
-                                    ['label' => 'Blocked', 'value' => 'blocked']
-                                ]"
-                                select="label:label|value:value"
-                            />
-                        </div>
-                    </div>
-                </x-tab.items>
-
-                <!-- Seller Details Tab -->
-                <x-tab.items tab="{{__('Seller Details')}}">
-                    <div class="space-y-4">
-                        <x-alert color="info" class="mb-4">
-                            {{ __('Configure seller-specific settings. Seller will be auto-verified when created.') }}
-                        </x-alert>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <x-number
-                                label="{{ __('Commission Rate (%)') }}"
-                                wire:model="user.commission_rate"
-                                icon="percent-badge"
-                                hint="{{ __('Percentage commission on sales') }}"
-                                min="0"
-                                max="100"
-                                step="0.01"
-                            />
-
-                            <div class="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                    <div class="space-y-2">
+                        @foreach($roles as $role)
+                            <label class="flex items-center gap-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
                                 <input
                                     type="checkbox"
-                                    wire:model="user.verified_seller"
-                                    id="verified_seller"
-                                    class="rounded border-gray-300 dark:border-gray-700 text-green-600 shadow-sm focus:ring-green-500 w-5 h-5"
-                                >
-                                <label for="verified_seller" class="ml-3 flex-1 cursor-pointer">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ __('Verified Seller') }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ __('Mark as verified seller') }}</div>
-                                </label>
-                            </div>
-                        </div>
+                                    value="{{ $role->id }}"
+                                    wire:model="roleIds"
+                                    class="rounded border-gray-300 dark:border-gray-700"
+                                />
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $role->display_name ?? ucfirst($role->name) }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ $role->name }}</div>
+                                </div>
+                            </label>
+                        @endforeach
                     </div>
-                </x-tab.items>
-            </x-tab>
-        </form>
 
-        <x-slot:footer>
-            <div class="flex justify-between items-center w-full">
-                <x-button flat label="{{ __('Cancel') }}" wire:click="$toggle('modal')" />
-                <x-button type="submit" form="user-create" color="primary" icon="check">
-                    {{ __('Create User') }}
-                </x-button>
+                    <div class="text-xs text-gray-500 mt-2">
+                        {{ __('Select one or more roles. Additional details will be added after creating the user.') }}
+                    </div>
+                </div>
             </div>
-        </x-slot:footer>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <x-button type="button" color="secondary" wire:click="$toggle('modal')">{{ __('Cancel') }}</x-button>
+                <x-button type="submit" icon="check">{{ __('Create') }}</x-button>
+            </div>
+        </form>
     </x-modal>
 </div>

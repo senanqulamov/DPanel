@@ -132,6 +132,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'description' => 'Can respond to RFQs and submit quotes',
                 'is_system' => true,
             ],
+            [
+                'name' => 'market_worker',
+                'display_name' => 'Market Worker',
+                'description' => 'Worker account managed by a seller; can be assigned to one or more markets',
+                'is_system' => true,
+            ],
         ];
 
         $roles = [];

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -67,6 +68,8 @@ class User extends Authenticatable
         // Status
         'is_active',
         'notes',
+        // Seller-owned worker
+        'seller_id',
     ];
 
     /**
@@ -103,6 +106,7 @@ class User extends Authenticatable
             'rating' => 'decimal:2',
             'supplier_approved_at' => 'datetime',
             'verified_at' => 'datetime',
+            'seller_id' => 'integer',
         ];
     }
 
@@ -197,32 +201,23 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->is_admin;
+        return $this->roles()->where('name', 'admin')->exists() || $this->is_admin;
     }
 
     public function isBuyer(): bool
     {
-        return $this->is_buyer || $this->role === 'buyer';
+        // Pivot roles are source of truth; keep legacy fallback during transition.
+        return $this->roles()->where('name', 'buyer')->exists() || $this->is_buyer || $this->role === 'buyer';
     }
 
     public function isSeller(): bool
     {
-        return $this->is_seller;
+        return $this->roles()->where('name', 'seller')->exists() || $this->is_seller;
     }
 
     public function isSupplier(): bool
     {
-        return $this->is_supplier;
-    }
-
-    public function isActiveSupplier(): bool
-    {
-        return $this->is_supplier && $this->supplier_status === 'active';
-    }
-
-    public function isVerifiedSeller(): bool
-    {
-        return $this->is_seller && $this->verified_seller;
+        return $this->roles()->where('name', 'supplier')->exists() || $this->is_supplier;
     }
 
     /**
@@ -257,36 +252,54 @@ class User extends Authenticatable
 
     /**
      * Check if user has specific role.
+     *
+     * Users can have multiple roles; this must use pivot roles.
      */
     public function hasRole(string $role): bool
     {
-        if ($this->isAdmin() && $role === 'admin') {
+        $role = strtolower($role);
+
+        // Pivot roles first
+        if ($this->roles()->where('name', $role)->exists()) {
             return true;
         }
 
-        return match (strtolower($role)) {
-            'buyer' => $this->is_buyer,
-            'seller' => $this->is_seller,
-            'supplier' => $this->is_supplier,
-            'admin' => $this->is_admin,
+        // Legacy fallback during transition
+        return match ($role) {
+            'buyer' => (bool) $this->is_buyer,
+            'seller' => (bool) $this->is_seller,
+            'supplier' => (bool) $this->is_supplier,
+            'admin' => (bool) $this->is_admin,
             default => false,
         };
     }
 
+    /**
+     * Get role names for this user.
+     */
     public function getRoles(): array
     {
-        $roles = [];
-        if ($this->is_buyer) {
-            $roles[] = 'buyer';
-        }
-        if ($this->is_seller) {
-            $roles[] = 'seller';
-        }
-        if ($this->is_supplier) {
-            $roles[] = 'supplier';
+        $roleNames = $this->roles()->pluck('name')->all();
+
+        // Legacy fallback (kept only for safety while migrating)
+        if (empty($roleNames)) {
+            $roles = [];
+            if ($this->is_buyer) {
+                $roles[] = 'buyer';
+            }
+            if ($this->is_seller) {
+                $roles[] = 'seller';
+            }
+            if ($this->is_supplier) {
+                $roles[] = 'supplier';
+            }
+            if ($this->is_admin) {
+                $roles[] = 'admin';
+            }
+            return $roles;
         }
 
-        return $roles;
+        return $roleNames;
     }
 
     // Address & Contact Methods
@@ -382,30 +395,30 @@ class User extends Authenticatable
 
     public function scopeSuppliers($query)
     {
-        return $query->where('is_supplier', true);
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'supplier'));
     }
 
     public function scopeActiveSuppliers($query)
     {
-        return $query->where('is_supplier', true)
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'supplier'))
             ->where('supplier_status', 'active')
             ->where('is_active', true);
     }
 
     public function scopeSellers($query)
     {
-        return $query->where('is_seller', true);
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'seller'));
     }
 
     public function scopeVerifiedSellers($query)
     {
-        return $query->where('is_seller', true)
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'seller'))
             ->where('verified_seller', true);
     }
 
     public function scopeBuyers($query)
     {
-        return $query->where('is_buyer', true);
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'buyer'));
     }
 
     public function scopeWithRole($query, string $role)
@@ -439,5 +452,30 @@ class User extends Authenticatable
 
         // Fallback to global dashboard
         return 'dashboard';
+    }
+
+    /**
+     * If this user is a worker, this references the seller owner account.
+     */
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
+
+    /**
+     * Seller-owned worker accounts (Amazon-style).
+     */
+    public function workers(): HasMany
+    {
+        return $this->hasMany(User::class, 'seller_id');
+    }
+
+    /**
+     * Markets this worker is assigned to (market_users pivot).
+     */
+    public function workerMarkets(): BelongsToMany
+    {
+        return $this->belongsToMany(Market::class, 'market_users')
+            ->withTimestamps();
     }
 }

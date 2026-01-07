@@ -60,15 +60,13 @@ class Index extends Component
         }
 
         return User::query()
-            ->with('markets')
+            ->with(['markets', 'roles:id,name,display_name'])
             ->whereNotIn('id', [Auth::id()])
             ->when($this->search !== null, fn (Builder $query) => $query->whereAny(['name', 'email'], 'like', '%'.trim($this->search).'%'))
-            ->when($this->roleFilter === 'buyer', fn (Builder $query) => $query->where('is_buyer', true))
-            ->when($this->roleFilter === 'seller', fn (Builder $query) => $query->where('is_seller', true))
-            ->when($this->roleFilter === 'supplier', fn (Builder $query) => $query->where('is_supplier', true))
-            ->when($this->roleFilter === 'admin', fn (Builder $query) => $query->whereHas('roles', function ($q) {
-                $q->where('name', 'admin');
-            }))
+            ->when($this->roleFilter === 'buyer', fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'buyer')))
+            ->when($this->roleFilter === 'seller', fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'seller')))
+            ->when($this->roleFilter === 'supplier', fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'supplier')))
+            ->when($this->roleFilter === 'admin', fn (Builder $query) => $query->whereHas('roles', fn ($q) => $q->where('name', 'admin')))
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity)
             ->withQueryString();

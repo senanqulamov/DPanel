@@ -130,8 +130,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ __('Basic Information') }}</h3>
-                            <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Update your personal details') }}</p>
+                            <h3 class="text-lg font-bold text-slate-200">{{ __('Basic Information') }}</h3>
+                            <p class="text-sm text-slate-400">{{ __('Update your personal details') }}</p>
                         </div>
                     </div>
                 </x-slot:header>
@@ -166,8 +166,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ __('Business Information') }}</h3>
-                            <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Company and contact details') }}</p>
+                            <h3 class="text-lg font-bold text-slate-200">{{ __('Business Information') }}</h3>
+                            <p class="text-sm text-slate-400">{{ __('Company and contact details') }}</p>
                         </div>
                     </div>
                 </x-slot:header>
@@ -223,8 +223,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ __('Security Settings') }}</h3>
-                            <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Update your password and security preferences') }}</p>
+                            <h3 class="text-lg font-bold text-slate-200">{{ __('Security Settings') }}</h3>
+                            <p class="text-sm text-slate-400">{{ __('Update your password and security preferences') }}</p>
                         </div>
                     </div>
                 </x-slot:header>
@@ -272,8 +272,8 @@
                                 </svg>
                             </div>
                             <div>
-                                <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ __('Professional Details') }}</h3>
-                                <p class="text-sm text-slate-600 dark:text-slate-400">{{ __('Role-specific information and status') }}</p>
+                                <h3 class="text-lg font-bold text-slate-200">{{ __('Professional Details') }}</h3>
+                                <p class="text-sm text-slate-400">{{ __('Role-specific information and status') }}</p>
                             </div>
                         </div>
                     </x-slot:header>
@@ -325,9 +325,9 @@
         @endif
 
         <!-- Save Button (Sticky) -->
-        <div class="sticky bottom-0 mt-6 py-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 -mx-6 px-6 rounded-b-3xl">
+        <div class="sticky bottom-0 mt-6 py-4 bg-slate-600 px-6 rounded-b-3xl">
             <div class="flex items-center justify-between">
-                <p class="text-sm text-slate-600 dark:text-slate-400">
+                <p class="text-sm text-slate-200">
                     {{ __('Make sure to save your changes before leaving') }}
                 </p>
                 <button type="submit"

@@ -4,9 +4,11 @@ namespace App\Livewire\Users;
 
 use App\Livewire\Traits\Alert;
 use App\Livewire\Traits\WithLogging;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -14,84 +16,45 @@ class Create extends Component
 {
     use Alert, WithLogging;
 
-    public User $user;
+    public string $name = '';
+    public string $email = '';
 
     public ?string $password = null;
-
     public ?string $password_confirmation = null;
+
+    /** @var array<int> */
+    public array $roleIds = [];
 
     public bool $modal = false;
 
-    public function mount(): void
-    {
-        $this->user = new User([
-            'is_buyer' => false,
-            'is_seller' => false,
-            'is_supplier' => false,
-            'is_active' => true,
-            'verified_seller' => false,
-        ]);
-    }
-
     public function render(): View
     {
-        return view('livewire.users.create');
+        // Exclude market_worker (seller-owned accounts only)
+        $roles = Role::query()
+            ->whereIn('name', ['admin', 'buyer', 'seller', 'supplier'])
+            ->orderBy('name')
+            ->get(['id', 'name', 'display_name']);
+
+        return view('livewire.users.create', [
+            'roles' => $roles,
+        ]);
     }
 
     public function rules(): array
     {
         return [
-            // Basic Information
-            'user.name' => ['required', 'string', 'max:255'],
-            'user.email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
-
-            // Role flags
-            'user.is_buyer' => ['boolean'],
-            'user.is_seller' => ['boolean'],
-            'user.is_supplier' => ['boolean'],
-
-            // Business Information
-            'user.company_name' => ['nullable', 'string', 'max:255'],
-            'user.tax_id' => ['nullable', 'string', 'max:255'],
-            'user.business_type' => ['nullable', 'string', 'max:255'],
-            'user.business_description' => ['nullable', 'string', 'max:1000'],
-
-            // Contact Information
-            'user.phone' => ['nullable', 'string', 'max:255'],
-            'user.mobile' => ['nullable', 'string', 'max:255'],
-            'user.website' => ['nullable', 'url', 'max:255'],
-
-            // Address
-            'user.address_line1' => ['nullable', 'string', 'max:255'],
-            'user.address_line2' => ['nullable', 'string', 'max:255'],
-            'user.city' => ['nullable', 'string', 'max:255'],
-            'user.state' => ['nullable', 'string', 'max:255'],
-            'user.postal_code' => ['nullable', 'string', 'max:255'],
-            'user.country' => ['nullable', 'string', 'max:255'],
-
-            // Supplier Fields
-            'user.supplier_code' => ['nullable', 'string', 'max:255', Rule::unique('users', 'supplier_code')],
-            'user.duns_number' => ['nullable', 'string', 'max:255'],
-            'user.ariba_network_id' => ['nullable', 'string', 'max:255'],
-            'user.currency' => ['nullable', 'string', 'max:10'],
-            'user.credit_limit' => ['nullable', 'numeric', 'min:0'],
-            'user.supplier_status' => ['nullable', 'in:pending,active,inactive,blocked'],
-
-            // Seller Fields
-            'user.commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'user.verified_seller' => ['boolean'],
-
-            // Password
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'roleIds' => ['required', 'array', 'min:1'],
+            'roleIds.*' => ['integer', Rule::exists('roles', 'id')],
         ];
     }
 
     public function save(): void
     {
-        // Check permission
         if (!Auth::user()->hasPermission('create_users')) {
             $this->error('You do not have permission to create users.');
-
             return;
         }
 
@@ -103,52 +66,56 @@ class Create extends Component
             throw $e;
         }
 
-        // Hash the password
-        $this->user->password = bcrypt($this->password);
-        $this->user->email_verified_at = now();
-        if (empty($this->user->currency)) {
-            $this->user->currency = 'USD';
+        $user = new User();
+        $user->name = $this->name;
+        $user->email = $this->email;
+        $user->password = Hash::make((string) $this->password);
+        $user->email_verified_at = now();
+        $user->is_active = true;
+
+        // Legacy flags off by default (transition period)
+        $user->is_admin = false;
+        $user->is_buyer = false;
+        $user->is_seller = false;
+        $user->is_supplier = false;
+        $user->role = 'buyer';
+
+        $user->save();
+
+        // Attach pivot roles
+        $user->roles()->sync($this->roleIds);
+
+        // Transition: keep booleans in sync for now (UI still uses them)
+        $roleNames = $user->roles()->pluck('name')->all();
+        $user->forceFill([
+            'is_admin' => in_array('admin', $roleNames, true),
+            'is_buyer' => in_array('buyer', $roleNames, true),
+            'is_seller' => in_array('seller', $roleNames, true),
+            'is_supplier' => in_array('supplier', $roleNames, true),
+            'role' => in_array('admin', $roleNames, true) ? 'admin' : ($roleNames[0] ?? 'buyer'),
+        ])->saveQuietly();
+
+        // Supplier defaults (keep behavior)
+        if ($user->hasRole('supplier') && empty($user->supplier_status)) {
+            $user->forceFill(['supplier_status' => 'pending'])->saveQuietly();
+        }
+        if (!$user->hasRole('supplier') && empty($user->supplier_status)) {
+            $user->forceFill(['supplier_status' => 'inactive'])->saveQuietly();
         }
 
-        // Auto-generate supplier code if supplier
-        if ($this->user->is_supplier && empty($this->user->supplier_code)) {
-            $this->user->supplier_code = 'SUP-' . strtoupper(substr(uniqid(), -8));
-        }
+        $this->logCreate(User::class, $user->id, [
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->getRoles(),
+        ]);
 
-        // Set initial supplier status
-        if ($this->user->is_supplier && empty($this->user->supplier_status)) {
-            $this->user->supplier_status = 'pending';
-        }
-        if (!$this->user->is_supplier && empty($this->user->supplier_status)) {
-            $this->user->supplier_status = 'inactive';
-        }
-
-        // Save the user
-        $this->user->save();
-
-        // Log the creation
-        $this->logCreate(
-            User::class,
-            $this->user->id,
-            [
-                'name' => $this->user->name,
-                'email' => $this->user->email,
-                'roles' => $this->user->getRoles(),
-                'company_name' => $this->user->company_name,
-            ]
-        );
-
-        // Dispatch event
+        // Notify + close modal + refresh list
         $this->dispatch('created');
-
-        // Reset form
-        $this->reset();
-        $this->mount();
-
-        // Success message
         $this->success(__('User created successfully.'));
 
-        // Close modal
-        $this->modal = false;
+        $this->reset(['name', 'email', 'password', 'password_confirmation', 'roleIds', 'modal']);
+
+        // Redirect to user details (no auto-open edit modal)
+        $this->redirect(route('users.show', $user), navigate: true);
     }
 }

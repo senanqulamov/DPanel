@@ -37,14 +37,19 @@
             @endinteract
 
             @interact('column_roles', $row)
+            @php
+                $roleNames = $row->roles?->pluck('name')->all() ?? [];
+            @endphp
             <div class="flex gap-1 flex-wrap">
-                @if($row->is_buyer)
+                @if(in_array('buyer', $roleNames, true) || $row->is_buyer)
                     <x-badge color="blue" text="Buyer" icon="shopping-cart" position="left" sm />
                 @endif
-                @if($row->is_seller)
+
+                @if(in_array('seller', $roleNames, true) || $row->is_seller)
                     <x-badge color="green" text="{{ $row->verified_seller ? 'Verified Seller' : 'Seller' }}" icon="building-storefront" position="left" sm />
                 @endif
-                @if($row->is_supplier)
+
+                @if(in_array('supplier', $roleNames, true) || $row->is_supplier)
                     @if($row->supplier_status === 'active')
                         <x-badge color="purple" text="Active Supplier" icon="cube" position="left" sm />
                     @elseif($row->supplier_status === 'pending')
@@ -56,6 +61,14 @@
                     @else
                         <x-badge color="slate" text="Supplier ({{ $row->supplier_status }})" icon="cube" position="left" sm />
                     @endif
+                @endif
+
+                @if(in_array('admin', $roleNames, true) || $row->is_admin)
+                    <x-badge color="slate" text="Admin" icon="shield-check" position="left" sm />
+                @endif
+
+                @if(in_array('market_worker', $roleNames, true))
+                    <x-badge color="slate" text="Worker" icon="users" position="left" sm />
                 @endif
             </div>
             @endinteract

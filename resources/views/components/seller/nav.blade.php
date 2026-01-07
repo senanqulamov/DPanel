@@ -4,6 +4,7 @@
         ['route' => 'seller.products.index', 'pattern' => 'seller.products.*',     'label' => __('Products'),     'icon' => 'cube'],
         ['route' => 'seller.orders.index',   'pattern' => 'seller.orders.*',       'label' => __('Orders'),       'icon' => 'receipt-percent'],
         ['route' => 'seller.markets.index',  'pattern' => 'seller.markets.*',      'label' => __('Markets'),      'icon' => 'building-storefront'],
+        ['route' => 'seller.workers.index',  'pattern' => 'seller.workers.*',      'label' => __('Workers'),      'icon' => 'users'],
         ['route' => 'seller.logs.index',     'pattern' => 'seller.logs.*',         'label' => __('Activity Log'), 'icon' => 'clipboard-document-list'],
         ['route' => 'settings.index',        'pattern' => 'settings.*',            'label' => __('Settings'),     'icon' => 'cog-6-tooth'],
         ['route' => 'seller.import-export', 'pattern' => 'seller.import-export', 'label' => __('Import/Export'), 'icon' => 'arrows-up-down'],

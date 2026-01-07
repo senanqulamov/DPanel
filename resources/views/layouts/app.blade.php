@@ -23,22 +23,42 @@
 <x-toast/>
 
 @php
-    $currentRole = auth()->user()->role;
-//    if (request()->routeIs('buyer.*')) {
-//        $currentRole = 'buyer';
-//    } elseif (request()->routeIs('seller.*')) {
-//        $currentRole = 'seller';
-//    } elseif (request()->routeIs('supplier.*')) {
-//        $currentRole = 'supplier';
-//    }
+    // Prefer the current route prefix to keep UI theme stable.
+    if (request()->routeIs('buyer.*')) {
+        $currentRole = 'buyer';
+    } elseif (request()->routeIs('seller.*')) {
+        $currentRole = 'seller';
+    } elseif (request()->routeIs('supplier.*')) {
+        $currentRole = 'supplier';
+    } else {
+        // Admin/default area.
+        $currentRole = 'admin';
+    }
+
+    // If we're not in a role-prefixed area, fall back to the authenticated user's pivot roles.
+    if ($currentRole === 'admin' && auth()->check()) {
+        $roleNames = auth()->user()->roles()->pluck('name')->all();
+
+        if (in_array('admin', $roleNames, true) || auth()->user()->isAdmin()) {
+            $currentRole = 'admin';
+        } elseif (in_array('seller', $roleNames, true) || auth()->user()->isSeller()) {
+            $currentRole = 'seller';
+        } elseif (in_array('supplier', $roleNames, true) || auth()->user()->isSupplier()) {
+            $currentRole = 'supplier';
+        } elseif (in_array('buyer', $roleNames, true) || auth()->user()->isBuyer()) {
+            $currentRole = 'buyer';
+        } else {
+            $currentRole = auth()->user()->role ?? 'admin';
+        }
+    }
 @endphp
 
-<div class="flex min-h-screen bg-slate-950">
+<div class="flex min-h-screen bg-slate-950" x-data="{ sidebarExpanded: $persist(true).as('sidebar-expanded') }">
     {{-- Sidebar --}}
     <x-layout.role-sidebar :role="$currentRole"/>
 
     {{-- Main Content Area --}}
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 transition-all duration-300" :class="sidebarExpanded ? 'lg:pl-64' : 'lg:pl-20'">
         {{-- Header --}}
         <x-layout.role-header :role="$currentRole">
         <x-slot:right>

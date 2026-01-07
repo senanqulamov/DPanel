@@ -40,7 +40,7 @@ class Role extends Model
     }
 
     /**
-     * Check if role has a specific permission.
+     * Check if a role has a specific permission.
      */
     public function hasPermission(string $permissionName): bool
     {

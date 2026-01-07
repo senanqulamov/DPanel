@@ -15,11 +15,10 @@ class EnsureUserIsSupplier
      */
     public function handle(Request $request, Closure $next): Response
     {
-
-        if (!$request->user() || !$request->user()->is_supplier) {
-            if($request->user()->hasRole('admin')){
+        if (!$request->user() || !$request->user()->hasRole('supplier')) {
+            if ($request->user() && $request->user()->hasRole('admin')) {
                 return $next($request);
-//                abort(403,'Admin access to supplier area is not allowed.');
+                // abort(403,'Admin access to supplier area is not allowed.');
             }
             abort(403, 'Access denied. This area is for suppliers only.');
         }

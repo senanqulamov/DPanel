@@ -70,31 +70,61 @@ class UserFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function ($user) {
-            $roleName = $user->role;
+            // Support multi-role users via `roles_to_attach` (array of role names).
+            $roleNames = [];
 
-            if (!$roleName) {
-                throw new \RuntimeException('UserFactory: role must be set before creating user.');
+            if (!empty($user->roles_to_attach) && is_array($user->roles_to_attach)) {
+                $roleNames = $user->roles_to_attach;
+            } elseif (!empty($user->role)) {
+                // Backward compatibility: single role column
+                $roleNames = [$user->role];
             }
 
-            $role = Role::where('name', $roleName)->first();
+            // Ensure unique + normalized
+            $roleNames = collect($roleNames)
+                ->filter()
+                ->map(fn ($r) => strtolower((string) $r))
+                ->unique()
+                ->values()
+                ->all();
 
-            if (!$role) {
-                throw new \RuntimeException(
-                    "UserFactory: Role '{$roleName}' not found for user ID {$user->id}. " .
-                    "Ensure RolesAndPermissionsSeeder runs first."
-                );
+            if (empty($roleNames)) {
+                throw new \RuntimeException('UserFactory: role(s) must be set before creating user.');
             }
 
-            // Attach role if not already attached
-            if (!$user->roles()->where('roles.id', $role->id)->exists()) {
-                $user->roles()->attach($role->id);
-            }
+            foreach ($roleNames as $roleName) {
+                $role = Role::where('name', $roleName)->first();
 
-            // Sync is_admin flag
-            if ($roleName === 'admin' && !$user->is_admin) {
-                $user->forceFill(['is_admin' => true])->saveQuietly();
+                if (!$role) {
+                    throw new \RuntimeException(
+                        "UserFactory: Role '{$roleName}' not found for user ID {$user->id}. " .
+                        "Ensure RolesAndPermissionsSeeder runs first."
+                    );
+                }
+
+                if (!$user->roles()->where('roles.id', $role->id)->exists()) {
+                    $user->roles()->attach($role->id);
+                }
+
+                // Sync is_admin legacy flag (transition)
+                if ($roleName === 'admin' && !$user->is_admin) {
+                    $user->forceFill(['is_admin' => true])->saveQuietly();
+                }
             }
         });
+    }
+
+    /**
+     * Attach multiple roles (pivot role_user) to the user after creation.
+     *
+     * Note: this is for seeding/dev only; the app itself should attach roles via role_user.
+     */
+    public function roles(array $roles): static
+    {
+        return $this->state(fn (array $attributes) => [
+            // Stored as a transient attribute; used in configure()->afterCreating()
+            'roles_to_attach' => $roles,
+        ]);
     }
 
     /**
@@ -219,5 +249,21 @@ class UserFactory extends Factory
             'is_supplier' => true,
             'rating' => 5.0,
         ]);
+    }
+
+    /**
+     * Create a user that is a market worker.
+     */
+    public function marketWorker(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'name' => fake()->firstName().' '.fake()->lastName(),
+            // Keep single role column for compatibility, but pivot role is what matters.
+            'role' => 'market_worker',
+            // No seller-panel access
+            'is_seller' => false,
+            'is_supplier' => false,
+            'is_buyer' => false,
+        ])->roles(['market_worker']);
     }
 }
