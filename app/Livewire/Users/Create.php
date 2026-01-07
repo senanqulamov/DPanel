@@ -27,6 +27,14 @@ class Create extends Component
 
     public bool $modal = false;
 
+    public function mount(): void
+    {
+        $buyerRole = Role::where('name', 'buyer')->first();
+        if ($buyerRole) {
+            $this->roleIds = [$buyerRole->id];
+        }
+    }
+
     public function render(): View
     {
         // Exclude market_worker (seller-owned accounts only)
@@ -113,7 +121,14 @@ class Create extends Component
         $this->dispatch('created');
         $this->success(__('User created successfully.'));
 
-        $this->reset(['name', 'email', 'password', 'password_confirmation', 'roleIds', 'modal']);
+        // Reset form
+        $this->reset(['name', 'email', 'password', 'password_confirmation', 'modal']);
+
+        // Re-set default buyer role for next use
+        $buyerRole = Role::where('name', 'buyer')->first();
+        if ($buyerRole) {
+            $this->roleIds = [$buyerRole->id];
+        }
 
         // Redirect to user details (no auto-open edit modal)
         $this->redirect(route('users.show', $user), navigate: true);

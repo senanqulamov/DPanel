@@ -19,7 +19,7 @@
                              internal
                              @class(['mr-1' => $position === 'left', $personalize['icon'], $colors['icon']]) />
     @endif
-    {{ $text ?? $slot }}
+    {{ __($text) ?? $slot }}
     @if ($right)
         {{ $right }}
     @elseif ($icon && $position === 'right')

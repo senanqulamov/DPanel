@@ -58,25 +58,24 @@
 
                         {{-- Roles (pivot) --}}
                         <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                                 <x-icon name="shield-check" class="w-4 h-4 inline" /> {{ __('User Roles') }}
                             </label>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div class="flex flex-wrap gap-3">
                                 @foreach($roles as $role)
-                                    <label class="flex items-center gap-3 p-2 border border-gray-200 dark:border-gray-700 rounded-lg">
-                                        <input
-                                            type="checkbox"
-                                            value="{{ $role->id }}"
-                                            wire:model="roleIds"
-                                            class="rounded border-gray-300 dark:border-gray-700"
-                                        />
-                                        <div>
-                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $role->display_name ?? ucfirst($role->name) }}</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">{{ $role->name }}</div>
-                                        </div>
-                                    </label>
+                                    <x-cst_checkbox
+                                        wire:key="user-update-{{ $user?->id ?? 'new' }}-role-{{ $role->id }}"
+                                        :id="'user_' . ($user?->id ?? 'new') . '_role_' . $role->id"
+                                        :label="$role->display_name ?? ucfirst($role->name)"
+                                        :value="$role->id"
+                                        model="roleIds"
+                                    />
                                 @endforeach
+                            </div>
+
+                            <div class="text-xs text-gray-500 mt-3">
+                                {{ __('Select one or more roles. Additional details will be added after creating the user.') }}
                             </div>
                         </div>
                     </div>

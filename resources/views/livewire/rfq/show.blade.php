@@ -40,9 +40,9 @@
                         @lang('Back to RFQs')
                     </x-button>
 
-{{--                    <x-button color="purple" icon="arrow-right" href="{{ route('rfq.quote', $request->id) }}">--}}
-{{--                        @lang('Quote (Only Supplier)')--}}
-{{--                    </x-button>--}}
+                    {{--                    <x-button color="purple" icon="arrow-right" href="{{ route('rfq.quote', $request->id) }}">--}}
+                    {{--                        @lang('Quote (Only Supplier)')--}}
+                    {{--                    </x-button>--}}
 
                     @if($canQuote)
                         <x-button icon="currency-dollar" :href="route('rfq.quote', $request)">
@@ -51,6 +51,15 @@
                     @endif
                 </div>
             </div>
+        </div>
+
+        <div class="w-70 mb-6">
+            <x-select.styled
+                label="{{ __('Change Status') }}"
+                wire:model.live="statusValue"
+                :options="collect($availableStatuses)->map(fn($label, $value) => ['label' => __($label), 'value' => $value])->values()->toArray()"
+                select="label:label|value:value"
+            />
         </div>
 
         <div class="space-y-6">

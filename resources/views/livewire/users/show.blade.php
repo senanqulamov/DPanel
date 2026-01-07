@@ -19,7 +19,7 @@
                             <x-icon name="user" class="w-6 h-6 text-slate-100" />
                         </div>
                         <div class="min-w-0">
-                            <h1 class="text-2xl font-bold text-white truncate">
+                            <h1 class="text-2xl font-bold text-slate-200 truncate">
                                 {{ $user->name }}
                             </h1>
                             <div class="text-sm text-slate-300 truncate">{{ $user->email }}</div>
@@ -125,7 +125,7 @@
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <x-icon name="building-storefront" class="w-5 h-5" />
-                            <h2 class="text-lg font-semibold">Seller Overview</h2>
+                            <h2 class="text-lg font-semibold">{{ __('Seller Overview') }}</h2>
                         </div>
                         <x-badge :color="$user->verified_seller ? 'green' : 'slate'" :text="$user->verified_seller ? 'Verified' : 'Not Verified'" />
                     </div>
@@ -297,11 +297,9 @@
         </div>
     </div>
 
-    {{-- Include Supplier Actions Component --}}
     @if($isSupplier)
         <livewire:users.supplier-actions wire:key="supplier-actions-{{ $user->id }}" />
     @endif
 
-    {{-- Include User Update Component --}}
-    <livewire:users.update />
+    <livewire:users.update @updated="$refresh" />
 </div>
