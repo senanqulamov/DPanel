@@ -16,27 +16,27 @@
                             <x-icon name="chart-bar" class="w-6 h-6 text-slate-100" />
                         </div>
                         <div>
-                            <h1 class="text-2xl font-bold text-slate-200">Admin Dashboard</h1>
-                            <div class="text-sm text-slate-300">System-wide overview and performance analytics</div>
+                            <h1 class="text-2xl font-bold text-slate-200">{{__('Admin Dashboard')}}</h1>
+                            <div class="text-sm text-slate-300">{{__('System-wide overview and performance analytics')}}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div class="px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-400">Open RFQs</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400">{{__('Open RFQs')}}</div>
                         <div class="text-xl font-bold text-slate-200">{{ $rfqStats['openRfqs'] ?? 0 }}</div>
                     </div>
                     <div class="px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-400">Pending Quotes</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400">{{__('Pending Quotes')}}</div>
                         <div class="text-xl font-bold text-slate-200">{{ $rfqStats['pendingQuotes'] ?? 0 }}</div>
                     </div>
                     <div class="px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-400">Events Today</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400">{{__('Events Today')}}</div>
                         <div class="text-xl font-bold text-slate-200">{{ $rfqStats['eventsToday'] ?? 0 }}</div>
                     </div>
                     <div class="px-4 py-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-400">Health</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-400">{{__('Health')}}</div>
                         <div class="text-xl font-bold text-slate-200">{{ $systemHealth['score'] ?? 0 }}%</div>
                     </div>
                 </div>
@@ -44,19 +44,19 @@
 
             <div class="mt-5 flex flex-wrap gap-2">
                 <a href="{{ route('users.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/5 hover:bg-white/10 border border-slate-200/10 text-slate-200 text-sm">
-                    <x-icon name="users" class="w-4 h-4" /> Users
+                    <x-icon name="users" class="w-4 h-4" /> {{__('Users')}}
                 </a>
                 <a href="{{ route('rfq.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/5 hover:bg-white/10 border border-slate-200/10 text-slate-200 text-sm">
-                    <x-icon name="document-text" class="w-4 h-4" /> RFQs
+                    <x-icon name="document-text" class="w-4 h-4" /> {{__('RFQs')}}
                 </a>
                 <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/5 hover:bg-white/10 border border-slate-200/10 text-slate-200 text-sm">
-                    <x-icon name="shopping-cart" class="w-4 h-4" /> Orders
+                    <x-icon name="shopping-cart" class="w-4 h-4" /> {{__('Orders')}}
                 </a>
                 <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/5 hover:bg-white/10 border border-slate-200/10 text-slate-200 text-sm">
-                    <x-icon name="cube" class="w-4 h-4" /> Products
+                    <x-icon name="cube" class="w-4 h-4" /> {{__('Products')}}
                 </a>
                 <a href="{{ route('markets.index') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-200/5 hover:bg-white/10 border border-slate-200/10 text-slate-200 text-sm">
-                    <x-icon name="building-storefront" class="w-4 h-4" /> Markets
+                    <x-icon name="building-storefront" class="w-4 h-4" /> {{__('Markets')}}
                 </a>
             </div>
         </div>
@@ -80,7 +80,7 @@
                                 @else
                                     <span class="text-slate-500">—</span>
                                 @endif
-                                <span> vs last period</span>
+                                <span> {{__('vs last period')}}</span>
                             </div>
                         </div>
                         <div class="w-12 h-12 rounded-xl bg-slate-900/5 dark:bg-white/5 border border-gray-200/60 dark:border-slate-700/60 flex items-center justify-center">
@@ -102,12 +102,12 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <x-icon name="document-text" class="w-5 h-5" />
-                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">RFQs by status</h3>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{__('RFQs by status')}}</h3>
                             </div>
                         </div>
                         <div class="h-64 relative">
                             <canvas id="dpanelChartRfqs"></canvas>
-                            <div id="dpanelChartRfqsEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">No data</div>
+                            <div id="dpanelChartRfqsEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">{{__('No data')}}</div>
                         </div>
                     </div>
                 </div>
@@ -117,12 +117,12 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <x-icon name="document-check" class="w-5 h-5" />
-                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Quotes by status</h3>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{__('Quotes by status')}}</h3>
                             </div>
                         </div>
                         <div class="h-64 relative">
                             <canvas id="dpanelChartQuotes"></canvas>
-                            <div id="dpanelChartQuotesEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">No data</div>
+                            <div id="dpanelChartQuotesEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">{{__('No data')}}</div>
                         </div>
                     </div>
                 </div>
@@ -132,12 +132,12 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <x-icon name="banknotes" class="w-5 h-5" />
-                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Sales (last 30 days)</h3>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{__('Sales (last 30 days)')}}</h3>
                             </div>
                         </div>
                         <div class="h-72 relative">
                             <canvas id="dpanelChartSales"></canvas>
-                            <div id="dpanelChartSalesEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">No data</div>
+                            <div id="dpanelChartSalesEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">{{__('No data')}}</div>
                         </div>
                     </div>
                 </div>
@@ -147,12 +147,12 @@
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-2">
                                 <x-icon name="bolt" class="w-5 h-5" />
-                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">User activity (page views)</h3>
+                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{__('User activity (page views)')}}</h3>
                             </div>
                         </div>
                         <div class="h-56 relative">
                             <canvas id="dpanelChartUsers"></canvas>
-                            <div id="dpanelChartUsersEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">No data</div>
+                            <div id="dpanelChartUsersEmpty" class="absolute inset-0 hidden items-center justify-center text-sm text-gray-500">{{__('No data')}}</div>
                         </div>
                     </div>
                 </div>
@@ -164,9 +164,9 @@
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <x-icon name="clipboard-document-list" class="w-5 h-5" />
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Recent RFQs</h3>
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{__('Recent RFQs')}}</h3>
                         </div>
-                        <a href="{{ route('rfq.index') }}" class="text-sm text-blue-600 hover:underline">View all</a>
+                        <a href="{{ route('rfq.index') }}" class="text-sm text-blue-600 hover:underline">{{__('View all')}}</a>
                     </div>
 
                     <div class="space-y-2">
@@ -175,7 +175,7 @@
                                 <div class="flex items-center justify-between gap-3">
                                     <div class="min-w-0">
                                         <div class="font-semibold text-gray-900 dark:text-white truncate">{{ $rfq['title'] ?? '—' }}</div>
-                                        <div class="text-xs text-gray-500 truncate">Buyer: {{ $rfq['buyer'] ?? '—' }} • {{ $rfq['items_count'] ?? 0 }} items</div>
+                                        <div class="text-xs text-gray-500 truncate">{{__('Buyer')}}: {{ $rfq['buyer'] ?? '—' }} • {{ $rfq['items_count'] ?? 0 }} {{__('items')}}</div>
                                     </div>
                                     <div class="flex items-center gap-2">
                                         <x-badge :text="ucfirst($rfq['status'] ?? '—')" color="slate" />
@@ -184,7 +184,7 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="text-sm text-gray-500">No RFQs yet.</div>
+                            <div class="text-sm text-gray-500">{{__('No RFQs yet.')}}</div>
                         @endforelse
                     </div>
                 </div>
@@ -198,22 +198,22 @@
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
                             <x-icon name="bell-alert" class="w-5 h-5" />
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Attention</h3>
+                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{__('Attention')}}</h3>
                         </div>
-                        <a href="{{ route('logs.index') }}" class="text-sm text-blue-600 hover:underline">Logs</a>
+                        <a href="{{ route('logs.index') }}" class="text-sm text-blue-600 hover:underline">{{__('Logs')}}</a>
                     </div>
 
                     <div class="space-y-2 text-sm">
                         <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-slate-800/50 border border-gray-200/60 dark:border-slate-700/60">
-                            <span class="text-gray-600 dark:text-slate-300">Errors today</span>
+                            <span class="text-gray-600 dark:text-slate-300">{{__('Errors today')}}</span>
                             <span class="font-semibold text-red-600">{{ $systemHealth['errorLogsToday'] ?? 0 }}</span>
                         </div>
                         <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-slate-800/50 border border-gray-200/60 dark:border-slate-700/60">
-                            <span class="text-gray-600 dark:text-slate-300">Pending quotes</span>
+                            <span class="text-gray-600 dark:text-slate-300">{{__('Pending quotes')}}</span>
                             <span class="font-semibold">{{ $rfqStats['pendingQuotes'] ?? 0 }}</span>
                         </div>
                         <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-slate-800/50 border border-gray-200/60 dark:border-slate-700/60">
-                            <span class="text-gray-600 dark:text-slate-300">SLA reminders</span>
+                            <span class="text-gray-600 dark:text-slate-300">{{__('SLA reminders')}}</span>
                             <span class="font-semibold">{{ $rfqStats['slaReminders'] ?? 0 }}</span>
                         </div>
                     </div>
@@ -258,7 +258,7 @@
                 <div class="p-5">
                     <div class="flex items-center gap-2 mb-4">
                         <x-icon name="clock" class="w-5 h-5" />
-                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Workflow / System Activity</h3>
+                        <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{{ __('Workflow / System Activity') }}</h3>
                     </div>
 
                     <div class="space-y-3 max-h-80 overflow-y-auto">

@@ -44,6 +44,9 @@ use App\Livewire\Monitoring\Rfq\Create as MonitoringRfqCreate;
 use App\Livewire\Monitoring\Rfq\Show as MonitoringRfqShow;
 use App\Livewire\Sla\Index as SlaIndex;
 use App\Livewire\Seller\Workers\Index as SellerWorkersIndex;
+use App\Livewire\Categories\Index as CategoriesIndex;
+use App\Livewire\Categories\Show as CategoryShow;
+use App\Livewire\Reports\KpiIndex;
 
 Route::view('/', 'welcome')->name('welcome');
 
@@ -93,6 +96,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/markets', MarketsIndex::class)->name('markets.index')->middleware('can:view_markets');
     Route::get('/markets/{market}', MarketShow::class)->name('markets.show')->middleware('can:view_markets');
 
+    // Categories
+    Route::get('/categories', CategoriesIndex::class)->name('categories.index')->middleware('can:view_categories');
+    Route::get('/categories/{category}', CategoryShow::class)->name('categories.show')->middleware('can:view_categories');
+
     // Logs
     Route::get('/logs', LogsIndex::class)->name('logs.index')->middleware('can:view_logs');
 
@@ -118,6 +125,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/monitoring/rfq/create', MonitoringRfqCreate::class)->name('monitoring.rfq.create')->middleware('can:create_rfqs');
     Route::get('/monitoring/rfq/{request}', MonitoringRfqShow::class)->name('monitoring.rfq.show')->middleware('can:view_rfqs');
     Route::get('/sla', SlaIndex::class)->name('sla.index')->middleware('can:manage_sla');
+
+    // KPI Reports
+    Route::get('/reports/kpi', KpiIndex::class)->name('reports.kpi')->middleware('can:view_reports');
 
     // Download routes for import/export
     Route::get('/download/template', [DownloadController::class, 'downloadTemplate'])->name('download.template');

@@ -70,6 +70,8 @@ class User extends Authenticatable
         'notes',
         // Seller-owned worker
         'seller_id',
+        // Supplier-owned worker
+        'supplier_id',
     ];
 
     /**
@@ -468,6 +470,22 @@ class User extends Authenticatable
     public function workers(): HasMany
     {
         return $this->hasMany(User::class, 'seller_id');
+    }
+
+    /**
+     * If this user is a supplier worker, this references the supplier owner account.
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'supplier_id');
+    }
+
+    /**
+     * Supplier-owned worker accounts (field evaluator/worker supplier).
+     */
+    public function supplierWorkers(): HasMany
+    {
+        return $this->hasMany(User::class, 'supplier_id');
     }
 
     /**

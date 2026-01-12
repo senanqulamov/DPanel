@@ -44,6 +44,7 @@
                 ['route' => 'supplier.products.index', 'pattern' => 'supplier.products.*', 'label' => __('Products'), 'icon' => 'cube'],
                 ['route' => 'supplier.markets.index', 'pattern' => 'supplier.markets.*', 'label' => __('Markets'), 'icon' => 'building-storefront'],
                 ['route' => 'supplier.orders.index', 'pattern' => 'supplier.orders.*', 'label' => __('Orders'), 'icon' => 'shopping-cart'],
+                ['route' => 'supplier.workers.index', 'pattern' => 'supplier.workers.*', 'label' => __('Field Workers'), 'icon' => 'users'],
                 ['route' => 'supplier.import-export', 'pattern' => 'supplier.import-export', 'label' => __('Import/Export'), 'icon' => 'arrow-down-tray'],
                 ['route' => 'supplier.logs.index', 'pattern' => 'supplier.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
             ],
@@ -57,6 +58,7 @@
                 ['route' => 'dashboard', 'pattern' => 'dashboard', 'label' => __('Dashboard'), 'icon' => 'home'],
                 ['route' => 'users.index', 'pattern' => 'users.*', 'label' => __('Users'), 'icon' => 'users'],
                 ['route' => 'products.index', 'pattern' => 'products.*', 'label' => __('Products'), 'icon' => 'cube'],
+                ['route' => 'categories.index', 'pattern' => 'categories.*', 'label' => __('Categories'), 'icon' => 'tag'],
                 ['route' => 'orders.index', 'pattern' => 'orders.*', 'label' => __('Orders'), 'icon' => 'shopping-cart'],
                 ['route' => 'rfq.index', 'pattern' => 'rfq.*', 'label' => __('RFQs'), 'icon' => 'document-text'],
                 ['route' => 'markets.index', 'pattern' => 'markets.*', 'label' => __('Markets'), 'icon' => 'building-storefront'],
@@ -66,6 +68,7 @@
                 ['route' => 'health.index', 'pattern' => 'health.*', 'label' => __('System Health'), 'icon' => 'heart'],
                 ['route' => 'monitoring.rfq.index', 'pattern' => 'monitoring.rfq.*', 'label' => __('RFQ Monitoring'), 'icon' => 'rectangle-group'],
                 ['route' => 'sla.index', 'pattern' => 'sla.*', 'label' => __('SLA Tracker'), 'icon' => 'clock'],
+                ['route' => 'reports.kpi', 'pattern' => 'reports.*', 'label' => __('KPI Reports'), 'icon' => 'chart-bar'],
             ],
         ],
     ];
