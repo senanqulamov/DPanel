@@ -18,12 +18,65 @@
                 />
             </div>
 
+            @if($isAdmin)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <x-select.styled
+                        label="{{ __('Buyer (Customer)') }} *"
+                        wire:model.defer="request.buyer_id"
+                        :options="$buyers"
+                        select="label:name|value:id"
+                        searchable
+                        required
+                    />
+
+                    <x-select.styled
+                        label="{{ __('Request Type') }}"
+                        wire:model.defer="request.request_type"
+                        :options="[
+                            ['label' => __('Internal'), 'value' => 'internal'],
+                            ['label' => __('Public Tender'), 'value' => 'public']
+                        ]"
+                        select="label:label|value:value"
+                    />
+                </div>
+            @endif
+
             <div>
                 <x-textarea
                     label="{{ __('Description') }}"
                     wire:model.defer="request.description"
                     rows="4"
                 />
+            </div>
+
+            {{-- Delivery Information --}}
+            <div class="border-t pt-4">
+                <h3 class="text-md font-semibold text-[var(--color-text-high)] mb-4">
+                    @lang('Delivery Information')
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <x-input
+                        label="{{ __('Delivery Location') }}"
+                        wire:model.defer="request.delivery_location"
+                        placeholder="{{ __('e.g., Warehouse A, Office Building') }}"
+                    />
+
+                    <x-textarea
+                        label="{{ __('Delivery Address') }}"
+                        wire:model.defer="request.delivery_address"
+                        rows="2"
+                        placeholder="{{ __('Full delivery address') }}"
+                    />
+                </div>
+
+                <div class="mt-4">
+                    <x-textarea
+                        label="{{ __('Special Instructions') }}"
+                        wire:model.defer="request.special_instructions"
+                        rows="3"
+                        placeholder="{{ __('Any special delivery instructions or requirements') }}"
+                    />
+                </div>
             </div>
 
             <div class="border-t pt-4">

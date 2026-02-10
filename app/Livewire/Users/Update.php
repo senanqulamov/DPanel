@@ -102,6 +102,7 @@ class Update extends Component
             'user.is_seller' => ['boolean'],
             'user.is_supplier' => ['boolean'],
             'user.is_active' => ['boolean'],
+            'user.is_public_tender_eligible' => ['boolean'],
 
             // Buyer (Business Information)
             'user.company_name' => ['nullable', 'string', 'max:255'],

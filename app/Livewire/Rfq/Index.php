@@ -32,6 +32,7 @@ class Index extends Component
         ['index' => 'id', 'label' => '#'],
         ['index' => 'title', 'label' => 'Title'],
         ['index' => 'deadline', 'label' => 'Deadline'],
+        ['index' => 'request_type', 'label' => 'Type'],
         ['index' => 'status', 'label' => 'Status'],
         ['index' => 'items_count', 'label' => 'Items'],
         ['index' => 'quotes_count', 'label' => 'Quotes'],

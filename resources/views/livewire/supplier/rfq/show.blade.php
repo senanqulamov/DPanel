@@ -77,6 +77,106 @@
                 @endif
             </div>
 
+            {{-- Field Assessment Requirement (for supplier to submit) --}}
+            @if($request->requires_field_assessment)
+                @php
+                    $supplierAssessment = \App\Models\FieldAssessment::where('request_id', $request->id)
+                        ->where('supplier_id', auth()->id())
+                        ->first();
+                @endphp
+
+                @if($supplierAssessment && $supplierAssessment->isCompleted())
+                    {{-- Assessment Submitted - Show Success --}}
+                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <x-icon name="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                            <div class="flex-1">
+                                <h3 class="text-base font-semibold text-green-900 dark:text-green-100 mb-2">
+                                    {{ __('Field Assessment Submitted') }}
+                                </h3>
+                                <p class="text-sm text-green-700 dark:text-green-300 mb-3">
+                                    {{ __('Your field assessment has been submitted successfully. You can now proceed to submit your quote.') }}
+                                </p>
+                                <x-button
+                                    size="sm"
+                                    color="secondary"
+                                    icon="eye"
+                                    href="{{ route('supplier.field-assessment.show', $request) }}"
+                                >
+                                    {{ __('View Your Assessment') }}
+                                </x-button>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    {{-- Assessment Required - Show Alert --}}
+                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <x-icon name="exclamation-triangle" class="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                            <div class="flex-1">
+                                <h3 class="text-base font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                                    {{ __('Field Assessment Required') }}
+                                </h3>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
+                                    {{ __('This RFQ requires you to submit a field assessment before you can submit a quote. Please visit the site and complete the assessment form.') }}
+                                </p>
+                                <x-button
+                                    size="sm"
+                                    color="primary"
+                                    icon="clipboard-document-check"
+                                    href="{{ route('supplier.field-assessment.create', $request) }}"
+                                >
+                                    {{ __('Submit Field Assessment') }}
+                                </x-button>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endif
+
+            {{-- Field Assessment Recommendation (if available) --}}
+            @if($request->requires_field_assessment && $request->latestFieldAssessment && $request->latestFieldAssessment->recommended_price)
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <x-icon name="light-bulb" class="w-6 h-6 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+                        <div class="flex-1">
+                            <h3 class="text-base font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                                {{ __('Expert Field Assessment Available') }}
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div>
+                                    <span class="font-medium text-yellow-900 dark:text-yellow-100">{{ __('Recommended Price') }}:</span>
+                                    <span class="text-lg font-bold text-yellow-900 dark:text-yellow-100 ml-2">
+                                        {{ $request->latestFieldAssessment->currency }} {{ number_format($request->latestFieldAssessment->recommended_price, 2) }}
+                                    </span>
+                                </div>
+                                @if($request->latestFieldAssessment->price_justification)
+                                    <div>
+                                        <span class="font-medium text-yellow-800 dark:text-yellow-200">{{ __('Justification') }}:</span>
+                                        <p class="text-yellow-700 dark:text-yellow-300 mt-1">{{ $request->latestFieldAssessment->price_justification }}</p>
+                                    </div>
+                                @endif
+                                @if($request->latestFieldAssessment->technical_feasibility)
+                                    <div>
+                                        <span class="font-medium text-yellow-800 dark:text-yellow-200">{{ __('Technical Notes') }}:</span>
+                                        <p class="text-yellow-700 dark:text-yellow-300 mt-1">{{ $request->latestFieldAssessment->technical_feasibility }}</p>
+                                    </div>
+                                @endif
+                                @if($request->latestFieldAssessment->risks_identified)
+                                    <div class="mt-3 pt-3 border-t border-yellow-200 dark:border-yellow-700">
+                                        <span class="font-medium text-yellow-800 dark:text-yellow-200">{{ __('Identified Risks') }}:</span>
+                                        <p class="text-yellow-700 dark:text-yellow-300 mt-1">{{ $request->latestFieldAssessment->risks_identified }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                            <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-3 italic">
+                                {{ __('This assessment was conducted by') }} {{ $request->fieldEvaluator->name ?? __('a field expert') }} {{ __('to help you provide an accurate quote.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             {{-- RFQ Items --}}
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">

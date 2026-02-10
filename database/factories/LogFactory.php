@@ -12,7 +12,7 @@ class LogFactory extends Factory
 
     public function definition(): array
     {
-        $types = ['info', 'warning', 'error', 'success', 'create', 'update', 'delete', 'login', 'logout'];
+        $types = ['info', 'error', 'create', 'update', 'delete', 'login', 'logout'];
         $type = $this->faker->randomElement($types);
 
         $actions = [

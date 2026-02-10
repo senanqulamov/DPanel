@@ -3,7 +3,19 @@
         <x-heading-title title="{{__('Users')}}" icon="user-group" padding="p-5" hover="-"/>
 
         <div class="mb-2 mt-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <livewire:users.create @created="$refresh"/>
+            <div class="flex gap-2">
+                <livewire:users.create @created="$refresh"/>
+
+                @can('view_users')
+                    <x-button
+                        icon="table-cells"
+                        color="secondary"
+                        href="{{ route('export.suppliers.excel') }}"
+                    >
+                        {{ __('Export Suppliers') }}
+                    </x-button>
+                @endcan
+            </div>
 
             <div class="w-full sm:w-64">
                 <x-select.styled

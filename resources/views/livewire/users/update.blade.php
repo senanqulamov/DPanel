@@ -281,6 +281,26 @@
                                         select="label:label|value:value"
                                     />
                                 </div>
+
+                                {{-- Public Tender Eligibility --}}
+                                <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <div class="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            wire:model="user.is_public_tender_eligible"
+                                            id="is_public_tender_eligible"
+                                            class="rounded border-gray-300 dark:border-gray-700 text-blue-600 shadow-sm focus:ring-blue-500 w-5 h-5"
+                                        >
+                                        <label for="is_public_tender_eligible" class="ml-3">
+                                            <div class="text-sm font-medium text-blue-900 dark:text-blue-100">
+                                                {{ __('Public Tender Eligible') }}
+                                            </div>
+                                            <div class="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                                                {{ __('Enable this to allow supplier to participate in public tenders') }}
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
                             @endif
 
                             @if($isSupplierRole === false)

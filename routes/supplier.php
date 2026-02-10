@@ -52,6 +52,10 @@ Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('s
     Route::get('/rfq/{request}', SupplierRfqShow::class)->name('rfq.show')->middleware('can:view_rfqs');
     Route::get('/rfq/{request}/quote', SupplierRfqQuoteForm::class)->name('rfq.quote')->middleware('can:submit_quotes');
 
+    // Field Assessment (Supplier submits their own assessment)
+    Route::get('/field-assessment/{request}/create', \App\Livewire\Supplier\FieldAssessment\Create::class)->name('field-assessment.create');
+    Route::get('/field-assessment/{request}/show', \App\Livewire\Supplier\FieldAssessment\Show::class)->name('field-assessment.show');
+
     // Products (View-only + Show page)
     Route::get('/products', SupplierProductsIndex::class)->name('products.index')->middleware('can:view_products');
     Route::get('/products/{product}', SupplierProductsShow::class)->name('products.show')->middleware('can:view_products');

@@ -18,6 +18,11 @@ class GlobalSearch extends Component
     public array $results = [];
     public int $selectedIndex = 0;
 
+    public function __construct()
+    {
+
+    }
+
 
     public function mount(): void
     {

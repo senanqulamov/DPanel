@@ -414,6 +414,138 @@
         </div>
     </x-card>
 
+    {{-- RFQs with Field Assessments --}}
+    @if($rfqsWithFieldAssessment->isNotEmpty())
+        <x-card>
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <x-icon name="clipboard-document-check" class="w-5 h-5 text-blue-500" />
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ __('RFQs with Field Assessment') }}
+                    </h3>
+                </div>
+                <x-badge text="{{ $rfqsWithFieldAssessment->count() }}" color="blue" />
+            </div>
+
+            <div class="space-y-3">
+                @foreach($rfqsWithFieldAssessment as $rfq)
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h4 class="font-medium text-gray-900 dark:text-gray-100">
+                                    {{ $rfq->title }}
+                                </h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    {{ $rfq->request_number }} • {{ __('Buyer') }}: {{ $rfq->buyer->name ?? 'N/A' }}
+                                </p>
+                            </div>
+                            <x-badge text="{{ __('Field Assessment Complete') }}" color="green" sm />
+                        </div>
+
+                        @if($rfq->latestFieldAssessment)
+                            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-md p-3 mb-3">
+                                <div class="flex items-start gap-2">
+                                    <x-icon name="light-bulb" class="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                                    <div class="text-xs">
+                                        <p class="font-medium text-yellow-900 dark:text-yellow-100">
+                                            {{ __('Expert Recommendation') }}
+                                        </p>
+                                        <p class="text-yellow-700 dark:text-yellow-300 mt-1">
+                                            {{ __('Recommended Price') }}: <strong>{{ $rfq->latestFieldAssessment->currency }} {{ number_format($rfq->latestFieldAssessment->recommended_price, 2) }}</strong>
+                                        </p>
+                                        @if($rfq->latestFieldAssessment->price_justification)
+                                            <p class="text-yellow-600 dark:text-yellow-400 mt-1">
+                                                {{ Str::limit($rfq->latestFieldAssessment->price_justification, 100) }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-2">
+                            <x-button
+                                size="sm"
+                                color="primary"
+                                icon="currency-dollar"
+                                href="{{ route('supplier.rfq.show', $rfq) }}"
+                            >
+                                {{ __('View & Quote') }}
+                            </x-button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </x-card>
+    @endif
+
+    {{-- Recent Invitations --}}
+    @if($recentInvitations->isNotEmpty())
+        <x-card>
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <x-icon name="envelope" class="w-5 h-5 text-purple-500" />
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {{ __('Recent Invitations') }}
+                    </h3>
+                </div>
+                <a href="{{ route('supplier.invitations.index') }}" class="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400">
+                    {{ __('View All') }} →
+                </a>
+            </div>
+
+            <div class="space-y-3">
+                @foreach($recentInvitations as $invitation)
+                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-purple-300 dark:hover:border-purple-600 transition">
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <h4 class="font-medium text-gray-900 dark:text-gray-100">
+                                    {{ $invitation->request->title }}
+                                </h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    {{ $invitation->request->request_number }} • {{ __('Invited') }}: {{ $invitation->created_at->diffForHumans() }}
+                                </p>
+                            </div>
+                            <x-badge
+                                :text="ucfirst($invitation->status)"
+                                :color="$invitation->status === 'pending' ? 'yellow' : 'gray'"
+                                sm
+                            />
+                        </div>
+
+                        @if($invitation->request->requires_field_assessment && $invitation->request->latestFieldAssessment)
+                            <div class="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 mb-2">
+                                <x-icon name="check-circle" class="w-4 h-4" />
+                                {{ __('Field assessment available') }}
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-2">
+                            <x-button
+                                size="sm"
+                                color="purple"
+                                icon="eye"
+                                href="{{ route('supplier.rfq.show', $invitation->request) }}"
+                            >
+                                {{ __('View RFQ') }}
+                            </x-button>
+                            @if($invitation->status === 'pending')
+                                <x-button
+                                    size="sm"
+                                    color="primary"
+                                    icon="currency-dollar"
+                                    href="{{ route('supplier.quotes.create', $invitation) }}"
+                                >
+                                    {{ __('Submit Quote') }}
+                                </x-button>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </x-card>
+    @endif
+
     {{-- Bottom: guidance --}}
     @if($pendingInvitations > 0)
         <x-card class="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">

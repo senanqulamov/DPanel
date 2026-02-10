@@ -31,6 +31,7 @@ class User extends Authenticatable
         'is_buyer',
         'is_seller',
         'is_supplier',
+        'is_public_tender_eligible',
         // Business info
         'company_name',
         'tax_id',
@@ -100,6 +101,7 @@ class User extends Authenticatable
             'is_buyer' => 'boolean',
             'is_seller' => 'boolean',
             'is_supplier' => 'boolean',
+            'is_public_tender_eligible' => 'boolean',
             'verified_seller' => 'boolean',
             'is_active' => 'boolean',
             'payment_terms' => 'json',

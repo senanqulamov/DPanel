@@ -254,4 +254,175 @@ class KpiService
             'win_rate' => 0,
         ];
     }
+
+    /**
+     * Calculate Procurement KPIs for a given period
+     */
+    public function calculateProcurementKpis(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = Request::query();
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $totalRfqs = $query->count();
+        $activeRfqs = (clone $query)->whereIn('status', ['open', 'under_review'])->count();
+        $completedRfqs = (clone $query)->whereIn('status', ['awarded', 'closed'])->count();
+
+        // Calculate average processing time
+        $completed = (clone $query)->whereIn('status', ['awarded', 'closed', 'cancelled'])->get();
+        $avgProcessingTime = $completed->map(function ($rfq) {
+            return $rfq->created_at->diffInDays($rfq->updated_at);
+        })->avg() ?? 0;
+
+        // Calculate average response time (hours from RFQ creation to first quote)
+        $rfqsWithQuotes = (clone $query)->has('quotes')->with('quotes')->get();
+        $avgResponseTime = $rfqsWithQuotes->map(function ($rfq) {
+            $firstQuote = $rfq->quotes->sortBy('created_at')->first();
+            return $firstQuote ? $rfq->created_at->diffInHours($firstQuote->created_at) : null;
+        })->filter()->avg() ?? 0;
+
+        // On-time completion rate (completed before deadline)
+        $onTimeCount = $completed->filter(function ($rfq) {
+            return $rfq->deadline && $rfq->updated_at <= $rfq->deadline;
+        })->count();
+        $onTimeRate = $completed->count() > 0 ? ($onTimeCount / $completed->count()) * 100 : 0;
+
+        return [
+            'totalRfqs' => $totalRfqs,
+            'activeRfqs' => $activeRfqs,
+            'completedRfqs' => $completedRfqs,
+            'avgProcessingTime' => round($avgProcessingTime, 2),
+            'avgResponseTime' => round($avgResponseTime, 2),
+            'onTimeRate' => round($onTimeRate, 2),
+        ];
+    }
+
+    /**
+     * Calculate Supplier KPIs for a given period
+     */
+    public function calculateSupplierKpis(?string $startDate = null, ?string $endDate = null): array
+    {
+        $totalSuppliers = User::where('is_supplier', true)->count();
+        $activeSuppliers = User::where('is_supplier', true)->where('is_active', true)->count();
+        $publicTenderEligible = User::where('is_supplier', true)
+            ->where('is_public_tender_eligible', true)
+            ->count();
+
+        $invitationsQuery = SupplierInvitation::query();
+        if ($startDate) {
+            $invitationsQuery->whereDate('sent_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $invitationsQuery->whereDate('sent_at', '<=', $endDate);
+        }
+
+        $invitations = $invitationsQuery->get();
+        $respondedInvitations = $invitations->whereNotNull('responded_at');
+
+        $avgResponseTime = $respondedInvitations->map(function ($inv) {
+            return $inv->sent_at->diffInHours($inv->responded_at);
+        })->avg() ?? 0;
+
+        $responseRate = $invitations->count() > 0
+            ? ($respondedInvitations->count() / $invitations->count()) * 100
+            : 0;
+
+        return [
+            'totalSuppliers' => $totalSuppliers,
+            'activeSuppliers' => $activeSuppliers,
+            'publicTenderEligible' => $publicTenderEligible,
+            'avgResponseTime' => round($avgResponseTime, 2),
+            'responseRate' => round($responseRate, 2),
+            'onTimeDeliveryRate' => 0, // TODO: Implement when delivery tracking is added
+        ];
+    }
+
+    /**
+     * Calculate Quote KPIs for a given period
+     */
+    public function calculateQuoteKpis(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = Quote::query();
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $totalQuotes = $query->count();
+        $submittedQuotes = (clone $query)->where('status', 'submitted')->count();
+        $acceptedQuotes = (clone $query)->where('status', 'accepted')->count();
+
+        $avgQuotesPerRfq = Request::query()
+            ->when($startDate, fn($q) => $q->whereDate('created_at', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('created_at', '<=', $endDate))
+            ->withCount('quotes')
+            ->get()
+            ->avg('quotes_count') ?? 0;
+
+        $avgQuoteValue = (clone $query)->avg('total_amount') ?? 0;
+        $totalQuoteValue = (clone $query)->sum('total_amount') ?? 0;
+        $acceptanceRate = $totalQuotes > 0 ? ($acceptedQuotes / $totalQuotes) * 100 : 0;
+
+        return [
+            'totalQuotes' => $totalQuotes,
+            'submittedQuotes' => $submittedQuotes,
+            'avgQuotesPerRfq' => round($avgQuotesPerRfq, 2),
+            'avgQuoteValue' => round($avgQuoteValue, 2),
+            'totalQuoteValue' => round($totalQuoteValue, 2),
+            'acceptanceRate' => round($acceptanceRate, 2),
+        ];
+    }
+
+    /**
+     * Calculate Field Assessment KPIs for a given period
+     */
+    public function calculateFieldAssessmentKpis(?string $startDate = null, ?string $endDate = null): array
+    {
+        $query = \App\Models\FieldAssessment::query();
+
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $totalAssessments = $query->count();
+        $completedAssessments = (clone $query)->where('status', 'completed')->count();
+
+        // Calculate average time to start (from assignment to started_at)
+        $started = (clone $query)->whereNotNull('started_at')->get();
+        $avgTimeToStart = $started->map(function ($assessment) {
+            return $assessment->created_at->diffInHours($assessment->started_at);
+        })->avg() ?? 0;
+
+        // Calculate average time to complete (from started_at to completed_at)
+        $completed = (clone $query)->where('status', 'completed')
+            ->whereNotNull('started_at')
+            ->whereNotNull('completed_at')
+            ->get();
+        $avgTimeToComplete = $completed->map(function ($assessment) {
+            return $assessment->started_at->diffInHours($assessment->completed_at);
+        })->avg() ?? 0;
+
+        $successRate = $totalAssessments > 0
+            ? ($completedAssessments / $totalAssessments) * 100
+            : 0;
+
+        return [
+            'totalAssessments' => $totalAssessments,
+            'completedAssessments' => $completedAssessments,
+            'avgTimeToStart' => round($avgTimeToStart, 2),
+            'avgTimeToComplete' => round($avgTimeToComplete, 2),
+            'successRate' => round($successRate, 2),
+        ];
+    }
 }

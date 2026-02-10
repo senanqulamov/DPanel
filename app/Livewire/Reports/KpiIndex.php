@@ -34,18 +34,21 @@ class KpiIndex extends Component
 
     // Headers for different tables
     public array $supplierHeaders = [
-        ['index' => 'supplier', 'label' => 'Supplier', 'sortable' => false],
+        ['index' => 'name', 'label' => 'Supplier'],
+        ['index' => 'company_name', 'label' => 'Company', 'sortable' => false],
+        ['index' => 'email', 'label' => 'Email', 'sortable' => false],
         ['index' => 'invitations', 'label' => 'Invitations', 'sortable' => false],
-        ['index' => 'response_rate', 'label' => 'Response Rate', 'sortable' => false],
-        ['index' => 'avg_response', 'label' => 'Avg Response Time', 'sortable' => false],
+        ['index' => 'response_rate', 'label' => 'Response Rate'],
+        ['index' => 'avg_response', 'label' => 'Avg Response Time'],
         ['index' => 'quotes', 'label' => 'Quotes', 'sortable' => false],
-        ['index' => 'win_rate', 'label' => 'Win Rate', 'sortable' => false],
+        ['index' => 'win_rate', 'label' => 'Win Rate'],
+        ['index' => 'created_at', 'label' => 'Joined'],
     ];
 
     public array $rfqHeaders = [
-        ['index' => 'rfq', 'label' => 'RFQ', 'sortable' => false],
-        ['index' => 'status', 'label' => 'Status', 'sortable' => false],
-        ['index' => 'execution', 'label' => 'Execution Time', 'sortable' => false],
+        ['index' => 'title', 'label' => 'RFQ'],
+        ['index' => 'status', 'label' => 'Status'],
+        ['index' => 'created_at', 'label' => 'Execution Time', 'sortable' => false],
         ['index' => 'first_quote', 'label' => 'Time to First Quote', 'sortable' => false],
         ['index' => 'quotes', 'label' => 'Quotes', 'sortable' => false],
     ];
@@ -88,6 +91,20 @@ class KpiIndex extends Component
         $this->resetPage();
     }
 
+    public function updatingReportType($value): void
+    {
+        $this->resetPage();
+        $this->search = null;
+        $this->statusFilter = null;
+
+        // Reset sort to appropriate defaults for each report type
+        if ($value === 'suppliers') {
+            $this->sort = ['column' => 'name', 'direction' => 'asc'];
+        } else {
+            $this->sort = ['column' => 'created_at', 'direction' => 'desc'];
+        }
+    }
+
     public function render(): View
     {
         $data = [
@@ -106,22 +123,32 @@ class KpiIndex extends Component
                 ->count();
         }
 
+        $computedColumns = ['response_rate', 'avg_response', 'win_rate'];
+        $isComputedSort = in_array($this->sort['column'], $computedColumns);
+
         $suppliers = User::whereHas('roles', fn($q) => $q->where('name', 'supplier'))
             ->where('supplier_status', 'active')
-            ->when($this->search !== null, fn (Builder $query) =>
-                $query->whereAny(['name', 'email', 'company_name'], 'like', '%'.trim($this->search).'%')
+            ->when($this->search !== null, fn(Builder $query) => $query->whereAny(['name', 'email', 'company_name'], 'like', '%' . trim($this->search) . '%')
             )
-            ->orderBy('name')
+            ->when(!$isComputedSort, fn($query) => $query->orderBy(...array_values($this->sort))
+            )
             ->paginate($this->quantity, ['*'], 'suppliers_page')
             ->withQueryString();
 
-        // Transform to include metrics
         $suppliers->getCollection()->transform(function ($supplier) {
-            return (object) [
+            return (object)[
                 'supplier' => $supplier,
                 'metrics' => $this->kpiService->getSupplierResponseSpeed($supplier),
             ];
         });
+
+        if ($isComputedSort) {
+            $sorted = $suppliers->getCollection()->sortBy(function ($item) {
+                return data_get($item->metrics, $this->sort['column']);
+            }, SORT_REGULAR, $this->sort['direction'] === 'desc');
+
+            $suppliers->setCollection($sorted->values());
+        }
 
         return $suppliers;
     }
@@ -134,11 +161,9 @@ class KpiIndex extends Component
         }
 
         $rfqs = Request::query()
-            ->when($this->search !== null, fn (Builder $query) =>
-                $query->whereAny(['title', 'description'], 'like', '%'.trim($this->search).'%')
+            ->when($this->search !== null, fn(Builder $query) => $query->whereAny(['title', 'description'], 'like', '%' . trim($this->search) . '%')
             )
-            ->when($this->statusFilter, fn (Builder $query) =>
-                $query->where('status', $this->statusFilter)
+            ->when($this->statusFilter, fn(Builder $query) => $query->where('status', $this->statusFilter)
             )
             ->orderBy(...array_values($this->sort))
             ->paginate($this->quantity, ['*'], 'rfqs_page')
@@ -146,7 +171,7 @@ class KpiIndex extends Component
 
         // Transform to include metrics
         $rfqs->getCollection()->transform(function ($rfq) {
-            return (object) $this->kpiService->getRfqExecutionTime($rfq);
+            return (object)$this->kpiService->getRfqExecutionTime($rfq);
         });
 
         return $rfqs;

@@ -44,6 +44,13 @@
             {{ optional($row->deadline)->format('Y-m-d') ?? '—' }}
             @endinteract
 
+            @interact('column_request_type', $row)
+            <x-badge
+                :text="$row->request_type === 'public' ? __('Public Tender') : __('Internal')"
+                :color="$row->request_type === 'public' ? 'blue' : 'gray'"
+            />
+            @endinteract
+
             @interact('column_status', $row)
             <x-badge
                 :color="$row->status === 'open' ? 'green' : ($row->status === 'closed' ? 'red' : 'gray')"

@@ -36,6 +36,7 @@ use App\Livewire\Privacy\Users\Show as PrivacyUserShow;
 use App\Livewire\Privacy\Roles\Show as PrivacyRoleShow;
 use App\Livewire\Shared\ImportExport;
 use App\Http\Controllers\DownloadController;
+use App\Http\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Health\Index as HealthIndex;
 use App\Livewire\Notifications\Index as NotificationsIndex;
@@ -128,6 +129,22 @@ Route::middleware(['auth'])->group(function () {
 
     // KPI Reports
     Route::get('/reports/kpi', KpiIndex::class)->name('reports.kpi')->middleware('can:view_reports');
+
+
+    // Export routes
+    Route::prefix('export')->group(function () {
+        // PDF Exports
+        Route::get('/rfq/{request}/pdf', [ExportController::class, 'exportRfqPdf'])->name('export.rfq.pdf');
+        Route::get('/rfq/{request}/quote-comparison/pdf', [ExportController::class, 'exportQuoteComparisonPdf'])->name('export.quote-comparison.pdf');
+        Route::get('/kpi/pdf', [ExportController::class, 'exportKpiPdf'])->name('export.kpi.pdf');
+        Route::get('/audit/pdf', [ExportController::class, 'exportAuditPdf'])->name('export.audit.pdf');
+
+        // Excel Exports
+        Route::get('/rfq/{request}/excel', [ExportController::class, 'exportRfqExcel'])->name('export.rfq.excel');
+        Route::get('/rfq/{request}/quotes/excel', [ExportController::class, 'exportQuotesExcel'])->name('export.quotes.excel');
+        Route::get('/kpi/excel', [ExportController::class, 'exportKpiExcel'])->name('export.kpi.excel');
+        Route::get('/suppliers/excel', [ExportController::class, 'exportSuppliersExcel'])->name('export.suppliers.excel');
+    });
 
     // Download routes for import/export
     Route::get('/download/template', [DownloadController::class, 'downloadTemplate'])->name('download.template');
