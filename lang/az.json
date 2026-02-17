@@ -1308,5 +1308,16 @@
     "Enable this to allow supplier to participate in public tenders": "Təchizatçıya açıq tenderlərə qatılmağa icazə vermək üçün bunu aktivləşdirin",
     "Field Assessment Status": "Sahə Qiymətləndirməsi Statusu",
     "Assigned to": "Təyin edilib",
-    "Page View": "Səhifə Baxışı"
+    "Page View": "Səhifə Baxışı",
+    "Quote received": "Təklif alındı",
+    "Product Attributes": "Məhsul atributları",
+    "Add Attribute": "Atribut əlavə et",
+    "Attribute Name": "Atributun adı",
+    "Attribute Value": "Atributun dəyəri",
+    "No attributes added yet. Click \"Add Attribute\" to add product specifications.": "Hələ heç bir atribut əlavə edilməyib. Məhsul xüsusiyyətlərini əlavə etmək üçün \"Atribut əlavə et\" düyməsinə klikləyin.",
+    "Product Specifications": "Məhsul xüsusiyyətləri",
+    "N/A": "Mövcud deyil",
+    "No market associated yet.": "Hələ heç bir bazar əlaqələndirilməyib.",
+    "Guest": "Qonaq"
+
 }

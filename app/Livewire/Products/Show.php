@@ -20,7 +20,7 @@ class Show extends Component
 
     public function mount(Product $product): void
     {
-        $this->product = $product->loadMissing('market');
+        $this->product = $product->loadMissing(['market', 'attributes']);
     }
 
     public function render(): View

@@ -56,6 +56,30 @@
                     </div>
                 @endif
             </div>
+
+            {{-- Product Attributes Section --}}
+            @if($product->attributes->count() > 0)
+            <div class="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-slate-700/50 shadow-xl p-6">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    </svg>
+                    {{ __('Specifications') }}
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @foreach($product->attributes as $attribute)
+                        <div class="group relative p-3 bg-gradient-to-br from-purple-50/50 to-fuchsia-50/50 dark:from-purple-900/20 dark:to-fuchsia-900/20 border border-purple-200/50 dark:border-purple-700/50 rounded-xl hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200">
+                            <dt class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-1">
+                                {{ $attribute->name }}
+                            </dt>
+                            <dd class="text-sm font-semibold text-gray-900 dark:text-gray-100 break-words">
+                                {{ $attribute->value }}
+                            </dd>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
 
         {{-- Sidebar --}}

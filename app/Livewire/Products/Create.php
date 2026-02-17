@@ -20,9 +20,12 @@ class Create extends Component
 
     public bool $modal = false;
 
+    public array $productAttributes = [];
+
     public function mount(): void
     {
         $this->product = new Product;
+        $this->productAttributes = [];
     }
 
     public function render(): View
@@ -67,7 +70,31 @@ class Create extends Component
                 'required',
                 'exists:markets,id',
             ],
+            'productAttributes.*.name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'productAttributes.*.value' => [
+                'nullable',
+                'string',
+                'max:1000',
+            ],
         ];
+    }
+
+    public function addAttribute(): void
+    {
+        $this->productAttributes[] = [
+            'name' => '',
+            'value' => '',
+        ];
+    }
+
+    public function removeAttribute(int $index): void
+    {
+        unset($this->productAttributes[$index]);
+        $this->productAttributes = array_values($this->productAttributes);
     }
 
     public function save(): void
@@ -99,6 +126,18 @@ class Create extends Component
 
         $this->validate();
         $this->product->save();
+
+        // Save attributes
+        foreach ($this->productAttributes as $index => $attribute) {
+            if (!empty($attribute['name']) && !empty($attribute['value'])) {
+                $this->product->attributes()->create([
+                    'name' => $attribute['name'],
+                    'value' => $attribute['value'],
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
         $this->logCreate(Product::class, $this->product->id, [
             'name' => $this->product->name,
             'sku' => $this->product->sku,
@@ -110,6 +149,7 @@ class Create extends Component
 
         $this->reset();
         $this->product = new Product;
+        $this->productAttributes = [];
 
         $this->success();
     }

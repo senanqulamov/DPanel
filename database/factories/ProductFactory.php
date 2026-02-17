@@ -612,4 +612,60 @@ class ProductFactory extends Factory
             'market_id' => Market::factory(),
         ];
     }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Product $product) {
+            // Create 2-5 random attributes for each product
+            $attributeCount = $this->faker->numberBetween(2, 5);
+
+            $usedAttributes = [];
+            for ($i = 0; $i < $attributeCount; $i++) {
+                $attribute = $this->generateUniqueAttribute($usedAttributes);
+                if ($attribute) {
+                    $product->attributes()->create([
+                        'name' => $attribute['name'],
+                        'value' => $attribute['value'],
+                        'sort_order' => $i,
+                    ]);
+                    $usedAttributes[] = $attribute['name'];
+                }
+            }
+        });
+    }
+
+    /**
+     * Generate a unique attribute that hasn't been used yet.
+     */
+    private function generateUniqueAttribute(array $usedAttributes): ?array
+    {
+        $attributes = [
+            'Color' => ['Red', 'Blue', 'Green', 'Black', 'White', 'Silver', 'Gold', 'Gray'],
+            'Material' => ['Steel', 'Aluminum', 'Plastic', 'Wood', 'Glass', 'Stainless Steel'],
+            'Size' => ['Small', 'Medium', 'Large', 'XL'],
+            'Weight' => ['100g', '250g', '500g', '1kg', '2kg', '5kg', '10kg'],
+            'Dimensions' => ['10x10x10cm', '20x15x10cm', '30x20x15cm', '50x40x30cm'],
+            'Brand' => ['Premium', 'Industrial', 'Professional', 'Standard'],
+            'Warranty' => ['1 Year', '2 Years', '3 Years', '5 Years'],
+            'Origin' => ['China', 'Germany', 'USA', 'Japan', 'Italy'],
+            'Certification' => ['CE', 'ISO 9001', 'RoHS', 'UL Listed'],
+        ];
+
+        $availableAttributes = array_diff(array_keys($attributes), $usedAttributes);
+
+        if (empty($availableAttributes)) {
+            return null;
+        }
+
+        $attributeName = $this->faker->randomElement($availableAttributes);
+        $attributeValue = $this->faker->randomElement($attributes[$attributeName]);
+
+        return [
+            'name' => $attributeName,
+            'value' => $attributeValue,
+        ];
+    }
 }

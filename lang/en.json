@@ -823,5 +823,15 @@
     "RFQ status updated": "RFQ status updated",
     "SLA reminder": "SLA reminder",
     "Supplier invitation": "Supplier invitation",
-    "Quote received": "Quote received"
+    "Quote received": "Quote received",
+    "Product Attributes": "Product Attributes",
+    "Add Attribute": "Add Attribute",
+    "Attribute Name": "Attribute Name",
+    "Attribute Value": "Attribute Value",
+    "No attributes added yet. Click \"Add Attribute\" to add product specifications.": "No attributes added yet. Click \"Add Attribute\" to add product specifications.",
+    "Product Specifications": "Product Specifications",
+    "Specifications": "Specifications",
+    "N/A": "N/A",
+    "No market associated yet.": "No market associated yet.",
+    "Guest": "Guest"
 }

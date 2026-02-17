@@ -60,6 +60,34 @@
             </x-card>
         </div>
 
+        @if($product->attributes->count() > 0)
+        <div class="mt-6">
+            <x-card variant="subtle">
+                <x-slot name="title">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                        </svg>
+                        @lang('Product Specifications')
+                    </div>
+                </x-slot>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    @foreach($product->attributes as $attribute)
+                        <div class="group relative p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-sm transition-all duration-200">
+                            <dt class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                                {{ $attribute->name }}
+                            </dt>
+                            <dd class="text-sm font-semibold text-gray-900 dark:text-gray-100 break-words">
+                                {{ $attribute->value }}
+                            </dd>
+                            <div class="absolute inset-0 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/5 dark:to-purple-900/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity -z-10"></div>
+                        </div>
+                    @endforeach
+                </div>
+            </x-card>
+        </div>
+        @endif
+
         <div class="mt-8">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">@lang('Recent Orders')</h2>

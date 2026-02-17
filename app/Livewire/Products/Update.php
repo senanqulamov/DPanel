@@ -21,6 +21,8 @@ class Update extends Component
 
     public bool $modal = false;
 
+    public array $productAttributes = [];
+
     public function render(): View
     {
         $user = Auth::user();
@@ -35,6 +37,13 @@ class Update extends Component
     public function load(Product $product): void
     {
         $this->product = $product;
+
+        // Load existing attributes
+        $this->productAttributes = $this->product->attributes->map(fn($attr) => [
+            'id' => $attr->id,
+            'name' => $attr->name,
+            'value' => $attr->value,
+        ])->toArray();
 
         $this->modal = true;
     }
@@ -71,7 +80,31 @@ class Update extends Component
                 'required',
                 'exists:markets,id',
             ],
+            'productAttributes.*.name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'productAttributes.*.value' => [
+                'nullable',
+                'string',
+                'max:1000',
+            ],
         ];
+    }
+
+    public function addAttribute(): void
+    {
+        $this->productAttributes[] = [
+            'name' => '',
+            'value' => '',
+        ];
+    }
+
+    public function removeAttribute(int $index): void
+    {
+        unset($this->productAttributes[$index]);
+        $this->productAttributes = array_values($this->productAttributes);
     }
 
     public function save(): void
@@ -108,6 +141,20 @@ class Update extends Component
 
         $this->validate();
         $this->product->save();
+
+        // Sync attributes: delete all existing and recreate
+        $this->product->attributes()->delete();
+
+        foreach ($this->productAttributes as $index => $attribute) {
+            if (!empty($attribute['name']) && !empty($attribute['value'])) {
+                $this->product->attributes()->create([
+                    'name' => $attribute['name'],
+                    'value' => $attribute['value'],
+                    'sort_order' => $index,
+                ]);
+            }
+        }
+
         $this->logUpdate(Product::class, $this->product->id, $this->product->getDirty());
 
 

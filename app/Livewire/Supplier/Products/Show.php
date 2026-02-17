@@ -12,7 +12,7 @@ class Show extends Component
 
     public function render(): View
     {
-        $this->product->load('market');
+        $this->product->load(['market', 'attributes']);
 
         return view('livewire.supplier.products.show')
             ->layout('layouts.app');
