@@ -378,40 +378,54 @@
                     <div class="space-y-4">
                         @foreach($otherQuotes as $quote)
                             <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                                {{-- Quote Header --}}
-                                <div class="bg-gray-100 dark:bg-gray-800 px-4 py-3 flex justify-between items-center">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                            {{ $quote->supplier?->name ?? __('Unknown Supplier') }}
-                                        </div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">
-                                            @lang('Submitted'): {{ $quote->submitted_at ? $quote->submitted_at->format('M d, Y H:i') : $quote->created_at->format('M d, Y H:i') }}
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3">
-                                        <div class="text-right">
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Total Amount')</div>
-                                            <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                                {{ $quote->currency ?? 'USD' }} ${{ number_format($quote->total_amount ?? $quote->total_price, 2) }}
+                                <details class="group">
+                                    {{-- ACCORDION HEADER --}}
+                                    <summary class="list-none cursor-pointer bg-gray-100 dark:bg-gray-800 px-4 py-3">
+                                        <div class="flex items-center justify-between gap-4">
+                                            {{-- LEFT --}}
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                    {{ $quote->supplier?->name ?? __('Unknown Supplier') }}
+                                                </div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                    @lang('Submitted'): {{ $quote->submitted_at ? $quote->submitted_at->format('M d, Y H:i') : $quote->created_at->format('M d, Y H:i') }}
+                                                </div>
+                                            </div>
+
+                                            {{-- RIGHT --}}
+                                            <div class="flex items-center gap-4 shrink-0">
+                                                {{-- TOTAL --}}
+                                                <div class="text-right">
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Total Amount')</div>
+                                                    <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                        ${{ number_format($quote->calculated_total, 2) }}
+                                                    </div>
+                                                </div>
+
+                                                {{-- STATUS --}}
+                                                <x-badge
+                                                    :text="ucfirst(__(str_replace('_', ' ', $quote->status ?? 'submitted')))"
+                                                    :color="match($quote->status) {
+                                                        'draft' => 'gray',
+                                                        'submitted' => 'blue',
+                                                        'under_review' => 'yellow',
+                                                        'accepted', 'won' => 'green',
+                                                        'rejected', 'lost' => 'red',
+                                                        default => 'gray'
+                                                    }"
+                                                />
+
+                                                {{-- CHEVRON --}}
+                                                <x-icon name="chevron-down" class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" />
                                             </div>
                                         </div>
-                                        <x-badge
-                                            :text="ucfirst(__(str_replace('_', ' ', $quote->status ?? 'submitted')))"
-                                            :color="match($quote->status) {
-                                                'draft' => 'gray',
-                                                'submitted' => 'blue',
-                                                'under_review' => 'yellow',
-                                                'accepted', 'won' => 'green',
-                                                'rejected', 'lost' => 'red',
-                                                default => 'gray'
-                                            }"
-                                        />
-                                    </div>
-                                </div>
+                                    </summary>
 
-                                {{-- Quote Items --}}
-                                @if($quote->items && $quote->items->count() > 0)
-                                    <div class="overflow-x-auto">
+                                    {{-- ACCORDION CONTENT --}}
+                                    <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 space-y-6">
+                                        {{-- Quote Items --}}
+                                        @if($quote->items && $quote->items->count() > 0)
+                                            <div class="overflow-x-auto">
                                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                                             <thead class="bg-gray-50 dark:bg-gray-700">
                                             <tr>
@@ -456,33 +470,37 @@
                                                 </tr>
                                             @endforeach
                                             </tbody>
-                                        </table>
-                                    </div>
-                                @endif
+                                            </table>
+                                        </div>
+                                        @endif
 
-                                {{-- Quote Details --}}
-                                <div class="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                                        @if($quote->valid_until)
-                                            <div>
-                                                <span class="text-gray-500 dark:text-gray-400">@lang('Valid Until'):</span>
-                                                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ $quote->valid_until->format('M d, Y') }}</span>
-                                            </div>
-                                        @endif
-                                        @if($quote->notes)
-                                            <div class="md:col-span-2">
-                                                <span class="text-gray-500 dark:text-gray-400">@lang('Notes'):</span>
-                                                <span class="ml-1 text-gray-900 dark:text-gray-100">{{ $quote->notes }}</span>
-                                            </div>
-                                        @endif
-                                        @if($quote->terms_conditions)
-                                            <div class="md:col-span-3">
-                                                <span class="text-gray-500 dark:text-gray-400">@lang('Terms & Conditions'):</span>
-                                                <div class="ml-1 text-gray-900 dark:text-gray-100 mt-1 text-sm whitespace-pre-line">{{ $quote->terms_conditions }}</div>
+                                        {{-- Quote Details --}}
+                                        @if($quote->notes || $quote->terms_conditions || $quote->valid_until)
+                                            <div class="text-sm space-y-3">
+                                                @if($quote->valid_until)
+                                                    <p>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">@lang('Valid Until'):</span>
+                                                        <span class="text-gray-900 dark:text-gray-100">{{ $quote->valid_until->format('M d, Y') }}</span>
+                                                    </p>
+                                                @endif
+
+                                                @if($quote->notes)
+                                                    <p>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">@lang('Notes'):</span>
+                                                        <span class="text-gray-900 dark:text-gray-100">{{ $quote->notes }}</span>
+                                                    </p>
+                                                @endif
+
+                                                @if($quote->terms_conditions)
+                                                    <div>
+                                                        <span class="font-medium text-gray-700 dark:text-gray-300">@lang('Terms & Conditions'):</span>
+                                                        <div class="text-gray-900 dark:text-gray-100 mt-1 whitespace-pre-line">{{ $quote->terms_conditions }}</div>
+                                                    </div>
+                                                @endif
                                             </div>
                                         @endif
                                     </div>
-                                </div>
+                                </details>
                             </div>
                         @endforeach
                     </div>

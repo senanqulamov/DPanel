@@ -400,7 +400,7 @@
                                             @endif
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-900 dark:text-gray-100 text-right font-semibold">
-                                            ${{ number_format($quote->total_amount, 2) }}
+                                            ${{ number_format($quote->calculated_total, 2) }}
                                         </td>
                                         <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 text-right">
                                             {{ $quote->delivery_time ?? 'N/A' }}
@@ -479,7 +479,7 @@
                                                     @lang('Total Amount')
                                                 </div>
                                                 <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                                    ${{ number_format($quote->total_amount ?? 0, 2) }}
+                                                    ${{ number_format($quote->calculated_total, 2) }}
                                                 </div>
                                             </div>
 
@@ -524,6 +524,89 @@
 
                                     {{-- ACCORDION CONTENT --}}
                                     <div class="px-4 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 space-y-6">
+                                        {{-- Admin Price Adjustment Tool --}}
+                                        <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg px-4 py-3">
+                                            <div class="flex items-center gap-2 mb-3">
+                                                <x-icon name="calculator" class="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                                <h4 class="text-sm font-semibold text-purple-900 dark:text-purple-100">
+                                                    @lang('Admin: Price Adjustment Tool')
+                                                </h4>
+                                            </div>
+                                            <div class="flex items-end gap-3">
+                                                <div class="flex-1 max-w-xs">
+                                                    <label class="block text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">
+                                                        @lang('Target Total Price') ({{ $quote->currency ?? 'USD' }})
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0.01"
+                                                        wire:model="targetTotalPrices.{{ $quote->id }}"
+                                                        value="{{ $quote->adjusted_total_price ?? '' }}"
+                                                        placeholder="Enter target total"
+                                                        class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 text-sm"
+                                                    >
+                                                </div>
+                                                <x-button
+                                                    color="purple"
+                                                    icon="sparkles"
+                                                    wire:click="generatePricesForQuote({{ $quote->id }})"
+                                                    size="sm"
+                                                >
+                                                    @lang('Generate Adjusted Prices')
+                                                </x-button>
+                                                @if($quote->adjusted_total_price)
+                                                    <x-button
+                                                        color="red"
+                                                        icon="x-mark"
+                                                        wire:click="clearAdjustedPrices({{ $quote->id }})"
+                                                        size="sm"
+                                                        outline
+                                                    >
+                                                        @lang('Clear')
+                                                    </x-button>
+                                                @endif
+                                            </div>
+                                            <p class="text-xs text-purple-600 dark:text-purple-400 mt-2">
+                                                @lang('Enter a target total price and click to generate realistic adjusted prices for each item (±10% variance). Prices will be saved automatically.')
+                                            </p>
+                                        </div>
+
+                                        {{-- Quote Totals Summary --}}
+                                        @if($quote->adjusted_total_price)
+                                            <div class="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-lg px-4 py-3">
+                                                <div class="flex items-center justify-between gap-4">
+                                                    <div>
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Original Total')</div>
+                                                        <div class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                                            ${{ number_format($quote->calculated_total, 2) }} {{ $quote->currency ?? 'USD' }}
+                                                        </div>
+                                                    </div>
+                                                    <x-icon name="arrow-right" class="w-5 h-5 text-purple-500" />
+                                                    <div>
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400">@lang('Adjusted Total')</div>
+                                                        <div class="text-xl font-bold text-purple-700 dark:text-purple-400">
+                                                            ${{ number_format($quote->adjusted_total_price, 2) }} {{ $quote->currency ?? 'USD' }}
+                                                        </div>
+                                                        @php
+                                                            $originalTotal = $quote->calculated_total;
+                                                            $savings = $originalTotal - $quote->adjusted_total_price;
+                                                            $savingsPercent = $originalTotal > 0 ? (($savings / $originalTotal) * 100) : 0;
+                                                        @endphp
+                                                        <div class="text-xs font-medium {{ $savings > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                                            {{ $savings > 0 ? '-' : '+' }}${{ number_format(abs($savings), 2) }} ({{ $savings > 0 ? '-' : '+' }}{{ number_format(abs($savingsPercent), 1) }}%)
+                                                        </div>
+                                                    </div>
+                                                    @if($quote->adjustedBy)
+                                                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                                                            <div>@lang('Adjusted by') {{ $quote->adjustedBy->name }}</div>
+                                                            <div>@lang('on') {{ $quote->adjusted_at->format('M d, Y H:i') }}</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         {{-- ITEMS --}}
                                         <div class="overflow-x-auto">
                                             <table class="min-w-full text-sm">
@@ -532,7 +615,10 @@
                                                     <th class="px-3 py-2 text-left">@lang('Product')</th>
                                                     <th class="px-3 py-2 text-right">@lang('Qty')</th>
                                                     <th class="px-3 py-2 text-right">@lang('Unit Price')</th>
+                                                    <th class="px-3 py-2 text-right text-purple-700 dark:text-purple-300">@lang('New Unit Price')</th>
+                                                    <th class="px-3 py-2 text-right">@lang('Tax %')</th>
                                                     <th class="px-3 py-2 text-right">@lang('Total')</th>
+                                                    <th class="px-3 py-2 text-right text-purple-700 dark:text-purple-300">@lang('New Total')</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -552,8 +638,45 @@
                                                         <td class="px-3 py-2 text-right">
                                                             ${{ number_format($item->unit_price ?? 0, 2) }}
                                                         </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            @if($item->new_unit_price)
+                                                                <div class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded">
+                                                                    <span class="text-purple-900 dark:text-purple-100 font-semibold">
+                                                                        ${{ number_format($item->new_unit_price, 2) }}
+                                                                    </span>
+                                                                    @php
+                                                                        $percentChange = (($item->new_unit_price - $item->unit_price) / $item->unit_price) * 100;
+                                                                    @endphp
+                                                                    <span class="text-xs {{ $percentChange > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
+                                                                        ({{ $percentChange > 0 ? '+' : '' }}{{ number_format($percentChange, 1) }}%)
+                                                                    </span>
+                                                                </div>
+                                                            @else
+                                                                <span class="text-gray-400 dark:text-gray-600 text-xs">—</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            {{ number_format($item->tax_rate ?? 0, 1) }}%
+                                                        </td>
                                                         <td class="px-3 py-2 text-right font-medium">
                                                             ${{ number_format($item->total ?? 0, 2) }}
+                                                        </td>
+                                                        <td class="px-3 py-2 text-right">
+                                                            @if($item->new_unit_price)
+                                                                <div class="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded">
+                                                                    <span class="text-purple-900 dark:text-purple-100 font-semibold">
+                                                                        ${{ number_format($item->adjusted_total, 2) }}
+                                                                    </span>
+                                                                    @php
+                                                                        $totalChange = (($item->adjusted_total - $item->total) / $item->total) * 100;
+                                                                    @endphp
+                                                                    <span class="text-xs {{ $totalChange > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
+                                                                        ({{ $totalChange > 0 ? '+' : '' }}{{ number_format($totalChange, 1) }}%)
+                                                                    </span>
+                                                                </div>
+                                                            @else
+                                                                <span class="text-gray-400 dark:text-gray-600 text-xs">—</span>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach

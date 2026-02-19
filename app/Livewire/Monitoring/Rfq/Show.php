@@ -12,6 +12,7 @@ use App\Models\SupplierInvitation;
 use App\Models\User;
 use App\Models\WorkflowEvent;
 use App\Notifications\QuoteStatusChanged;
+use App\Services\PriceAdjustmentService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -29,6 +30,10 @@ class Show extends Component
     public bool $showInviteModal = false;
 
     public array $selectedSuppliers = [];
+
+    // Price generation for quotes
+    public array $targetTotalPrices = [];
+    public array $generatedPrices = [];
 
     public array $availableStatuses = [
         'draft' => 'Draft',
@@ -537,6 +542,120 @@ class Show extends Component
         ]);
 
         $this->success(__('Quote rejected successfully.'));
+    }
+
+    /**
+     * Generate adjusted prices for a quote based on a target total price
+     */
+    public function generatePricesForQuote($quoteId): void
+    {
+        $user = Auth::user();
+        if (!$user || !$user->is_admin) {
+            $this->error(__('Only admins can generate adjusted prices.'));
+            return;
+        }
+
+        $targetTotal = $this->targetTotalPrices[$quoteId] ?? null;
+        if (!$targetTotal || $targetTotal <= 0) {
+            $this->error(__('Please enter a valid target total price.'));
+            return;
+        }
+
+        $quote = $this->request->quotes()->with('items')->find($quoteId);
+        if (!$quote) {
+            $this->error(__('Quote not found.'));
+            return;
+        }
+
+        try {
+            // Use the PriceAdjustmentService for precise financial calculations
+            $service = new PriceAdjustmentService();
+
+            // Apply 10% variance (±10% randomness)
+            $result = $service->adjustQuotePrices($quote, (string) $targetTotal, 10.0);
+
+            $this->logUpdate(
+                Quote::class,
+                $quoteId,
+                [
+                    'price_adjustment' => [
+                        'original_total' => $result['original_grand_total'],
+                        'target_total' => $result['target_grand_total'],
+                        'final_total' => $result['final_grand_total'],
+                        'items_adjusted' => $result['items_adjusted'],
+                        'variance' => $result['variance_applied'],
+                    ],
+                ]
+            );
+
+            $this->success(__('Prices generated and saved successfully! Total: ') . $result['final_grand_total']);
+
+            // Refresh the request to show updated prices
+            $this->request->load(['quotes.items', 'quotes.adjustedBy']);
+
+        } catch (\InvalidArgumentException $e) {
+            $this->error($e->getMessage());
+        } catch (\Exception $e) {
+            $this->error(__('An error occurred while generating prices: ') . $e->getMessage());
+
+            // Log the error for debugging
+            \Log::error('Price adjustment failed', [
+                'quote_id' => $quoteId,
+                'target_total' => $targetTotal,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
+    }
+
+    /**
+     * Clear adjusted prices for a quote
+     */
+    public function clearAdjustedPrices($quoteId): void
+    {
+        $user = Auth::user();
+        if (!$user || !$user->is_admin) {
+            $this->error(__('Only admins can clear adjusted prices.'));
+            return;
+        }
+
+        $quote = $this->request->quotes()->with('items')->find($quoteId);
+        if (!$quote) {
+            $this->error(__('Quote not found.'));
+            return;
+        }
+
+        // Clear all adjusted prices from items
+        foreach ($quote->items as $item) {
+            $item->new_unit_price = null;
+            $item->save();
+        }
+
+        // Clear adjusted price data from quote
+        $quote->adjusted_total_price = null;
+        $quote->adjusted_at = null;
+        $quote->adjusted_by = null;
+        $quote->save();
+
+        // Clear from component state
+        unset($this->generatedPrices[$quoteId]);
+        unset($this->targetTotalPrices[$quoteId]);
+
+        $this->logUpdate(
+            Quote::class,
+            $quoteId,
+            [
+                'price_adjustment_cleared' => [
+                    'cleared_at' => now()->toDateTimeString(),
+                    'cleared_by' => $user->id,
+                ],
+            ]
+        );
+
+        $this->success(__('Adjusted prices cleared successfully.'));
+
+        // Refresh the request
+        $this->request->load(['quotes.items', 'quotes.adjustedBy']);
     }
 
     public function render(): View

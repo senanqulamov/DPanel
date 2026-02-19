@@ -16,6 +16,7 @@ class QuoteItem extends Model
         'description',
         'quantity',
         'unit_price',
+        'new_unit_price',
         'tax_rate',
         'notes',
     ];
@@ -23,6 +24,7 @@ class QuoteItem extends Model
     protected $casts = [
         'quantity' => 'decimal:2',
         'unit_price' => 'decimal:2',
+        'new_unit_price' => 'decimal:2',
         'tax_rate' => 'decimal:2',
     ];
 
@@ -64,5 +66,30 @@ class QuoteItem extends Model
     public function getTotalAttribute(): float
     {
         return $this->subtotal + $this->tax_amount;
+    }
+
+    /**
+     * Calculate the adjusted subtotal using new_unit_price if available.
+     */
+    public function getAdjustedSubtotalAttribute(): float
+    {
+        $price = $this->new_unit_price ?? $this->unit_price;
+        return $this->quantity * $price;
+    }
+
+    /**
+     * Calculate the adjusted tax amount based on adjusted subtotal.
+     */
+    public function getAdjustedTaxAmountAttribute(): float
+    {
+        return $this->adjusted_subtotal * ($this->tax_rate / 100);
+    }
+
+    /**
+     * Calculate the adjusted total (adjusted subtotal + tax).
+     */
+    public function getAdjustedTotalAttribute(): float
+    {
+        return $this->adjusted_subtotal + $this->adjusted_tax_amount;
     }
 }
