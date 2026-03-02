@@ -271,6 +271,49 @@
         </div>
     </div>
 
+    {{-- Field Workers Overview --}}
+    <x-card class="border border-indigo-200/50 dark:border-indigo-500/30">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                    <x-icon name="users" class="w-5 h-5 text-white" />
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-gray-900 dark:text-gray-50">{{ __('Field Workers') }}</h2>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">{{ __('Your field supplier team overview.') }}</p>
+                </div>
+            </div>
+            <a href="{{ route('supplier.workers.index') }}"
+               class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                {{ __('Manage Workers') }}
+                <x-icon name="arrow-right" class="w-3.5 h-3.5" />
+            </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="rounded-xl p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200/60 dark:border-indigo-500/30">
+                <p class="text-[10px] font-bold uppercase tracking-wide text-indigo-500 dark:text-indigo-400 mb-1">{{ __('Total Workers') }}</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalWorkers }}</p>
+            </div>
+            <div class="rounded-xl p-4 bg-green-50 dark:bg-green-900/20 border border-green-200/60 dark:border-green-500/30">
+                <p class="text-[10px] font-bold uppercase tracking-wide text-green-600 dark:text-green-400 mb-1">{{ __('Active') }}</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $activeWorkers }}</p>
+            </div>
+            <div class="rounded-xl p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200/60 dark:border-purple-500/30">
+                <p class="text-[10px] font-bold uppercase tracking-wide text-purple-600 dark:text-purple-400 mb-1">{{ __('RFQ Assignments') }}</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $workerAssignments }}</p>
+            </div>
+            <div class="rounded-xl p-4 {{ $unreadWorkerMessages > 0 ? 'bg-red-50 dark:bg-red-900/20 border-red-200/60 dark:border-red-500/30' : 'bg-gray-50 dark:bg-slate-800/50 border-gray-200/60 dark:border-slate-700/30' }} border">
+                <p class="text-[10px] font-bold uppercase tracking-wide {{ $unreadWorkerMessages > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400' }} mb-1">{{ __('Unread Messages') }}</p>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    {{ $unreadWorkerMessages }}
+                    @if($unreadWorkerMessages > 0)
+                        <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    @endif
+                </p>
+            </div>
+        </div>
+    </x-card>
+
     {{-- Quick Actions as cards --}}
     <x-card class="bg-slate-950/60 border-slate-800">
         <div class="flex items-center justify-between mb-4">
@@ -380,37 +423,53 @@
                 </div>
             </a>
 
-            <a href="{{ route('supplier.logs.index') }}" class="group rounded-lg bg-slate-900/80 hover:bg-slate-800 transition border border-slate-800 hover:border-gray-500/60 p-4 flex flex-col justify-between">
+            <a href="{{ route('supplier.workers.index') }}" class="group rounded-lg bg-slate-900/80 hover:bg-slate-800 transition border border-slate-800 hover:border-indigo-500/60 p-4 flex flex-col justify-between">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-9 h-9 rounded-full bg-gray-500/15 flex items-center justify-center">
-                        <x-icon name="clipboard-document-list" class="w-4 h-4 text-gray-200" />
+                    <div class="w-9 h-9 rounded-full bg-indigo-500/15 flex items-center justify-center">
+                        <x-icon name="users" class="w-4 h-4 text-indigo-400" />
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-slate-50">{{ __('Activity Log') }}</p>
-                        <p class="text-[11px] text-slate-400">{{ __('View your account activity history.') }}</p>
+                        <p class="text-sm font-semibold text-slate-50">{{ __('Field Workers') }}</p>
+                        <p class="text-[11px] text-slate-400">{{ __('Manage your field supplier team.') }}</p>
                     </div>
                 </div>
                 <div class="flex items-center justify-between text-[11px] text-slate-400">
-                    <span>{{ __('Go to activity') }}</span>
-                    <x-icon name="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-gray-200" />
+                    <span>{{ __('Manage Workers') }}</span>
+                    <x-icon name="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-indigo-400" />
                 </div>
             </a>
 
-            <a href="{{ route('settings.index') }}" class="group rounded-lg bg-slate-900/80 hover:bg-slate-800 transition border border-slate-800 hover:border-slate-500/60 p-4 flex flex-col justify-between">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-9 h-9 rounded-full bg-slate-500/15 flex items-center justify-center">
-                        <x-icon name="cog-6-tooth" class="w-4 h-4 text-slate-200" />
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-50">{{ __('Settings') }}</p>
-                        <p class="text-[11px] text-slate-400">{{ __('Update profile and preferences.') }}</p>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between text-[11px] text-slate-400">
-                    <span>{{ __('Open settings') }}</span>
-                    <x-icon name="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-200" />
-                </div>
-            </a>
+{{--            <a href="{{ route('supplier.logs.index') }}" class="group rounded-lg bg-slate-900/80 hover:bg-slate-800 transition border border-slate-800 hover:border-gray-500/60 p-4 flex flex-col justify-between">--}}
+{{--                <div class="flex items-center gap-3 mb-3">--}}
+{{--                    <div class="w-9 h-9 rounded-full bg-gray-500/15 flex items-center justify-center">--}}
+{{--                        <x-icon name="clipboard-document-list" class="w-4 h-4 text-gray-200" />--}}
+{{--                    </div>--}}
+{{--                    <div>--}}
+{{--                        <p class="text-sm font-semibold text-slate-50">{{ __('Activity Log') }}</p>--}}
+{{--                        <p class="text-[11px] text-slate-400">{{ __('View your account activity history.') }}</p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="flex items-center justify-between text-[11px] text-slate-400">--}}
+{{--                    <span>{{ __('Go to activity') }}</span>--}}
+{{--                    <x-icon name="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-gray-200" />--}}
+{{--                </div>--}}
+{{--            </a>--}}
+
+{{--            <a href="{{ route('settings.index') }}" class="group rounded-lg bg-slate-900/80 hover:bg-slate-800 transition border border-slate-800 hover:border-slate-500/60 p-4 flex flex-col justify-between">--}}
+{{--                <div class="flex items-center gap-3 mb-3">--}}
+{{--                    <div class="w-9 h-9 rounded-full bg-slate-500/15 flex items-center justify-center">--}}
+{{--                        <x-icon name="cog-6-tooth" class="w-4 h-4 text-slate-200" />--}}
+{{--                    </div>--}}
+{{--                    <div>--}}
+{{--                        <p class="text-sm font-semibold text-slate-50">{{ __('Settings') }}</p>--}}
+{{--                        <p class="text-[11px] text-slate-400">{{ __('Update profile and preferences.') }}</p>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--                <div class="flex items-center justify-between text-[11px] text-slate-400">--}}
+{{--                    <span>{{ __('Open settings') }}</span>--}}
+{{--                    <x-icon name="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-200" />--}}
+{{--                </div>--}}
+{{--            </a>--}}
         </div>
     </x-card>
 

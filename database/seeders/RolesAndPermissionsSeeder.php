@@ -138,6 +138,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'description' => 'Worker account managed by a seller; can be assigned to one or more markets',
                 'is_system' => true,
             ],
+            [
+                'name' => 'supplier_worker',
+                'display_name' => 'Supplier Worker',
+                'description' => 'Field worker account managed by a supplier; can conduct field assessments',
+                'is_system' => true,
+            ],
         ];
 
         $roles = [];
@@ -199,6 +205,13 @@ class RolesAndPermissionsSeeder extends Seeder
             $permissions['access_supplier_portal']->id,
             $permissions['manage_supplier_invitations']->id,
             $permissions['view_settings']->id,
+        ]);
+
+        // Supplier Worker permissions (field assessments)
+        $roles['supplier_worker']->permissions()->sync([
+            $permissions['view_dashboard']->id,
+            $permissions['view_rfqs']->id,
+            $permissions['access_supplier_portal']->id,
         ]);
     }
 

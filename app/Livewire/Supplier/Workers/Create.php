@@ -3,6 +3,7 @@
 namespace App\Livewire\Supplier\Workers;
 
 use App\Livewire\Traits\Alert;
+use App\Livewire\Traits\WithLogging;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
@@ -13,7 +14,7 @@ use Livewire\Component;
 
 class Create extends Component
 {
-    use Alert;
+    use Alert, WithLogging;
 
     public User $worker;
 

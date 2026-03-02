@@ -28,6 +28,8 @@
         $currentRole = 'buyer';
     } elseif (request()->routeIs('seller.*')) {
         $currentRole = 'seller';
+    } elseif (request()->routeIs('supplier.field.*')) {
+        $currentRole = 'supplier_worker';
     } elseif (request()->routeIs('supplier.*')) {
         $currentRole = 'supplier';
     } else {
@@ -45,6 +47,8 @@
             $currentRole = 'seller';
         } elseif (in_array('supplier', $roleNames, true) || auth()->user()->isSupplier()) {
             $currentRole = 'supplier';
+        } elseif (in_array('supplier_worker', $roleNames, true) || auth()->user()->isSupplierWorker()) {
+            $currentRole = 'supplier_worker';
         } elseif (in_array('buyer', $roleNames, true) || auth()->user()->isBuyer()) {
             $currentRole = 'buyer';
         } else {

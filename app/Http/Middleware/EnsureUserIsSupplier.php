@@ -15,11 +15,21 @@ class EnsureUserIsSupplier
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->hasRole('supplier')) {
-            if ($request->user() && $request->user()->hasRole('admin')) {
-                return $next($request);
-                // abort(403,'Admin access to supplier area is not allowed.');
-            }
+        if (!$request->user()) {
+            abort(403, 'Access denied. You must be logged in.');
+        }
+
+        // Admin can access supplier area
+        if ($request->user()->hasRole('admin') || $request->user()->isAdmin()) {
+            return $next($request);
+        }
+
+        // supplier_worker should use the field supplier routes, not the main supplier routes
+        if ($request->user()->isSupplierWorker()) {
+            return redirect()->route('supplier.field.dashboard');
+        }
+
+        if (!$request->user()->hasRole('supplier')) {
             abort(403, 'Access denied. This area is for suppliers only.');
         }
 

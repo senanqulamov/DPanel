@@ -12,11 +12,13 @@
         <div class="overflow-x-auto">
             <x-table
                 :headers="[
-                    ['index' => 'id', 'label' => '#'],
-                    ['index' => 'name', 'label' => __('Name')],
-                    ['index' => 'email', 'label' => __('Email')],
+                    ['index' => 'id',         'label' => '#'],
+                    ['index' => 'name',       'label' => __('Name')],
+                    ['index' => 'email',      'label' => __('Email')],
+                    ['index' => 'status',     'label' => __('Status'),   'sortable' => false],
+                    ['index' => 'rfqs',       'label' => __('RFQs'),     'sortable' => false],
                     ['index' => 'created_at', 'label' => __('Created')],
-                    ['index' => 'action', 'label' => '', 'sortable' => false],
+                    ['index' => 'action',     'label' => '',             'sortable' => false],
                 ]"
                 :rows="$workers"
                 paginate
@@ -34,12 +36,35 @@
                     <div class="text-gray-600 dark:text-gray-300">{{ $row->email }}</div>
                 @endinteract
 
+                @interact('column_status', $row)
+                    @if($row->is_active)
+                        <x-badge text="{{ __('Active') }}" color="green" sm />
+                    @else
+                        <x-badge text="{{ __('Inactive') }}" color="red" sm />
+                    @endif
+                @endinteract
+
+                @interact('column_rfqs', $row)
+                    @php $assignedCount = \App\Models\RfqWorkerAssignment::where('worker_id', $row->id)->count(); @endphp
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                        {{ $assignedCount }}
+                    </span>
+                @endinteract
+
                 @interact('column_created_at', $row)
                     <span class="text-sm text-gray-500">{{ optional($row->created_at)->diffForHumans() }}</span>
                 @endinteract
 
                 @interact('column_action', $row)
                     <div class="flex gap-1">
+                        <x-button
+                            href="{{ route('supplier.workers.show', $row) }}"
+                            size="sm"
+                            color="purple"
+                            icon="eye"
+                        >
+                            {{ __('Manage') }}
+                        </x-button>
                         <x-button.circle icon="pencil" wire:click="$dispatch('supplier::workers::load', { 'worker' : '{{ $row->id }}'})" />
                     </div>
                 @endinteract
@@ -47,6 +72,5 @@
         </div>
     </x-card>
 
-    <livewire:supplier.workers.create @created="$refresh" />
     <livewire:supplier.workers.update @updated="$refresh" @deleted="$refresh" />
 </div>

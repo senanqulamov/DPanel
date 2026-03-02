@@ -224,6 +224,12 @@ class User extends Authenticatable
         return $this->roles()->where('name', 'supplier')->exists() || $this->is_supplier;
     }
 
+    public function isSupplierWorker(): bool
+    {
+        return $this->roles()->where('name', 'supplier_worker')->exists()
+            || $this->role === 'supplier_worker';
+    }
+
     /**
      * Check if user has a permission.
      */
@@ -425,6 +431,11 @@ class User extends Authenticatable
         return $query->whereHas('roles', fn ($q) => $q->where('name', 'buyer'));
     }
 
+    public function scopeSupplierWorkers($query)
+    {
+        return $query->whereHas('roles', fn ($q) => $q->where('name', 'supplier_worker'));
+    }
+
     public function scopeWithRole($query, string $role)
     {
         return match (strtolower($role)) {
@@ -437,13 +448,17 @@ class User extends Authenticatable
 
     public function getDashboardRouteName(): string
     {
-        // Priority: admin > supplier > seller > buyer > generic
+        // Priority: admin > supplier > supplier_worker > seller > buyer > generic
         if ($this->isAdmin()) {
             return 'dashboard';
         }
 
         if ($this->isSupplier()) {
             return 'supplier.dashboard';
+        }
+
+        if ($this->isSupplierWorker()) {
+            return 'supplier.field.dashboard';
         }
 
         if ($this->isSeller()) {
@@ -488,6 +503,48 @@ class User extends Authenticatable
     public function supplierWorkers(): HasMany
     {
         return $this->hasMany(User::class, 'supplier_id');
+    }
+
+    /**
+     * Active supplier worker accounts.
+     */
+    public function activeSupplierWorkers(): HasMany
+    {
+        return $this->hasMany(User::class, 'supplier_id')->where('is_active', true);
+    }
+
+    /**
+     * Messages sent by this user to workers/suppliers.
+     */
+    public function sentWorkerMessages(): HasMany
+    {
+        return $this->hasMany(WorkerMessage::class, 'sender_id');
+    }
+
+    /**
+     * Messages received by this user from workers/suppliers.
+     */
+    public function receivedWorkerMessages(): HasMany
+    {
+        return $this->hasMany(WorkerMessage::class, 'receiver_id');
+    }
+
+    /**
+     * RFQs assigned to this worker via pivot.
+     */
+    public function assignedRfqs(): BelongsToMany
+    {
+        return $this->belongsToMany(Request::class, 'rfq_worker_assignments', 'worker_id', 'request_id')
+            ->withPivot(['assigned_by', 'status', 'notes', 'assigned_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Workers assigned to RFQs by this supplier (pivot).
+     */
+    public function workerRfqAssignments(): HasMany
+    {
+        return $this->hasMany(RfqWorkerAssignment::class, 'assigned_by');
     }
 
     /**

@@ -111,4 +111,12 @@ class Request extends Model
     {
         return $this->hasOne(FieldAssessment::class)->latestOfMany();
     }
+
+    /**
+     * Worker assignments for this RFQ.
+     */
+    public function workerAssignments()
+    {
+        return $this->hasMany(RfqWorkerAssignment::class, 'request_id');
+    }
 }

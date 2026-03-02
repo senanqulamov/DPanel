@@ -13,7 +13,7 @@
                 ['route' => 'buyer.products.index', 'pattern' => 'buyer.products.*', 'label' => __('Products'), 'icon' => 'cube'],
                 ['route' => 'buyer.markets.index', 'pattern' => 'buyer.markets.*', 'label' => __('Markets'), 'icon' => 'building-storefront'],
                 ['route' => 'buyer.import-export', 'pattern' => 'buyer.import-export', 'label' => __('Import/Export'), 'icon' => 'arrow-down-tray'],
-                ['route' => 'buyer.logs.index', 'pattern' => 'buyer.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
+//                ['route' => 'buyer.logs.index', 'pattern' => 'buyer.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
             ],
         ],
         'seller' => [
@@ -28,7 +28,7 @@
                 ['route' => 'seller.markets.index', 'pattern' => 'seller.markets.*', 'label' => __('Markets'), 'icon' => 'building-storefront'],
                 ['route' => 'seller.workers.index',  'pattern' => 'seller.workers.*', 'label' => __('Workers'), 'icon' => 'users'],
                 ['route' => 'seller.import-export', 'pattern' => 'seller.import-export', 'label' => __('Import/Export'), 'icon' => 'arrow-down-tray'],
-                ['route' => 'seller.logs.index', 'pattern' => 'seller.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
+//                ['route' => 'seller.logs.index', 'pattern' => 'seller.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
             ],
         ],
         'supplier' => [
@@ -46,7 +46,19 @@
                 ['route' => 'supplier.orders.index', 'pattern' => 'supplier.orders.*', 'label' => __('Orders'), 'icon' => 'shopping-cart'],
                 ['route' => 'supplier.workers.index', 'pattern' => 'supplier.workers.*', 'label' => __('Field Workers'), 'icon' => 'users'],
                 ['route' => 'supplier.import-export', 'pattern' => 'supplier.import-export', 'label' => __('Import/Export'), 'icon' => 'arrow-down-tray'],
-                ['route' => 'supplier.logs.index', 'pattern' => 'supplier.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
+//                ['route' => 'supplier.logs.index', 'pattern' => 'supplier.logs.*', 'label' => __('Activity'), 'icon' => 'clock'],
+            ],
+        ],
+        'supplier_worker' => [
+            'gradient' => 'from-indigo-600/20 to-purple-600/20',
+            'accent' => 'indigo',
+            'hoverBg' => 'hover:bg-indigo-600/20',
+            'activeBg' => 'bg-indigo-600',
+            'items' => [
+                ['route' => 'supplier.field.dashboard', 'pattern' => 'supplier.field.dashboard', 'label' => __('Dashboard'), 'icon' => 'home'],
+                ['route' => 'supplier.field.rfq.index', 'pattern' => 'supplier.field.rfq.*', 'label' => __('My RFQs'), 'icon' => 'clipboard-document-list'],
+                ['route' => 'supplier.field.messages.index', 'pattern' => 'supplier.field.messages.*', 'label' => __('Messages'), 'icon' => 'chat-bubble-left-right'],
+//                ['route' => 'supplier.field.logs.index', 'pattern' => 'supplier.field.logs.*', 'label' => __('Activity Log'), 'icon' => 'clock'],
             ],
         ],
         'admin' => [

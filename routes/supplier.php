@@ -19,6 +19,12 @@ use App\Livewire\Supplier\Orders\Show as SupplierOrdersShow;
 use App\Livewire\Supplier\Orders\Edit as SupplierOrdersEdit;
 use App\Livewire\Supplier\Logs\Index as SupplierLogsIndex;
 use App\Livewire\Supplier\Workers\Index as SupplierWorkersIndex;
+use App\Livewire\Supplier\Workers\Show as SupplierWorkersShow;
+use App\Livewire\Supplier\Field\Dashboard as FieldDashboard;
+use App\Livewire\Supplier\Field\Rfq\Index as FieldRfqIndex;
+use App\Livewire\Supplier\Field\Rfq\Show as FieldRfqShow;
+use App\Livewire\Supplier\Field\Messages\Index as FieldMessagesIndex;
+use App\Livewire\Supplier\Field\Logs\Index as FieldLogsIndex;
 use App\Livewire\Shared\ImportExport;
 use Illuminate\Support\Facades\Route;
 
@@ -75,7 +81,26 @@ Route::middleware(['auth', 'supplier', 'can:access_supplier_portal'])->prefix('s
 
     // Workers (Field Evaluators)
     Route::get('/workers', SupplierWorkersIndex::class)->name('workers.index')->middleware('can:view_dashboard');
+    Route::get('/workers/{worker}', SupplierWorkersShow::class)->name('workers.show')->middleware('can:view_dashboard');
 
     // Import/Export
     Route::get('/import-export', ImportExport::class)->name('import-export')->middleware('can:view_dashboard');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Field Supplier (Worker) Portal Routes
+|--------------------------------------------------------------------------
+|
+| These routes are for supplier workers (field suppliers) who have been
+| created by a main supplier. They have their own separate panel.
+|
+*/
+
+Route::middleware(['auth', 'field_supplier'])->prefix('supplier/field')->name('supplier.field.')->group(function () {
+    Route::get('/dashboard', FieldDashboard::class)->name('dashboard');
+    Route::get('/rfq', FieldRfqIndex::class)->name('rfq.index');
+    Route::get('/rfq/{request}', FieldRfqShow::class)->name('rfq.show');
+    Route::get('/messages', FieldMessagesIndex::class)->name('messages.index');
+    Route::get('/logs', FieldLogsIndex::class)->name('logs.index');
 });

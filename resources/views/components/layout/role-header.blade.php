@@ -20,6 +20,12 @@
             'title' => __('Supplier Portal'),
             'accent' => 'purple',
         ],
+        'supplier_worker' => [
+            'gradient' => 'from-indigo-600 via-indigo-500 to-purple-600',
+            'icon' => 'user-circle',
+            'title' => __('Field Supplier Portal'),
+            'accent' => 'indigo',
+        ],
         'admin' => [
             'gradient' => 'from-red-600 via-orange-500 to-amber-600',
             'icon' => 'shield-check',

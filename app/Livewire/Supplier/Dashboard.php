@@ -4,7 +4,10 @@ namespace App\Livewire\Supplier;
 
 use App\Models\Quote;
 use App\Models\Request;
+use App\Models\RfqWorkerAssignment;
 use App\Models\SupplierInvitation;
+use App\Models\User;
+use App\Models\WorkerMessage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -15,6 +18,10 @@ class Dashboard extends Component
     public int $activeQuotes = 0;
     public int $wonQuotes = 0;
     public int $totalRevenue = 0;
+    public int $totalWorkers = 0;
+    public int $activeWorkers = 0;
+    public int $workerAssignments = 0;
+    public int $unreadWorkerMessages = 0;
     public Collection $recentInvitations;
     public Collection $rfqsWithFieldAssessment;
 
@@ -42,6 +49,22 @@ class Dashboard extends Component
             ->where('supplier_id', $supplier->id)
             ->where('status', 'won')
             ->sum('total_amount');
+
+        // Worker stats
+        $this->totalWorkers = User::where('supplier_id', $supplier->id)
+            ->supplierWorkers()
+            ->count();
+
+        $this->activeWorkers = User::where('supplier_id', $supplier->id)
+            ->supplierWorkers()
+            ->where('is_active', true)
+            ->count();
+
+        $this->workerAssignments = RfqWorkerAssignment::where('assigned_by', $supplier->id)->count();
+
+        $this->unreadWorkerMessages = WorkerMessage::where('receiver_id', $supplier->id)
+            ->whereNull('read_at')
+            ->count();
 
         // Get recent invitations with request details
         $this->recentInvitations = SupplierInvitation::query()
